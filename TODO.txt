@@ -1,0 +1,12 @@
+Introduce packets instead of just rate
+Intoruduce NP with ECN marking/probability
+Introduce random oscilation factor for the rates/delays
+Accurate delay model between NP->RP
+
+RP:
+Add byte counter during FR
+Model output rate explcitely, instead of constant drain
+introduce delay modelling between RP->CP/NP
+
+Introduce more flows? -> scheduling mechanism
+Real-time simulation? x

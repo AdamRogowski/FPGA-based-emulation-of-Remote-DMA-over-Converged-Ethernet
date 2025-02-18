@@ -12,7 +12,7 @@ def load_app_rate_timestamps(file_path):
 app_rate_changes = load_app_rate_timestamps(input_path)
 
 # Initialize variables
-Rc = Rc_INIT  # Initial rate (arbitrary unit)
+Rc = RC_INIT  # Initial rate (arbitrary unit)
 Rt = Rc  # Target rate for recovery
 
 input_buffer = 0  # Bytes
@@ -20,7 +20,7 @@ output_buffer = 0  # Bytes
 
 rate_history = []
 time_history = []
-alpha_history = [alpha]
+alpha_history = [ALPHA_INIT]
 input_buffer_occupancy = []
 output_buffer_occupancy = []
 app_rate_history = []
@@ -30,9 +30,9 @@ cmp_queue = []
 current_app_rate = app_rate_changes[0][1]
 next_app_index = 1
 FR_timer = 1  # Timer for rate increase (in terms of K)
-F_cnt = 0  # Fast recovery iterations counter
+F_cnt = 1  # Fast recovery iterations counter
 alpha_timer = 1
-cnp_timer = 0
+cnp_timer = 1
 cnp_timer_ena = False
 
 for t in range(0, END_OF_TIME, 1):  # Simulate time in microseconds
@@ -51,11 +51,11 @@ for t in range(0, END_OF_TIME, 1):  # Simulate time in microseconds
 
     # Fill output buffer with RP rate, drain it at constant rate
     output_buffer += data_to_transfer  # Fill at max RP rate
-    output_buffer = max(0, output_buffer - Output_rate)  # Drain at constant rate
+    output_buffer = max(0, output_buffer - OUTPUT_RATE)  # Drain at constant rate
 
     # Check congestion and generate CNP
     if output_buffer > CNP_THRESHOLD:
-        if not cnp_timer_ena and cnp_timer == 0:
+        if not cnp_timer_ena and cnp_timer == 1:
             cnp_timer_ena = True
             cmp_events.append((t, Rc))
             cmp_queue.append(t + CNP_DELAY)
@@ -63,16 +63,16 @@ for t in range(0, END_OF_TIME, 1):  # Simulate time in microseconds
     # Process CNP queue
     if cmp_queue and cmp_queue[0] == t:
         cmp_queue.pop(0)
-        alpha = (1 - g) * alpha + g
+        alpha = (1 - G) * alpha + G
         Rt = Rc
         Rc = Rc * (1 - alpha / 2)
         FR_timer = 1
-        alpha_timer = 1
         F_cnt = 1
+        alpha_timer = 1
 
     # Timer-based reduction factor adjustment
     if alpha_timer % K == 0:
-        alpha = (1 - g) * alpha
+        alpha = (1 - G) * alpha
 
     # Timer Rate increase Event
     if FR_timer % K == 0:
@@ -80,7 +80,7 @@ for t in range(0, END_OF_TIME, 1):  # Simulate time in microseconds
             Rc = (Rt + Rc) / 2  # Fast Recovery
             F_cnt += 1
         else:
-            Rt += Rai
+            Rt += R_AI
             Rc = (Rt + Rc) / 2
 
     FR_timer += 1
@@ -88,8 +88,8 @@ for t in range(0, END_OF_TIME, 1):  # Simulate time in microseconds
 
     if cnp_timer_ena:
         cnp_timer += 1
-        if cnp_timer == N - 1:
-            cnp_timer = 0
+        if cnp_timer == N:
+            cnp_timer = 1
             cnp_timer_ena = False
 
     # Log data for visualization
@@ -113,7 +113,7 @@ plt.plot(
     time_history, app_rate_history, label="App Layer Rate", color="c", linestyle="--"
 )
 plt.axhline(
-    Output_rate, color="y", linestyle="dotted", label="Output Rate"
+    OUTPUT_RATE, color="y", linestyle="dotted", label="Output Rate"
 )  # Threshold line
 plt.xlabel("Time (us)")
 plt.ylabel("Rate (B/us)")
