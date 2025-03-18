@@ -1,7 +1,13 @@
+"""
+(Latest) Model of the RP and DCQCN rate adjustment mechanism
+Allows for running a series of simulations for different RP params
+Reads app layer rates from the csv as an input
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import deque
-from constants import *
+from dcqcn_constants import *
 
 
 # --- Utility function to load app layer rate changes ---
@@ -152,14 +158,83 @@ def run_simulation(
     return rp, cn_np
 
 
-# --- Example Usage and Plotting ---
 if __name__ == "__main__":
-    input_path = "app_rate_timestamps.txt"
-    app_rate_changes = load_app_rate_timestamps(input_path)
+    app_rate_changes = load_app_rate_timestamps(APP_RATE_INPUT_PATH)
 
-    G_series = np.linspace(0.1, 0.9, 9)
+    """
+    To run series of simulations uncomment RUN SERIES section, choose series parameter(s);
+    Otherwise run simulation once for default params defined in dcqcn_constants
+    """
+    # """
+    # RUN ONCE
+    rp, cn_np = run_simulation(
+        app_rate_changes,
+        END_OF_TIME,
+        RC_INIT,
+        K,
+        F,
+        R_AI,
+        G,
+        ALPHA_INIT,
+        OUTPUT_RATE,
+        CNP_THRESHOLD,
+        CNP_DELAY,
+        N,
+    )
+
+    plt.figure(figsize=(10, 7))
+
+    plt.subplot(2, 1, 1)
+    plt.plot(rp.time_history, rp.rate_history, label="RP Rate (Rc)", color="b")
+    if cn_np.cnp_events:
+        times = [t for t, _ in cn_np.cnp_events]
+        rates = [rp.rate_history[t] for t in times]
+        plt.scatter(times, rates, color="r", marker="x", label="CNP Arrival")
+
+    plt.plot(
+        rp.time_history,
+        rp.app_rate_history,
+        label="App Layer Rate",
+        color="c",
+        linestyle="--",
+    )
+    plt.axhline(OUTPUT_RATE, color="y", linestyle="dotted", label="Output Rate")
+    plt.xlabel("Time (us)")
+    plt.ylabel("Rate (B/us)")
+    plt.title(f"RP Rate, g={G:.1f}")
+    plt.legend()
+    plt.grid()
+
+    plt.subplot(2, 1, 2)
+    plt.plot(
+        rp.time_history,
+        cn_np.output_buffer_history,
+        label="Output Buffer Occupancy",
+        color="m",
+    )
+    plt.plot(
+        rp.time_history,
+        rp.input_buffer_history,
+        label="Input Buffer Occupancy",
+        color="b",
+    )
+    plt.axhline(CNP_THRESHOLD, color="r", linestyle="--", label="CNP Threshold")
+    plt.xlabel("Time (us)")
+    plt.ylabel("Buffer Size (B)")
+    plt.title("Buffer Occupancy Over Time")
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.show()
+    # """
+
+    # RUN SERIES
+    """
+    # run series for different g
+    G_series = np.linspace(0.1, 0.9, 3)
 
     for i, G in enumerate(G_series):
+
         rp, cn_np = run_simulation(
             app_rate_changes,
             END_OF_TIME,
@@ -218,7 +293,8 @@ if __name__ == "__main__":
         plt.legend()
         plt.grid()
 
-        output_path = f"{fig_out_dir}/dcqcn_simulation_{i}.png"
+        output_path = f"{FIG_OUT_PATH}/dcqcn_simulation_1_{i}.png"
 
         plt.tight_layout()
         plt.savefig(output_path, dpi=300)
+    """

@@ -1,6 +1,11 @@
-import numpy as np
+"""
+Simplified initial design of the RP and DCQCN rate adjustment mechanism
+Everything runs in one simulation loop
+Dont use, possibly buggy
+"""
+
 import matplotlib.pyplot as plt
-from constants import *
+from dcqcn_constants import *
 
 
 # Load App Layer Timestamps
@@ -9,7 +14,7 @@ def load_app_rate_timestamps(file_path):
         return [tuple(map(int, line.strip().split())) for line in f if line.strip()]
 
 
-app_rate_changes = load_app_rate_timestamps(input_path)
+app_rate_changes = load_app_rate_timestamps(APP_RATE_INPUT_PATH)
 
 # Initialize variables
 Rc = RC_INIT  # Initial rate (arbitrary unit)
