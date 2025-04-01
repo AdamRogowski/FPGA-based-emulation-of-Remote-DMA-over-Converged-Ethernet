@@ -198,7 +198,7 @@ if __name__ == "__main__":
             OUTPUT_FLOW_GROUPS_PATH,
         )
 
-    CALENDAR_INTERVAL_LIST = list(range(100, 200, 100))  # Calendar slot interval in ns
+    CALENDAR_INTERVAL_LIST = list(range(50, 1050, 50))  # Calendar slot interval in ns
 
     results_ratio = []
     results_max_occupancy = []

@@ -5,6 +5,6 @@ INPUT_PACKETS_PATH = (
 
 TX_DELAY = 100  # Transmission delay (ns)
 
-END_OF_TIME = 1000000  # Simulation time in ns
+END_OF_TIME = 500000  # Simulation time in ns
 LINK_SPEED_BPNS = 40  # 100 bpns = Gbps link speed
 AVG_RATE_WINDOW = 3  # how many past packets included in calculating avg

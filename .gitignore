@@ -26,3 +26,5 @@
 !/software_models/scheduling_algorithm/scheduler_constants.py
 !/software_models/scheduling_algorithm/scheduler.py
 !/software_models/scheduling_algorithm/scheduler_optimized.py
+
+!/hardware_models/
