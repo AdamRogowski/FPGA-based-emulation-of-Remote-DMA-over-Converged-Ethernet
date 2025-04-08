@@ -27,4 +27,12 @@
 !/software_models/scheduling_algorithm/scheduler.py
 !/software_models/scheduling_algorithm/scheduler_optimized.py
 
-!/hardware_models/
+!/hardware_scheduler/
+!/hardware_scheduler/rtl/
+!/hardware_scheduler/rtl/CalendarCnt.vhd
+!/hardware_scheduler/rtl/FlowInitMemory.vhd
+!/hardware_scheduler/rtl/FlowLoader.vhd
+
+!/hardware_scheduler/sim/
+!/hardware_scheduler/sim/tb_CalendarCnt.vhd
+!/hardware_scheduler/sim/tb_FlowLoader.vhd
