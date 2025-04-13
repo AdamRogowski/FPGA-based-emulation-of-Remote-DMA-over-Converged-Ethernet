@@ -32,7 +32,11 @@
 !/hardware_scheduler/rtl/CalendarCnt.vhd
 !/hardware_scheduler/rtl/FlowInitMemory.vhd
 !/hardware_scheduler/rtl/FlowLoader.vhd
+!/hardware_scheduler/rtl/CalendarMain.vhd
+!/hardware_scheduler/rtl/IPG_reciprocal_pkg.vhd
+!/hardware_scheduler/rtl/Constants_pkg.vhd
 
 !/hardware_scheduler/sim/
 !/hardware_scheduler/sim/tb_CalendarCnt.vhd
 !/hardware_scheduler/sim/tb_FlowLoader.vhd
+!/hardware_scheduler/sim/tb_CalendarMain.vhd

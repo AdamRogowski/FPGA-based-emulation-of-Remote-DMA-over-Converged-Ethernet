@@ -1,23 +1,20 @@
 library IEEE;
   use IEEE.STD_LOGIC_1164.all;
-  use IEEE.STD_LOGIC_ARITH.all;
-  use IEEE.STD_LOGIC_UNSIGNED.all;
+  --  use IEEE.STD_LOGIC_ARITH.all;
+  --  use IEEE.STD_LOGIC_UNSIGNED.all;
+  use ieee.numeric_std.all;
+  use work.constants_pkg.all;
 
 entity FlowLoader is
-  generic (
-    NUM_GROUPS   : integer := 5;
-    NUM_FLOWS    : integer := 2;
-    CLK_INTERVAL : integer := 10
-  );
   port (
     clk             : in  std_logic;
     rst             : in  std_logic;
     flow_ready      : out std_logic;
-    QP_out          : out std_logic_vector(23 downto 0);
-    max_rate_out    : out std_logic_vector(8 downto 0);
-    cur_rate_out    : out std_logic_vector(8 downto 0);
-    seq_nr_out      : out std_logic_vector(23 downto 0);
-    next_addr_out   : out std_logic_vector(17 downto 0);
+    QP_out          : out std_logic_vector(QP_WIDTH - 1 downto 0);
+    max_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+    cur_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+    seq_nr_out      : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
+    next_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     active_flag_out : out std_logic
   );
 end entity;
@@ -25,27 +22,27 @@ end entity;
 architecture Behavioral of FlowLoader is
   component FlowInitMemory
     port (
-      flow_index : in  integer range 0 to NUM_GROUPS * NUM_FLOWS - 1;
-      QP         : out std_logic_vector(23 downto 0);
-      max_rate   : out std_logic_vector(8 downto 0);
-      cur_rate   : out std_logic_vector(8 downto 0)
+      flow_index : in  integer range 0 to NUM_FLOWS_TOTAL - 1;
+      QP         : out std_logic_vector(QP_WIDTH - 1 downto 0);
+      max_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+      cur_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)
     );
   end component;
 
   -- Memory I/O
-  signal QP_mem       : std_logic_vector(23 downto 0);
-  signal max_rate_mem : std_logic_vector(8 downto 0);
-  signal cur_rate_mem : std_logic_vector(8 downto 0);
+  signal QP_mem       : std_logic_vector(QP_WIDTH - 1 downto 0);
+  signal max_rate_mem : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+  signal cur_rate_mem : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
 
-  signal flow_index       : integer range 0 to NUM_GROUPS * NUM_FLOWS - 1 := 0;
-  signal group_id_counter : integer range 0 to NUM_GROUPS - 1             := 0;
-  signal flow_id_counter  : integer range 0 to NUM_FLOWS - 1              := 0;
+  signal flow_index       : integer range 0 to NUM_FLOWS_TOTAL - 1 := 0;
+  signal group_id_counter : integer range 0 to NUM_GROUPS - 1      := 0;
+  signal flow_id_counter  : integer range 0 to NUM_FLOWS - 1       := 0;
 
-  signal clk_counter : integer range 0 to CLK_INTERVAL := 0;
-  signal ready_reg   : std_logic                       := '0';
+  signal clk_counter : integer range 0 to FLOW_LOADER_INTERVAL := 0; --On purpose left 0 to FLOW_LOADER_INTERVAL, instead of 0 to FLOW_LOADER_INTERVAL - 1
+  signal ready_reg   : std_logic                               := '0';
 
-  signal total_flows_read : integer range 0 to NUM_GROUPS * NUM_FLOWS := 0;
-  signal all_flows_done   : std_logic                                 := '0';
+  signal total_flows_read : integer range 0 to NUM_FLOWS_TOTAL := 0; --On purpose left 0 to NUM_FLOWS_TOTAL, instead of 0 to NUM_FLOWS_TOTAL - 1
+  signal all_flows_done   : std_logic                          := '0';
 
 begin
 
@@ -63,7 +60,7 @@ begin
   begin
     if rising_edge(clk) then
       if all_flows_done = '0' then
-        if clk_counter < CLK_INTERVAL then
+        if clk_counter < FLOW_LOADER_INTERVAL then
           clk_counter <= clk_counter + 1;
           ready_reg <= '0';
         else
@@ -76,7 +73,7 @@ begin
           total_flows_read <= total_flows_read + 1;
 
           -- Stop once all flows are read
-          if total_flows_read = NUM_GROUPS * NUM_FLOWS - 1 then
+          if total_flows_read = NUM_FLOWS_TOTAL - 1 then
             all_flows_done <= '1';
           end if;
 

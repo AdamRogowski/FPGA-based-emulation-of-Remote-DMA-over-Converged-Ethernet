@@ -1,31 +1,23 @@
 library IEEE;
   use IEEE.STD_LOGIC_1164.all;
-  use IEEE.STD_LOGIC_ARITH.all;
-  use IEEE.STD_LOGIC_UNSIGNED.all;
+  use ieee.numeric_std.all;
+  use work.constants_pkg.all; -- Import constants from the package
 
 entity CalendarCnt_tb is
 end entity;
 
 architecture TB of CalendarCnt_tb is
-  constant CLK_PERIOD : time    := 2 ns;
-  constant NUM_SLOTS  : integer := 16;
-  constant INTERVAL   : integer := 20;
-
   signal clk      : std_logic := '0';
   signal rst      : std_logic := '1';
-  signal cur_slot : integer range 0 to 15;
+  signal cur_slot : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
   signal update   : std_logic;
 
   -- Instantiate the DUT (Device Under Test)
   component CalendarCnt
-    generic (
-      NUM_SLOTS : integer := NUM_SLOTS;
-      INTERVAL  : integer := INTERVAL -- Smaller value for quicker testing
-    );
     port (
       clk      : in  std_logic;
       rst      : in  std_logic;
-      cur_slot : out integer range 0 to 15;
+      cur_slot : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
       update   : out std_logic
     );
   end component;
@@ -33,7 +25,6 @@ architecture TB of CalendarCnt_tb is
 begin
   -- DUT instance
   uut: CalendarCnt
-    generic map (NUM_SLOTS, INTERVAL)
     port map (
       clk      => clk,
       rst      => rst,
@@ -44,7 +35,7 @@ begin
   -- Clock process
   clk_process: process
   begin
-    while now < 1000 ns loop
+    while now < 100000 ns loop
       clk <= '0';
       wait for CLK_PERIOD / 2;
       clk <= '1';
@@ -60,10 +51,5 @@ begin
     wait for 10 ns;
     rst <= '0';
 
-    -- Run for a few cycles
-    --wait for 1000 ns;
-
-    -- Stop simulation
-    --assert false report "Simulation completed" severity failure;
   end process;
 end architecture;
