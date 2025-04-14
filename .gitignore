@@ -28,6 +28,8 @@
 !/software_models/scheduling_algorithm/scheduler_optimized.py
 
 !/hardware_scheduler/
+!/hardware_scheduler/init_flows_generator.py
+
 !/hardware_scheduler/rtl/
 !/hardware_scheduler/rtl/CalendarCnt.vhd
 !/hardware_scheduler/rtl/FlowInitMemory.vhd
@@ -35,6 +37,7 @@
 !/hardware_scheduler/rtl/CalendarMain.vhd
 !/hardware_scheduler/rtl/IPG_reciprocal_pkg.vhd
 !/hardware_scheduler/rtl/Constants_pkg.vhd
+!/hardware_scheduler/rtl/FlowArray_pkg.vhd
 
 !/hardware_scheduler/sim/
 !/hardware_scheduler/sim/tb_CalendarCnt.vhd
