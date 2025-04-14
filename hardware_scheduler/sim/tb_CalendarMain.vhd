@@ -14,7 +14,7 @@ architecture Testbench of tb_CalendarMain is
   signal clk        : std_logic := '0';
   signal rst        : std_logic := '1';
   signal QP_out     : std_logic_vector(QP_WIDTH - 1 downto 0);
-  signal seq_nr_out : std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
+  signal seq_nr_out : unsigned(SEQ_NR_WIDTH - 1 downto 0);
 
   -- DUT instance
   component CalendarMain
@@ -22,7 +22,7 @@ architecture Testbench of tb_CalendarMain is
       clk        : in  std_logic;
       rst        : in  std_logic;
       QP_out     : out std_logic_vector(QP_WIDTH - 1 downto 0);
-      seq_nr_out : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0)
+      seq_nr_out : out unsigned(SEQ_NR_WIDTH - 1 downto 0)
     );
   end component;
 

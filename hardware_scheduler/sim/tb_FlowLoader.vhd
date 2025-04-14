@@ -17,9 +17,9 @@ architecture Behavioral of FlowLoader_tb is
       rst             : in  std_logic;
       flow_ready      : out std_logic;
       flow_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-      max_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-      cur_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-      seq_nr_out      : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
+      max_rate_out    : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+      cur_rate_out    : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+      seq_nr_out      : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
       next_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       active_flag_out : out std_logic
     );
@@ -30,9 +30,9 @@ architecture Behavioral of FlowLoader_tb is
   signal rst             : std_logic := '1';
   signal flow_ready      : std_logic;
   signal flow_addr_out   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal max_rate_out    : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-  signal cur_rate_out    : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-  signal seq_nr_out      : std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
+  signal max_rate_out    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+  signal cur_rate_out    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+  signal seq_nr_out      : unsigned(SEQ_NR_WIDTH - 1 downto 0);
   signal next_addr_out   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
   signal active_flag_out : std_logic;
 

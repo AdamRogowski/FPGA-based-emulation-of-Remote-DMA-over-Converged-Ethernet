@@ -10,7 +10,7 @@ entity CalendarMain is
     rst        : in  std_logic;
 
     QP_out     : out std_logic_vector(QP_WIDTH - 1 downto 0);
-    seq_nr_out : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0)
+    seq_nr_out : out unsigned(SEQ_NR_WIDTH - 1 downto 0)
   );
 end entity;
 
@@ -31,9 +31,9 @@ architecture Behavioral of CalendarMain is
       rst             : in  std_logic;
       flow_ready      : out std_logic;
       flow_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-      max_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-      cur_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-      seq_nr_out      : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
+      max_rate_out    : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+      cur_rate_out    : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+      seq_nr_out      : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
       next_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       active_flag_out : out std_logic
     );
@@ -48,15 +48,15 @@ architecture Behavioral of CalendarMain is
   signal update   : std_logic                                   := '0';
 
   -- Flow input from FlowLoader
-  signal flow_ready_in  : std_logic                                                := '0';
-  signal flow_addr_in   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0)        := (others => '0');
-  signal seq_nr_in      : std_logic_vector(SEQ_NR_WIDTH - 1 downto 0)              := (others => '0');
-  signal max_rate_in    : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0) := (others => '0');
-  signal cur_rate_in    : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0) := (others => '0');
-  signal next_addr_in   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0)        := (others => '0');
-  signal active_flag_in : std_logic                                                := '0';
-  signal scheduled_in   : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)              := (others => '0'); -- Scheduled slot index
-  signal target_slot_s  : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)              := (others => '0');
+  signal flow_ready_in  : std_logic                                         := '0';
+  signal flow_addr_in   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
+  signal seq_nr_in      : unsigned(SEQ_NR_WIDTH - 1 downto 0)               := (others => '0');
+  signal max_rate_in    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)  := (others => '0');
+  signal cur_rate_in    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)  := (others => '0');
+  signal next_addr_in   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
+  signal active_flag_in : std_logic                                         := '0';
+  signal scheduled_in   : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0'); -- Scheduled slot index
+  signal target_slot_s  : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
   --signal rate_val       : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)         := (others => '0'); -- Rate value
 
 begin
@@ -92,12 +92,12 @@ begin
       if flow_ready_in = '1' then
 
         -- Compute rate (minimum of cur and max)
-        if unsigned(cur_rate_in) < unsigned(max_rate_in) then
-          rate_val := to_integer(unsigned(cur_rate_in));
+        if cur_rate_in < max_rate_in then
+          rate_val := to_integer(cur_rate_in);
           --rate_val := 320; -- Convert to Kbps
 
         else
-          rate_val := to_integer(unsigned(max_rate_in));
+          rate_val := to_integer(max_rate_in);
         end if;
 
         scheduled_in <= reciprocal_table(rate_val);

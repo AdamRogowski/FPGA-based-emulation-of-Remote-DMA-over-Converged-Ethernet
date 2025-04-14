@@ -11,9 +11,9 @@ entity FlowLoader is
     rst             : in  std_logic;
     flow_ready      : out std_logic;
     flow_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-    max_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-    cur_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-    seq_nr_out      : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
+    max_rate_out    : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+    cur_rate_out    : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+    seq_nr_out      : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
     next_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     active_flag_out : out std_logic
   );
@@ -24,15 +24,15 @@ architecture Behavioral of FlowLoader is
     port (
       flow_index : in  integer range 0 to NUM_FLOWS_TOTAL - 1;
       flow_addr  : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-      max_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-      cur_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)
+      max_rate   : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+      cur_rate   : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)
     );
   end component;
 
   -- Memory I/O
   signal flow_addr_mem : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal max_rate_mem  : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-  signal cur_rate_mem  : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+  signal max_rate_mem  : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+  signal cur_rate_mem  : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
 
   signal flow_index       : integer range 0 to NUM_FLOWS_TOTAL - 1 := 0;
   signal group_id_counter : integer range 0 to NUM_GROUPS - 1      := 0;

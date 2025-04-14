@@ -9,8 +9,8 @@ entity FlowInitMemory is
   port (
     flow_index : in  integer range 0 to NUM_FLOWS_TOTAL - 1;
     flow_addr  : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-    max_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-    cur_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)
+    max_rate   : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+    cur_rate   : out unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)
   );
 end entity;
 
@@ -18,8 +18,8 @@ architecture Behavioral of FlowInitMemory is
 
   type FlowEntry is record
     flow_addr : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-    max_rate  : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-    cur_rate  : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+    max_rate  : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+    cur_rate  : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
   end record;
 
   type FlowArray is array (0 to NUM_FLOWS_TOTAL - 1) of FlowEntry;
