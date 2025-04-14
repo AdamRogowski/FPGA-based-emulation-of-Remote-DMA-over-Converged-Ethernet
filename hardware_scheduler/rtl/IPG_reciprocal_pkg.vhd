@@ -16,7 +16,7 @@ package body IPG_reciprocal_pkg is
     variable table : reciprocal_table_type;
     constant max_rate   : real := TOTAL_MAX_RATE / real(NUM_FLOWS_TOTAL);
     constant min_rate   : real := max_rate / 2.0;
-    constant resolution : real := (max_rate - min_rate) / real(RATE_BIT_RESOLUTION - 1);
+    constant resolution : real := (min_rate) / real(RATE_BIT_RESOLUTION);
 
     variable rate_i : real;
     variable result : integer;
@@ -25,12 +25,12 @@ package body IPG_reciprocal_pkg is
       rate_i := min_rate + real(i) * resolution;
 
       if rate_i = 0.0 then
-        result := integer(2 ** 17 - 1); -- max fallback value
+        result := integer(CALENDAR_SLOTS - 1); -- max fallback value
       else
         result := integer(IPG_DIVIDEND / rate_i);
       end if;
 
-      table(i) := to_unsigned(result, 17);
+      table(i) := to_unsigned(result, CALENDAR_SLOTS_WIDTH);
     end loop;
 
     return table;

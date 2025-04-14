@@ -16,7 +16,7 @@ architecture Behavioral of FlowLoader_tb is
       clk             : in  std_logic;
       rst             : in  std_logic;
       flow_ready      : out std_logic;
-      QP_out          : out std_logic_vector(QP_WIDTH - 1 downto 0);
+      flow_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       max_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
       cur_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
       seq_nr_out      : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
@@ -29,7 +29,7 @@ architecture Behavioral of FlowLoader_tb is
   signal clk             : std_logic := '0';
   signal rst             : std_logic := '1';
   signal flow_ready      : std_logic;
-  signal QP_out          : std_logic_vector(QP_WIDTH - 1 downto 0);
+  signal flow_addr_out   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
   signal max_rate_out    : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
   signal cur_rate_out    : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
   signal seq_nr_out      : std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
@@ -53,7 +53,7 @@ begin
       clk             => clk,
       rst             => rst,
       flow_ready      => flow_ready,
-      QP_out          => QP_out,
+      flow_addr_out   => flow_addr_out,
       max_rate_out    => max_rate_out,
       cur_rate_out    => cur_rate_out,
       seq_nr_out      => seq_nr_out,

@@ -10,7 +10,7 @@ entity FlowLoader is
     clk             : in  std_logic;
     rst             : in  std_logic;
     flow_ready      : out std_logic;
-    QP_out          : out std_logic_vector(QP_WIDTH - 1 downto 0);
+    flow_addr_out   : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     max_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
     cur_rate_out    : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
     seq_nr_out      : out std_logic_vector(SEQ_NR_WIDTH - 1 downto 0);
@@ -23,16 +23,16 @@ architecture Behavioral of FlowLoader is
   component FlowInitMemory
     port (
       flow_index : in  integer range 0 to NUM_FLOWS_TOTAL - 1;
-      QP         : out std_logic_vector(QP_WIDTH - 1 downto 0);
+      flow_addr  : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       max_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
       cur_rate   : out std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)
     );
   end component;
 
   -- Memory I/O
-  signal QP_mem       : std_logic_vector(QP_WIDTH - 1 downto 0);
-  signal max_rate_mem : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
-  signal cur_rate_mem : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+  signal flow_addr_mem : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal max_rate_mem  : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
+  signal cur_rate_mem  : std_logic_vector(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
 
   signal flow_index       : integer range 0 to NUM_FLOWS_TOTAL - 1 := 0;
   signal group_id_counter : integer range 0 to NUM_GROUPS - 1      := 0;
@@ -50,7 +50,7 @@ begin
   FlowMemory: FlowInitMemory
     port map (
       flow_index => flow_index,
-      QP         => QP_mem,
+      flow_addr  => flow_addr_mem,
       max_rate   => max_rate_mem,
       cur_rate   => cur_rate_mem
     );
@@ -111,7 +111,7 @@ begin
   begin
     if rising_edge(clk) then
       if ready_reg = '1' then
-        QP_out <= QP_mem;
+        flow_addr_out <= flow_addr_mem;
         max_rate_out <= max_rate_mem;
         cur_rate_out <= cur_rate_mem;
         seq_nr_out <= (others => '0');
