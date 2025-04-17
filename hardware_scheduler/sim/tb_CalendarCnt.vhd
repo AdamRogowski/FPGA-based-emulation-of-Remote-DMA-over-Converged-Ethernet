@@ -35,7 +35,7 @@ begin
   -- Clock process
   clk_process: process
   begin
-    while now < 100000 ns loop
+    while now < 300000 ns loop
       clk <= '0';
       wait for CLK_PERIOD / 2;
       clk <= '1';

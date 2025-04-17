@@ -6,16 +6,16 @@ library ieee;
 package constants_pkg is
 
   constant MTU_BITS             : integer := 12000; -- Number of bits for MTU
-  constant CALENDAR_SLOTS       : integer := 131072;
-  constant CALENDAR_SLOTS_WIDTH : integer := 17;    -- log2(CALENDAR_SLOTS); -- Number of bits for slot index
+  constant QP_WIDTH                : integer := 24;                          -- Number of bits for QP
+  constant SEQ_NR_WIDTH            : integer := 24;                          -- Number of bits for sequence number
+  constant TOTAL_MAX_RATE : real := 1.0E11;     -- 100 Gbps
+  constant CLK_PERIOD : time := 10 ns; -- Clock period for simulation
 
   constant NUM_GROUPS              : integer := 16;                          -- Number of groups
   constant NUM_FLOWS               : integer := 16;                          -- Number of flows per group
   constant NUM_FLOWS_TOTAL         : integer := NUM_GROUPS * NUM_FLOWS;      -- Total number of flows
   constant FLAT_FLOW_ADDRESS_WIDTH : integer := 8;                           -- log2(NUM_FLOWS_TOTAL); just based on the number of flows
   constant FLOW_ADDRESS_WIDTH      : integer := FLAT_FLOW_ADDRESS_WIDTH + 1; -- Including additional bit to include the null address
-  constant QP_WIDTH                : integer := 24;                          -- Number of bits for QP
-  constant SEQ_NR_WIDTH            : integer := 24;                          -- Number of bits for sequence number
 
   constant CALENDAR_INTERVAL       : integer := 100;
   constant CALENDAR_INTERVAL_WIDTH : integer := 7; -- log2(CALENDAR_INTERVAL); -- Number of bits for interval counter
@@ -26,10 +26,11 @@ package constants_pkg is
   constant RATE_BIT_RESOLUTION       : integer := 1024;
   constant RATE_BIT_RESOLUTION_WIDTH : integer := 10; -- log2(RATE_BIT_RESOLUTION); -- Number of bits for rate resolution
 
-  constant TOTAL_MAX_RATE : real := 1.0E11;     -- 100 Gbps
+  constant CALENDAR_SLOTS       : integer := 128;
+  constant CALENDAR_SLOTS_WIDTH : integer := 7;    -- log2(CALENDAR_SLOTS); -- Number of bits for slot index
+
   constant IPG_DIVIDEND   : real := 2.34375E10; -- division numerator
 
-  constant CLK_PERIOD : time := 10 ns; -- Clock period for simulation
 
 end package;
 
