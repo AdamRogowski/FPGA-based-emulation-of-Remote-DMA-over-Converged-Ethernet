@@ -23,14 +23,13 @@ package constants_pkg is
   constant FLOW_LOADER_INTERVAL       : integer := 100; -- Clock interval for FlowLoader 
   constant FLOW_LOADER_INTERVAL_WIDTH : integer := 7;   -- log2(FLOW_LOADER_INTERVAL); -- Number of bits for interval counter 
 
-  constant RATE_BIT_RESOLUTION       : integer := 1024;
-  constant RATE_BIT_RESOLUTION_WIDTH : integer := 10; -- log2(RATE_BIT_RESOLUTION); -- Number of bits for rate resolution
+  constant RATE_BIT_RESOLUTION       : integer := 131072;
+  constant RATE_BIT_RESOLUTION_WIDTH : integer := 17; -- log2(RATE_BIT_RESOLUTION); -- Number of bits for rate resolution
 
-  constant CALENDAR_SLOTS       : integer := 128;
-  constant CALENDAR_SLOTS_WIDTH : integer := 7;    -- log2(CALENDAR_SLOTS); -- Number of bits for slot index
+  constant CALENDAR_SLOTS       : integer := 131072;
+  constant CALENDAR_SLOTS_WIDTH : integer := 17;    -- log2(CALENDAR_SLOTS); -- Number of bits for slot index
 
   constant IPG_DIVIDEND   : real := 2.34375E10; -- division numerator
-
 
 end package;
 

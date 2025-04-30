@@ -39,8 +39,10 @@
 !/hardware_scheduler/rtl/IPG_reciprocal_pkg.vhd
 !/hardware_scheduler/rtl/Constants_pkg.vhd
 !/hardware_scheduler/rtl/FlowArray_pkg.vhd
+!/hardware_scheduler/rtl/Uram.vhd
 
 !/hardware_scheduler/sim/
 !/hardware_scheduler/sim/tb_CalendarCnt.vhd
 !/hardware_scheduler/sim/tb_FlowLoader.vhd
 !/hardware_scheduler/sim/tb_CalendarMain.vhd
+!/hardware_scheduler/sim/tb_Uram.vhd

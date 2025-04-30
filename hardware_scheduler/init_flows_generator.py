@@ -2,11 +2,11 @@ import random
 
 # Parameters
 NUM_FLOWS_TOTAL = 256
-RATE_BIT_RESOLUTION_WIDTH = 10
+RATE_BIT_RESOLUTION_WIDTH = 17
 OUTPUT_FILENAME = "flow_array_content.txt"
 
 # Generate maximum value for cur_rate (all 1s)
-max_rate_bin = "1" * RATE_BIT_RESOLUTION_WIDTH
+max_rate_bin = "00000000000001010"
 
 entries = []
 for i in range(NUM_FLOWS_TOTAL):

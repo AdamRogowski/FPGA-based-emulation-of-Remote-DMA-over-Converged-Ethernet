@@ -2,7 +2,7 @@ library IEEE;
   use IEEE.STD_LOGIC_1164.all;
   use ieee.numeric_std.all;
   use work.constants_pkg.all;
-  use work.IPG_reciprocal_pkg.all;
+  --use work.IPG_reciprocal_pkg.all;
 
 entity CalendarMain is
   port (
@@ -40,7 +40,7 @@ architecture Behavioral of CalendarMain is
   end component;
 
   -- ONLY FOR SIMULATION, static pregenerated table should be used instead
-  constant reciprocal_table : reciprocal_table_type                                        := generate_reciprocal_table;
+  --constant reciprocal_table : reciprocal_table_type                                        := generate_reciprocal_table;
   constant QP_padding       : std_logic_vector(QP_WIDTH - FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0'); -- Padding for QP
 
   -- Signals from CalendarCnt
@@ -84,7 +84,7 @@ begin
 
   process (clk)
     -- Intermediate signals/variables
-    variable rate_val : integer;
+    variable rate_val : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
 
   begin
     if rising_edge(clk) then
@@ -92,17 +92,17 @@ begin
       if flow_ready_in = '1' then
 
         -- Compute rate (minimum of cur and max)
-        if cur_rate_in < max_rate_in then
-          rate_val := to_integer(cur_rate_in);
+        if cur_rate_in > max_rate_in then
+          rate_val := cur_rate_in;
           --rate_val := 320; -- Convert to Kbps
 
         else
-          rate_val := to_integer(max_rate_in);
+          rate_val := max_rate_in;
         end if;
 
-        scheduled_in <= reciprocal_table(rate_val);
+        --scheduled_in <= reciprocal_table(rate_val);
 
-        target_slot_s <= (cur_slot + scheduled_in) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
+        target_slot_s <= (cur_slot + rate_val) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
 
         QP_out <= QP_padding & flow_addr_in; -- TODO: temporary padding to match QP width
         seq_nr_out <= seq_nr_in;
