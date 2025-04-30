@@ -39,9 +39,8 @@ architecture Behavioral of CalendarMain is
     );
   end component;
 
-  -- ONLY FOR SIMULATION, static pregenerated table should be used instead
-  --constant reciprocal_table : reciprocal_table_type                                        := generate_reciprocal_table;
-  constant QP_padding       : std_logic_vector(QP_WIDTH - FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0'); -- Padding for QP
+  -- Temporary solution, ONLY FOR SIMULATION
+  constant QP_padding : std_logic_vector(QP_WIDTH - FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0'); -- Padding for QP
 
   -- Signals from CalendarCnt
   signal cur_slot : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0) := (others => '0');
@@ -57,7 +56,6 @@ architecture Behavioral of CalendarMain is
   signal active_flag_in : std_logic                                         := '0';
   signal scheduled_in   : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0'); -- Scheduled slot index
   signal target_slot_s  : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
-  --signal rate_val       : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)         := (others => '0'); -- Rate value
 
 begin
 
@@ -83,24 +81,17 @@ begin
     );
 
   process (clk)
-    -- Intermediate signals/variables
     variable rate_val : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
 
   begin
     if rising_edge(clk) then
 
       if flow_ready_in = '1' then
-
-        -- Compute rate (minimum of cur and max)
         if cur_rate_in > max_rate_in then
           rate_val := cur_rate_in;
-          --rate_val := 320; -- Convert to Kbps
-
         else
           rate_val := max_rate_in;
         end if;
-
-        --scheduled_in <= reciprocal_table(rate_val);
 
         target_slot_s <= (cur_slot + rate_val) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
 

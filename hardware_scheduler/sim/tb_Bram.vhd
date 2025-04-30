@@ -3,10 +3,10 @@ library ieee;
   use ieee.numeric_std.all;
   use work.constants_pkg.all;
 
-entity uram_tb is
+entity bram_tb is
 end entity;
 
-architecture sim of uram_tb is
+architecture sim of bram_tb is
 
   -- DUT parameters
   constant DATA_WIDTH : integer := 8;
@@ -29,7 +29,7 @@ architecture sim of uram_tb is
 begin
 
   -- Instantiate the DUT
-  DUT: entity work.uram_model
+  DUT: entity work.bram_model
     generic map (
       DATA_WIDTH => DATA_WIDTH,
       ADDR_WIDTH => ADDR_WIDTH,

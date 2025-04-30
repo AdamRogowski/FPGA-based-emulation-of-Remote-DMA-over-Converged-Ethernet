@@ -4,7 +4,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
-entity uram_model is
+entity bram_model is
   generic (
     DATA_WIDTH : integer := 128;
     ADDR_WIDTH : integer := 18; -- 262k locations
@@ -25,7 +25,7 @@ entity uram_model is
   );
 end entity;
 
-architecture rtl of uram_model is
+architecture rtl of bram_model is
 
   -- Memory
   type ram_type is array (0 to 2 ** ADDR_WIDTH - 1) of std_logic_vector(DATA_WIDTH - 1 downto 0);
