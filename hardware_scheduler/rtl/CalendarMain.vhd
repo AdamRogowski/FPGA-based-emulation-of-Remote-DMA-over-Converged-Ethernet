@@ -16,6 +16,9 @@ end entity;
 
 architecture Behavioral of CalendarMain is
 
+  type calendar_type is array (0 to CALENDAR_SLOTS - 1) of std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal calendar_wheel : calendar_type := (others => (others => '1')); -- NULL addresses
+
   component CalendarCnt
     port (
       clk      : in  std_logic;
@@ -52,7 +55,7 @@ architecture Behavioral of CalendarMain is
   signal seq_nr_in      : unsigned(SEQ_NR_WIDTH - 1 downto 0)               := (others => '0');
   signal max_rate_in    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)  := (others => '0');
   signal cur_rate_in    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0)  := (others => '0');
-  signal next_addr_in   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
+  signal next_addr_in   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '1'); -- NULL address
   signal active_flag_in : std_logic                                         := '0';
   signal scheduled_in   : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0'); -- Scheduled slot index
   signal target_slot_s  : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
