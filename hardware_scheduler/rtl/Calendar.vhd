@@ -19,7 +19,16 @@ end entity;
 architecture RTL of Calendar is
 
   type calendar_array_t is array (0 to CALENDAR_SLOTS - 1) of std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal calendar_wheel : calendar_array_t := (others => FLOW_NULL_ADDRESS);
+  signal calendar_wheel : calendar_array_t := (
+    0 => "00000",
+    1 => FLOW_NULL_ADDRESS,
+    2 => FLOW_NULL_ADDRESS,
+    3 => FLOW_NULL_ADDRESS,
+    4 => FLOW_NULL_ADDRESS,
+    5 => FLOW_NULL_ADDRESS,
+    6 => FLOW_NULL_ADDRESS,
+    7 => FLOW_NULL_ADDRESS
+  );
 
   component CalendarCnt
     port (
@@ -35,7 +44,7 @@ architecture RTL of Calendar is
 
 begin
 
-  CalendarCounter_inst: CalendarCounter
+  CalendarCounter_inst: CalendarCnt
     port map (
       clk      => clk,
       rst      => rst,
@@ -52,18 +61,28 @@ begin
       end if;
 
       if slot_tick_int = '1' then
-        current_slot_o <= current_slot;
-        head_address_o <= calendar_wheel(to_integer(current_slot));
-        slot_advance_o <= '1';
-      else
-        slot_advance_o <= '0';
+
+        calendar_wheel(to_integer(current_slot)) <= FLOW_NULL_ADDRESS;
       end if;
 
       if rst = '1' then
-        calendar_wheel <= (others => FLOW_NULL_ADDRESS);
+        calendar_wheel <= (
+          0 => "00000",
+          1 => FLOW_NULL_ADDRESS,
+          2 => FLOW_NULL_ADDRESS,
+          3 => FLOW_NULL_ADDRESS,
+          4 => FLOW_NULL_ADDRESS,
+          5 => FLOW_NULL_ADDRESS,
+          6 => FLOW_NULL_ADDRESS,
+          7 => FLOW_NULL_ADDRESS
+        );
       end if;
 
     end if;
   end process;
+
+  slot_advance_o <= slot_tick_int;
+  current_slot_o <= current_slot;
+  head_address_o <= calendar_wheel(to_integer(current_slot));
 
 end architecture;

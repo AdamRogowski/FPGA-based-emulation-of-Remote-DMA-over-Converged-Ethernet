@@ -5,11 +5,8 @@ library IEEE;
 
 entity pipelined_stack_processor is
   port (
-    clk         : in  std_logic;
-    rst         : in  std_logic;
-    head_update : in  std_logic;
-    head_addr   : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-    done        : out std_logic
+    clk : in std_logic;
+    rst : in std_logic
   );
 end entity;
 
@@ -34,6 +31,19 @@ architecture rtl of pipelined_stack_processor is
       dib   : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
       doa   : out std_logic_vector(DATA_WIDTH - 1 downto 0);
       dob   : out std_logic_vector(DATA_WIDTH - 1 downto 0)
+    );
+  end component;
+
+  component Calendar is
+    port (
+      clk            : in  std_logic;
+      rst            : in  std_logic;
+      insert_enable  : in  std_logic;
+      insert_slot    : in  unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+      insert_address : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+      current_slot_o : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+      head_address_o : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+      slot_advance_o : out std_logic -- Pulse when moving to the next slot
     );
   end component;
 
@@ -65,6 +75,15 @@ architecture rtl of pipelined_stack_processor is
   signal bram_dia   : std_logic_vector(BRAM_DATA_WIDTH - 1 downto 0) := (others => '0');
   signal bram_doa   : std_logic_vector(BRAM_DATA_WIDTH - 1 downto 0) := (others => '0');
 
+  -- Calendar signals
+  signal insert_enable  : std_logic                                         := '0';
+  signal insert_slot    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
+  signal insert_address : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
+  signal current_slot_o : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+  signal head_address_o : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal slot_advance_o : std_logic;
+  signal target_slot    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
+
 begin
 
   -- Instantiate the BRAM internally
@@ -88,6 +107,19 @@ begin
       dob   => open
     );
 
+  -- Instantiate Calendar
+  calendar_inst: Calendar
+    port map (
+      clk            => clk,
+      rst            => rst,
+      insert_enable  => insert_enable,
+      insert_slot    => insert_slot,
+      insert_address => insert_address,
+      current_slot_o => current_slot_o,
+      head_address_o => head_address_o,
+      slot_advance_o => slot_advance_o
+    );
+
   -- Main pipeline logic
   process (clk)
   begin
@@ -101,9 +133,11 @@ begin
       end loop;
 
       -- Stage 0: input address or feedback
-      if head_update = '1' then
-        pipe(0).cur_addr <= head_addr;
-        pipe_valid(0) <= '1';
+      if slot_advance_o = '1' then
+        if head_address_o /= FLOW_NULL_ADDRESS then
+          pipe(0).cur_addr <= head_address_o;
+          pipe_valid(0) <= '1';
+        end if;
       elsif pipe_valid(BRAM_LATENCY + 2) = '1' and pipe(BRAM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS then
         pipe(0).cur_addr <= pipe(BRAM_LATENCY + 2).next_addr;
         pipe_valid(0) <= '1';
@@ -137,12 +171,16 @@ begin
       -- Stage 4: process 1
       if pipe_valid(BRAM_LATENCY + 2) = '1' then
         pipe(BRAM_LATENCY + 3).seq_nr <= pipe(BRAM_LATENCY + 2).seq_nr + 1;
+        target_slot <= (current_slot_o + pipe(BRAM_LATENCY + 2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
       end if;
 
-      -- Stage 5: process 2
-      --if pipe_valid(BRAM_LATENCY + 2) = '1' then
-      --  pipe(BRAM_LATENCY + 3).seq_nr <= pipe(BRAM_LATENCY + 3).seq_nr - 1;
-      --end if;
+      if pipe_valid(BRAM_LATENCY + 3) = '1' then
+        insert_enable <= '1';
+        insert_slot <= target_slot;
+        insert_address <= pipe(BRAM_LATENCY + 3).cur_addr;
+      else
+        insert_enable <= '0';
+      end if;
 
       -- Stage 6: writeback
       if pipe_valid(BRAM_LATENCY + 4) = '1' then
@@ -154,20 +192,12 @@ begin
         bram_wea <= '0';
       end if;
 
-      -- Done when reaching a null pointer
-      if pipe_valid(BRAM_LATENCY + 2) = '1' and pipe(BRAM_LATENCY + 2).next_addr = FLOW_NULL_ADDRESS then
-        done <= '1';
-      else
-        done <= '0';
-      end if;
-
       if rst = '1' then
         pipe_valid <= (others => '0');
         bram_ena <= '0';
         bram_wea <= '0';
         bram_addra <= FLOW_NULL_ADDRESS;
         bram_dia <= (others => '0');
-        done <= '0';
       end if;
 
     end if;

@@ -42,10 +42,12 @@
 !/hardware_scheduler/rtl/Constants_pkg.vhd
 !/hardware_scheduler/rtl/FlowArray_pkg.vhd
 !/hardware_scheduler/rtl/Bram.vhd
+!/hardware_scheduler/rtl/Bram_init_pkg.vhd
 !/hardware_scheduler/rtl/Scheduler_pipeline.vhd
 
 !/hardware_scheduler/sim/
 !/hardware_scheduler/sim/tb_CalendarCnt.vhd
+!/hardware_scheduler/sim/tb_Calendar.vhd
 !/hardware_scheduler/sim/tb_FlowLoader.vhd
 !/hardware_scheduler/sim/tb_CalendarMain.vhd
 !/hardware_scheduler/sim/tb_Bram.vhd

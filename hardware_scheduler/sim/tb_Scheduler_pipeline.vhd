@@ -11,19 +11,13 @@ architecture sim of tb_pipelined_stack_processor is
   -- Component under test
   component pipelined_stack_processor is
     port (
-      clk         : in  std_logic;
-      rst         : in  std_logic;
-      head_update : in  std_logic;
-      head_addr   : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-      done        : out std_logic
+      clk : in std_logic;
+      rst : in std_logic
     );
   end component;
 
-  signal clk         : std_logic                                         := '0';
-  signal rst         : std_logic                                         := '1';
-  signal head_update : std_logic                                         := '0';
-  signal head_addr   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
-  signal done        : std_logic;
+  signal clk : std_logic := '0';
+  signal rst : std_logic := '1';
 
 begin
 
@@ -39,31 +33,15 @@ begin
   -- DUT instantiation
   dut: pipelined_stack_processor
     port map (
-      clk         => clk,
-      rst         => rst,
-      head_update => head_update,
-      head_addr   => head_addr,
-      done        => done
+      clk => clk,
+      rst => rst
     );
 
   -- Stimulus process
   stim_proc: process
-    constant base_addr : unsigned(FLOW_ADDRESS_WIDTH - 1 downto 0) := "000000001";
   begin
     wait for 20 ns;
     rst <= '0';
-
-    -- Start pipeline
-    head_addr <= std_logic_vector(base_addr);
-    head_update <= '1';
-    wait for CLK_PERIOD;
-    head_update <= '0';
-
-    -- Wait for pipeline to complete
-    wait until done = '1';
-    wait for 50 ns;
-
-    assert false report "Test complete" severity note;
     wait;
   end process;
 
