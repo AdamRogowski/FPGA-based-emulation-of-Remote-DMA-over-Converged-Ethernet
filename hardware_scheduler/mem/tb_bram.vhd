@@ -29,7 +29,7 @@ architecture sim of bram_tb is
 begin
 
   -- Instantiate the DUT
-  DUT: entity work.bram_model
+  DUT: entity work.Flow_mem
     generic map (
       DATA_WIDTH => DATA_WIDTH,
       ADDR_WIDTH => ADDR_WIDTH,

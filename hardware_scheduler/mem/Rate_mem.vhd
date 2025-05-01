@@ -5,28 +5,23 @@ library ieee;
   use ieee.numeric_std.all;
   use work.bram_init_pkg.all;
 
-entity bram_model is
+entity Rate_mem is
   generic (
-    DATA_WIDTH : integer := 128;
-    ADDR_WIDTH : integer := 18; -- 262k locations
-    LATENCY    : integer := 3   -- number of pipeline stages
+    DATA_WIDTH : integer;
+    ADDR_WIDTH : integer; -- 262k locations
+    LATENCY    : integer  -- number of pipeline stages
   );
   port (
-    clk   : in  std_logic;
-    ena   : in  std_logic;
-    enb   : in  std_logic;
-    wea   : in  std_logic;
-    web   : in  std_logic;
-    addra : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    addrb : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    dia   : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
-    dib   : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
-    doa   : out std_logic_vector(DATA_WIDTH - 1 downto 0);
-    dob   : out std_logic_vector(DATA_WIDTH - 1 downto 0)
+    clk          : in  std_logic;
+    ena, enb     : in  std_logic;
+    wea, web     : in  std_logic;
+    addra, addrb : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
+    dia, dib     : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
+    doa, dob     : out std_logic_vector(DATA_WIDTH - 1 downto 0)
   );
 end entity;
 
-architecture rtl of bram_model is
+architecture rtl of Rate_mem is
 
   signal ram : ram_type := init_bram_16;
 

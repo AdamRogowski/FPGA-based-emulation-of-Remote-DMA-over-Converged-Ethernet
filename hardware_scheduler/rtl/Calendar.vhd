@@ -19,16 +19,7 @@ end entity;
 architecture RTL of Calendar is
 
   type calendar_array_t is array (0 to CALENDAR_SLOTS - 1) of std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal calendar_wheel : calendar_array_t := (
-    0 => "00000",
-    1 => FLOW_NULL_ADDRESS,
-    2 => FLOW_NULL_ADDRESS,
-    3 => FLOW_NULL_ADDRESS,
-    4 => FLOW_NULL_ADDRESS,
-    5 => FLOW_NULL_ADDRESS,
-    6 => FLOW_NULL_ADDRESS,
-    7 => FLOW_NULL_ADDRESS
-  );
+  signal calendar_wheel : calendar_array_t := (others => FLOW_NULL_ADDRESS); -- initialized with reset
 
   component CalendarCnt
     port (

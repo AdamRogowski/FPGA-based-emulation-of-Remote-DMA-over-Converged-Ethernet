@@ -13,7 +13,7 @@ end entity;
 architecture rtl of pipelined_stack_processor is
 
   -- BRAM component declaration
-  component bram_model is
+  component Flow_mem is
     generic (
       DATA_WIDTH : integer;
       ADDR_WIDTH : integer;
@@ -87,7 +87,7 @@ architecture rtl of pipelined_stack_processor is
 begin
 
   -- Instantiate the BRAM internally
-  bram_inst: bram_model
+  bram_inst: Flow_mem
     generic map (
       DATA_WIDTH => BRAM_DATA_WIDTH,
       ADDR_WIDTH => BRAM_ADDR_WIDTH,
