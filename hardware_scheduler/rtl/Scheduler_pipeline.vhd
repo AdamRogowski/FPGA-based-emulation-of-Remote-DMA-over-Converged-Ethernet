@@ -5,11 +5,11 @@ library IEEE;
 
 entity pipelined_stack_processor is
   port (
-    clk        : in  std_logic;
-    rst        : in  std_logic;
-    start      : in  std_logic;
-    first_addr : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-    done       : out std_logic
+    clk         : in  std_logic;
+    rst         : in  std_logic;
+    head_update : in  std_logic;
+    head_addr   : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+    done        : out std_logic
   );
 end entity;
 
@@ -101,8 +101,8 @@ begin
       end loop;
 
       -- Stage 0: input address or feedback
-      if start = '1' then
-        pipe(0).cur_addr <= first_addr;
+      if head_update = '1' then
+        pipe(0).cur_addr <= head_addr;
         pipe_valid(0) <= '1';
       elsif pipe_valid(BRAM_LATENCY + 2) = '1' and pipe(BRAM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS then
         pipe(0).cur_addr <= pipe(BRAM_LATENCY + 2).next_addr;

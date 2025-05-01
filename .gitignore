@@ -34,6 +34,7 @@
 !/hardware_scheduler/rtl/
 !/hardware_scheduler/rtl/CalendarCnt.vhd
 !/hardware_scheduler/rtl/CalendarCnt_mod.vhd
+!/hardware_scheduler/rtl/Calendar.vhd
 !/hardware_scheduler/rtl/FlowInitMemory.vhd
 !/hardware_scheduler/rtl/FlowLoader.vhd
 !/hardware_scheduler/rtl/CalendarMain.vhd

@@ -11,19 +11,19 @@ architecture sim of tb_pipelined_stack_processor is
   -- Component under test
   component pipelined_stack_processor is
     port (
-      clk        : in  std_logic;
-      rst        : in  std_logic;
-      start      : in  std_logic;
-      first_addr : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-      done       : out std_logic
+      clk         : in  std_logic;
+      rst         : in  std_logic;
+      head_update : in  std_logic;
+      head_addr   : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+      done        : out std_logic
     );
   end component;
 
-  signal clk        : std_logic                                         := '0';
-  signal rst        : std_logic                                         := '1';
-  signal start      : std_logic                                         := '0';
-  signal first_addr : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
-  signal done       : std_logic;
+  signal clk         : std_logic                                         := '0';
+  signal rst         : std_logic                                         := '1';
+  signal head_update : std_logic                                         := '0';
+  signal head_addr   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
+  signal done        : std_logic;
 
 begin
 
@@ -39,11 +39,11 @@ begin
   -- DUT instantiation
   dut: pipelined_stack_processor
     port map (
-      clk        => clk,
-      rst        => rst,
-      start      => start,
-      first_addr => first_addr,
-      done       => done
+      clk         => clk,
+      rst         => rst,
+      head_update => head_update,
+      head_addr   => head_addr,
+      done        => done
     );
 
   -- Stimulus process
@@ -54,10 +54,10 @@ begin
     rst <= '0';
 
     -- Start pipeline
-    first_addr <= std_logic_vector(base_addr);
-    start <= '1';
+    head_addr <= std_logic_vector(base_addr);
+    head_update <= '1';
     wait for CLK_PERIOD;
-    start <= '0';
+    head_update <= '0';
 
     -- Wait for pipeline to complete
     wait until done = '1';

@@ -33,10 +33,11 @@ package constants_pkg is
   constant IPG_DIVIDEND : real := 2.34375E10; -- division numerator
 
   -- BRAM constants
-  constant BRAM_DATA_WIDTH : integer := QP_WIDTH + SEQ_NR_WIDTH + FLOW_ADDRESS_WIDTH + 2 * RATE_BIT_RESOLUTION_WIDTH + 1; -- Data width for BRAM
-  constant BRAM_ADDR_WIDTH : integer := FLOW_ADDRESS_WIDTH;                                                               -- Address width for BRAM
-  constant BRAM_LATENCY    : integer := 2;                                                                                -- Memory access latency in clock cycles
-  constant PIPELINE_SIZE   : integer := 5 + BRAM_LATENCY;                                                                 -- Number of pipeline stages for BRAM
+  constant BRAM_DATA_WIDTH   : integer                                        := QP_WIDTH + SEQ_NR_WIDTH + FLOW_ADDRESS_WIDTH + 2 * RATE_BIT_RESOLUTION_WIDTH + 1; -- Data width for BRAM
+  constant BRAM_EMPTY_OBJECT : std_logic_vector(BRAM_DATA_WIDTH - 1 downto 0) := "00000000000000000000000000000000000000000000000000000000000111111111000000000000000111111111";
+  constant BRAM_ADDR_WIDTH   : integer                                        := FLOW_ADDRESS_WIDTH;                                                               -- Address width for BRAM
+  constant BRAM_LATENCY      : integer                                        := 2;                                                                                -- Memory access latency in clock cycles
+  constant PIPELINE_SIZE     : integer                                        := 5 + BRAM_LATENCY;                                                                 -- Number of pipeline stages for BRAM
 
 end package;
 
