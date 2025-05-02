@@ -9,15 +9,13 @@ end entity;
 architecture sim of bram_tb is
 
   -- DUT parameters
-  constant DATA_WIDTH : integer := 8;
-  constant ADDR_WIDTH : integer := 3;
-  constant LATENCY    : integer := 3;
+  constant LATENCY : integer := 3;
 
-  signal clk                : std_logic                                 := '0';
-  signal ena, enb, wea, web : std_logic                                 := '0';
-  signal addra, addrb       : std_logic_vector(ADDR_WIDTH - 1 downto 0) := (others => '0');
-  signal dia, dib           : std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
-  signal doa, dob           : std_logic_vector(DATA_WIDTH - 1 downto 0);
+  signal clk                : std_logic                                          := '0';
+  signal ena, enb, wea, web : std_logic                                          := '0';
+  signal addra, addrb       : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0)      := (others => '0');
+  signal dia, dib           : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
+  signal doa, dob           : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);
 
   procedure wait_cycles(signal clk : in std_logic; n : integer) is
   begin
@@ -31,9 +29,7 @@ begin
   -- Instantiate the DUT
   DUT: entity work.Flow_mem
     generic map (
-      DATA_WIDTH => DATA_WIDTH,
-      ADDR_WIDTH => ADDR_WIDTH,
-      LATENCY    => LATENCY
+      LATENCY => LATENCY
     )
     port map (
       clk   => clk,
@@ -69,47 +65,47 @@ begin
     ------------------------------------------------------------------------
     wait for 20 ns;
     wait until rising_edge(clk);
-    addra <= std_logic_vector(to_unsigned(0, ADDR_WIDTH));
-    dia <= x"AA";
+    addra <= std_logic_vector(to_unsigned(0, MEM_ADDR_WIDTH));
+    dia <= x"AAAA";
     ena <= '1';
     wea <= '1';
 
-    addrb <= std_logic_vector(to_unsigned(3, ADDR_WIDTH));
-    dib <= x"DD";
+    addrb <= std_logic_vector(to_unsigned(3, MEM_ADDR_WIDTH));
+    dib <= x"DDDD";
     enb <= '1';
     web <= '1';
 
     wait until rising_edge(clk);
     --wea <= '0';
     --ena <= '0'; -- Disable A after write
-    addra <= std_logic_vector(to_unsigned(1, ADDR_WIDTH));
-    dia <= x"BB";
+    addra <= std_logic_vector(to_unsigned(1, MEM_ADDR_WIDTH));
+    dia <= x"BBBB";
 
-    addrb <= std_logic_vector(to_unsigned(4, ADDR_WIDTH));
-    dib <= x"EE";
+    addrb <= std_logic_vector(to_unsigned(4, MEM_ADDR_WIDTH));
+    dib <= x"EEEE";
     --ena <= '1';
     --wea <= '1';
     wait until rising_edge(clk);
-    addra <= std_logic_vector(to_unsigned(2, ADDR_WIDTH));
-    dia <= x"CC";
+    addra <= std_logic_vector(to_unsigned(2, MEM_ADDR_WIDTH));
+    dia <= x"CCCC";
 
-    addrb <= std_logic_vector(to_unsigned(2, ADDR_WIDTH));
-    dib <= x"FF";
+    addrb <= std_logic_vector(to_unsigned(2, MEM_ADDR_WIDTH));
+    dib <= x"FFFF";
 
     wait until rising_edge(clk);
-    addra <= std_logic_vector(to_unsigned(2, ADDR_WIDTH));
+    addra <= std_logic_vector(to_unsigned(2, MEM_ADDR_WIDTH));
     wea <= '0';
 
-    addrb <= std_logic_vector(to_unsigned(2, ADDR_WIDTH));
+    addrb <= std_logic_vector(to_unsigned(2, MEM_ADDR_WIDTH));
     web <= '0';
 
     wait until rising_edge(clk);
-    addra <= std_logic_vector(to_unsigned(1, ADDR_WIDTH));
-    addrb <= std_logic_vector(to_unsigned(4, ADDR_WIDTH));
+    addra <= std_logic_vector(to_unsigned(1, MEM_ADDR_WIDTH));
+    addrb <= std_logic_vector(to_unsigned(4, MEM_ADDR_WIDTH));
 
     wait until rising_edge(clk);
-    addra <= std_logic_vector(to_unsigned(0, ADDR_WIDTH));
-    addrb <= std_logic_vector(to_unsigned(3, ADDR_WIDTH));
+    addra <= std_logic_vector(to_unsigned(0, MEM_ADDR_WIDTH));
+    addrb <= std_logic_vector(to_unsigned(3, MEM_ADDR_WIDTH));
 
     wait until rising_edge(clk);
     ena <= '0';
@@ -117,17 +113,17 @@ begin
 
     wait until rising_edge(clk);
 
-    addra <= std_logic_vector(to_unsigned(2, ADDR_WIDTH));
-    dia <= x"22";
+    addra <= std_logic_vector(to_unsigned(2, MEM_ADDR_WIDTH));
+    dia <= x"2222";
     ena <= '1';
     wea <= '1';
 
-    addrb <= std_logic_vector(to_unsigned(2, ADDR_WIDTH));
+    addrb <= std_logic_vector(to_unsigned(2, MEM_ADDR_WIDTH));
     enb <= '1';
 
     wait until rising_edge(clk);
 
-    addra <= std_logic_vector(to_unsigned(2, ADDR_WIDTH));
+    addra <= std_logic_vector(to_unsigned(2, MEM_ADDR_WIDTH));
     wea <= '0';
 
     wait until rising_edge(clk);
@@ -135,8 +131,8 @@ begin
     ------------------------------------------------------------------------
     -- Test 3: Write via B, read via B
     ------------------------------------------------------------------------
-    addrb <= std_logic_vector(to_unsigned(4, ADDR_WIDTH));
-    dib <= x"BB";
+    addrb <= std_logic_vector(to_unsigned(4, MEM_ADDR_WIDTH));
+    dib <= x"BBBB";
     enb <= '1';
     web <= '1';
 
@@ -153,13 +149,13 @@ begin
     ------------------------------------------------------------------------
     -- Test 4: Port A and B write/read different addresses concurrently
     ------------------------------------------------------------------------
-    addra <= std_logic_vector(to_unsigned(5, ADDR_WIDTH));
-    dia <= x"AA";
+    addra <= std_logic_vector(to_unsigned(5, MEM_ADDR_WIDTH));
+    dia <= x"AAAA";
     ena <= '1';
     wea <= '1';
 
-    addrb <= std_logic_vector(to_unsigned(6, ADDR_WIDTH));
-    dib <= x"CC";
+    addrb <= std_logic_vector(to_unsigned(6, MEM_ADDR_WIDTH));
+    dib <= x"CCCC";
     enb <= '1';
     web <= '1';
 
@@ -177,13 +173,13 @@ begin
     ------------------------------------------------------------------------
     -- Test 5: Conflict — both ports access same address
     ------------------------------------------------------------------------
-    addra <= std_logic_vector(to_unsigned(7, ADDR_WIDTH));
-    dia <= x"11";
+    addra <= std_logic_vector(to_unsigned(7, MEM_ADDR_WIDTH));
+    dia <= x"1111";
     ena <= '1';
     wea <= '1';
 
-    addrb <= std_logic_vector(to_unsigned(7, ADDR_WIDTH));
-    dib <= x"22";
+    addrb <= std_logic_vector(to_unsigned(7, MEM_ADDR_WIDTH));
+    dib <= x"2222";
     enb <= '1';
     web <= '1';
 

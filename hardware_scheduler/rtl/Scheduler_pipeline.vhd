@@ -2,6 +2,7 @@ library IEEE;
   use IEEE.STD_LOGIC_1164.all;
   use IEEE.NUMERIC_STD.all;
   use work.constants_pkg.all;
+  use work.bram_init_pkg.all; -- Import constants
 
 entity pipelined_stack_processor is
   port (
@@ -15,22 +16,29 @@ architecture rtl of pipelined_stack_processor is
   -- BRAM component declaration
   component Flow_mem is
     generic (
-      DATA_WIDTH : integer;
-      ADDR_WIDTH : integer;
-      LATENCY    : integer
+      LATENCY : integer
     );
     port (
-      clk   : in  std_logic;
-      ena   : in  std_logic;
-      enb   : in  std_logic;
-      wea   : in  std_logic;
-      web   : in  std_logic;
-      addra : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
-      addrb : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
-      dia   : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
-      dib   : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
-      doa   : out std_logic_vector(DATA_WIDTH - 1 downto 0);
-      dob   : out std_logic_vector(DATA_WIDTH - 1 downto 0)
+      clk          : in  std_logic;
+      ena, enb     : in  std_logic;
+      wea, web     : in  std_logic;
+      addra, addrb : in  std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0);
+      dia, dib     : in  std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);
+      doa, dob     : out std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0)
+    );
+  end component;
+
+  component Rate_mem is
+    generic (
+      LATENCY : integer
+    );
+    port (
+      clk          : in  std_logic;
+      ena, enb     : in  std_logic;
+      wea, web     : in  std_logic;
+      addra, addrb : in  std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0);
+      dia, dib     : in  std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
+      doa, dob     : out std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0)
     );
   end component;
 
@@ -68,12 +76,18 @@ architecture rtl of pipelined_stack_processor is
   signal pipe_valid : std_logic_vector(PIPELINE_SIZE - 1 downto 0) := (others => '0');
   signal pipe       : pipe_type                                    := (others => (valid => '0', cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, max_rate => (others => '0'), cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0'));
 
-  -- Internal BRAM signals
-  signal bram_ena   : std_logic                                      := '0';
-  signal bram_wea   : std_logic                                      := '0';
-  signal bram_addra : std_logic_vector(BRAM_ADDR_WIDTH - 1 downto 0) := FLOW_NULL_ADDRESS;
-  signal bram_dia   : std_logic_vector(BRAM_DATA_WIDTH - 1 downto 0) := (others => '0');
-  signal bram_doa   : std_logic_vector(BRAM_DATA_WIDTH - 1 downto 0) := (others => '0');
+  -- Internal flow_mem signals
+  signal flow_mem_ena   : std_logic                                          := '0';
+  signal flow_mem_wea   : std_logic                                          := '0';
+  signal flow_mem_addra : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0)      := MEM_DEFAULT_ADDRESS;
+  signal flow_mem_dia   : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
+  signal flow_mem_doa   : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
+
+  signal rate_mem_ena   : std_logic                                          := '0';
+  signal rate_mem_wea   : std_logic                                          := '0';
+  signal rate_mem_addra : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0)      := MEM_DEFAULT_ADDRESS;
+  signal rate_mem_dia   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
+  signal rate_mem_doa   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
 
   -- Calendar signals
   signal insert_enable  : std_logic                                         := '0';
@@ -87,22 +101,38 @@ architecture rtl of pipelined_stack_processor is
 begin
 
   -- Instantiate the BRAM internally
-  bram_inst: Flow_mem
+  flow_mem_inst: Flow_mem
     generic map (
-      DATA_WIDTH => BRAM_DATA_WIDTH,
-      ADDR_WIDTH => BRAM_ADDR_WIDTH,
-      LATENCY    => BRAM_LATENCY
+      LATENCY => MEM_LATENCY
     )
     port map (
       clk   => clk,
-      ena   => bram_ena,
-      wea   => bram_wea,
-      addra => bram_addra,
-      dia   => bram_dia,
-      doa   => bram_doa,
+      ena   => flow_mem_ena,
+      wea   => flow_mem_wea,
+      addra => flow_mem_addra,
+      dia   => flow_mem_dia,
+      doa   => flow_mem_doa,
       enb   => '0',
       web   => '0',
-      addrb => FLOW_NULL_ADDRESS,
+      addrb => MEM_DEFAULT_ADDRESS,
+      dib   => (others => '0'),
+      dob   => open
+    );
+
+  rate_mem_inst: Rate_mem
+    generic map (
+      LATENCY => MEM_LATENCY
+    )
+    port map (
+      clk   => clk,
+      ena   => rate_mem_ena,
+      wea   => rate_mem_wea,
+      addra => rate_mem_addra,
+      dia   => rate_mem_dia,
+      doa   => rate_mem_doa,
+      enb   => '0',
+      web   => '0',
+      addrb => MEM_DEFAULT_ADDRESS,
       dib   => (others => '0'),
       dob   => open
     );
@@ -138,66 +168,90 @@ begin
           pipe(0).cur_addr <= head_address_o;
           pipe_valid(0) <= '1';
         end if;
-      elsif pipe_valid(BRAM_LATENCY + 2) = '1' and pipe(BRAM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS then
-        pipe(0).cur_addr <= pipe(BRAM_LATENCY + 2).next_addr;
+      elsif pipe_valid(MEM_LATENCY + 2) = '1' and pipe(MEM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS then
+        pipe(0).cur_addr <= pipe(MEM_LATENCY + 2).next_addr;
         pipe_valid(0) <= '1';
       else
         pipe_valid(0) <= '0';
       end if;
 
-      -- Stage 0 issues address to BRAM
+      -- Stage 0 issues address to both BRAMs
       if pipe_valid(0) = '1' then
-        bram_ena <= '1';
-        bram_wea <= '0';
-        bram_addra <= std_logic_vector(resize(unsigned(pipe(0).cur_addr(BRAM_ADDR_WIDTH - 1 downto 0)), BRAM_ADDR_WIDTH));
+        flow_mem_ena <= '1';
+        flow_mem_wea <= '0';
+        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(0).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
+
+        rate_mem_ena <= '1';
+        rate_mem_wea <= '0';
+        rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(0).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
       else
-        bram_ena <= '0';
+        flow_mem_ena <= '0';
+        rate_mem_ena <= '0';
       end if;
 
-      -- Stage 3: BRAM data arrives
-      -- The BRAM data is expected to be in the format:
+      -- Stage 3: BRAMs data arrives
+      -- The flow_mem data is expected to be in the format:
       -- msb -> lsb
-      -- [active_flag, seq_nr, cur_rate, max_rate, next_addr, cur_addr]
-      -- [ 1, SEQ_NR_WIDTH, RATE_BIT_RESOLUTION_WIDTH, RATE_BIT_RESOLUTION_WIDTH, FLOW_ADDRESS_WIDTH, QP_WIDTH[empty bits, FLOW_ADDRESS_WIDTH]]
-      if pipe_valid(BRAM_LATENCY + 1) = '1' then
-        pipe(BRAM_LATENCY + 2).cur_addr <= bram_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
-        pipe(BRAM_LATENCY + 2).next_addr <= bram_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
-        pipe(BRAM_LATENCY + 2).max_rate <= unsigned(bram_doa(RATE_BIT_RESOLUTION_WIDTH + FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH));
-        pipe(BRAM_LATENCY + 2).cur_rate <= unsigned(bram_doa(2 * RATE_BIT_RESOLUTION_WIDTH + FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto RATE_BIT_RESOLUTION_WIDTH + FLOW_ADDRESS_WIDTH + QP_WIDTH));
-        pipe(BRAM_LATENCY + 2).seq_nr <= unsigned(bram_doa(2 * RATE_BIT_RESOLUTION_WIDTH + FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto 2 * RATE_BIT_RESOLUTION_WIDTH + FLOW_ADDRESS_WIDTH + QP_WIDTH));
-        pipe(BRAM_LATENCY + 2).active_flag <= bram_doa(2 * RATE_BIT_RESOLUTION_WIDTH + FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
+      -- [active_flag, seq_nr, next_addr, cur_addr]
+      -- [ 1, SEQ_NR_WIDTH, FLOW_ADDRESS_WIDTH, QP_WIDTH[empty bits: QP_padding, FLOW_ADDRESS_WIDTH]]
+
+      -- The rate_mem data is expected to be in the format:
+      -- msb -> lsb
+      -- [cur_rate, max_rate]
+      -- [RATE_BIT_RESOLUTION_WIDTH, RATE_BIT_RESOLUTION_WIDTH]
+      if pipe_valid(MEM_LATENCY + 1) = '1' then
+        pipe(MEM_LATENCY + 2).cur_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
+        pipe(MEM_LATENCY + 2).next_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
+        pipe(MEM_LATENCY + 2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH));
+        pipe(MEM_LATENCY + 2).active_flag <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
+
+        pipe(MEM_LATENCY + 2).max_rate <= unsigned(rate_mem_doa(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0));
+        pipe(MEM_LATENCY + 2).cur_rate <= unsigned(rate_mem_doa(2 * RATE_BIT_RESOLUTION_WIDTH - 1 downto RATE_BIT_RESOLUTION_WIDTH));
+
       end if;
 
       -- Stage 4: process 1
-      if pipe_valid(BRAM_LATENCY + 2) = '1' then
-        pipe(BRAM_LATENCY + 3).seq_nr <= pipe(BRAM_LATENCY + 2).seq_nr + 1;
-        target_slot <= (current_slot_o + pipe(BRAM_LATENCY + 2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
+      if pipe_valid(MEM_LATENCY + 2) = '1' then
+        pipe(MEM_LATENCY + 3).seq_nr <= pipe(MEM_LATENCY + 2).seq_nr + 1;
+        target_slot <= (current_slot_o + pipe(MEM_LATENCY + 2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
       end if;
 
-      if pipe_valid(BRAM_LATENCY + 3) = '1' then
+      if pipe_valid(MEM_LATENCY + 3) = '1' then
         insert_enable <= '1';
         insert_slot <= target_slot;
-        insert_address <= pipe(BRAM_LATENCY + 3).cur_addr;
+        insert_address <= pipe(MEM_LATENCY + 3).cur_addr;
       else
         insert_enable <= '0';
       end if;
 
       -- Stage 6: writeback
-      if pipe_valid(BRAM_LATENCY + 4) = '1' then
-        bram_ena <= '1';
-        bram_wea <= '1';
-        bram_addra <= std_logic_vector(resize(unsigned(pipe(BRAM_LATENCY + 4).cur_addr(BRAM_ADDR_WIDTH - 1 downto 0)), BRAM_ADDR_WIDTH));
-        bram_dia <= pipe(BRAM_LATENCY + 4).active_flag & std_logic_vector(pipe(BRAM_LATENCY + 4).seq_nr) & std_logic_vector(pipe(BRAM_LATENCY + 4).cur_rate) & std_logic_vector(pipe(BRAM_LATENCY + 4).max_rate) & pipe(BRAM_LATENCY + 4).next_addr & QP_padding & pipe(BRAM_LATENCY + 4).cur_addr;
+      if pipe_valid(MEM_LATENCY + 4) = '1' then
+        flow_mem_ena <= '1';
+        flow_mem_wea <= '1';
+        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
+        flow_mem_dia <= pipe(MEM_LATENCY + 4).active_flag & std_logic_vector(pipe(MEM_LATENCY + 4).seq_nr) & pipe(MEM_LATENCY + 4).next_addr & QP_padding & pipe(MEM_LATENCY + 4).cur_addr;
+
+        rate_mem_ena <= '1';
+        rate_mem_wea <= '1';
+        rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
+        rate_mem_dia <= std_logic_vector(pipe(MEM_LATENCY + 4).cur_rate) & std_logic_vector(pipe(MEM_LATENCY + 4).max_rate);
+
       else
-        bram_wea <= '0';
+        flow_mem_wea <= '0';
+        rate_mem_wea <= '0';
       end if;
 
       if rst = '1' then
         pipe_valid <= (others => '0');
-        bram_ena <= '0';
-        bram_wea <= '0';
-        bram_addra <= FLOW_NULL_ADDRESS;
-        bram_dia <= (others => '0');
+        flow_mem_ena <= '0';
+        flow_mem_wea <= '0';
+        flow_mem_addra <= MEM_DEFAULT_ADDRESS;
+        flow_mem_dia <= (others => '0');
+
+        rate_mem_ena <= '0';
+        rate_mem_wea <= '0';
+        rate_mem_addra <= MEM_DEFAULT_ADDRESS;
+        rate_mem_dia <= (others => '0');
       end if;
 
     end if;

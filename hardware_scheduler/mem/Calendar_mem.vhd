@@ -4,29 +4,28 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
   use work.bram_init_pkg.all;
+  use work.constants_pkg.all; -- Import constants
 
 entity Calendar_mem is
   generic (
-    DATA_WIDTH : integer;
-    ADDR_WIDTH : integer; -- 262k locations
-    LATENCY    : integer  -- number of pipeline stages
+    LATENCY : integer := 3 -- number of pipeline stages
   );
   port (
     clk          : in  std_logic;
     ena, enb     : in  std_logic;
     wea, web     : in  std_logic;
-    addra, addrb : in  std_logic_vector(ADDR_WIDTH - 1 downto 0);
-    dia, dib     : in  std_logic_vector(DATA_WIDTH - 1 downto 0);
-    doa, dob     : out std_logic_vector(DATA_WIDTH - 1 downto 0)
+    addra, addrb : in  std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0);
+    dia, dib     : in  std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0);
+    doa, dob     : out std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0)
   );
 end entity;
 
 architecture rtl of Calendar_mem is
 
-  signal ram : ram_type := init_bram_16;
+  signal ram : calendar_mem_type := init_calendar_mem_16;
 
   -- Pipelined outputs
-  type pipeline_array is array (0 to LATENCY - 1) of std_logic_vector(DATA_WIDTH - 1 downto 0);
+  type pipeline_array is array (0 to LATENCY - 1) of std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0);
   signal pipeline_a : pipeline_array := (others => (others => '1'));
   signal pipeline_b : pipeline_array := (others => (others => '1'));
 
