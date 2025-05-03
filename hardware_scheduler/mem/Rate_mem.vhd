@@ -14,7 +14,7 @@ entity Rate_mem is
     clk          : in  std_logic;
     ena, enb     : in  std_logic;
     wea, web     : in  std_logic;
-    addra, addrb : in  std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0);
+    addra, addrb : in  std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0);
     dia, dib     : in  std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
     doa, dob     : out std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0)
   );

@@ -6,9 +6,9 @@ library IEEE;
 package bram_init_pkg is
 
   -- Memory
-  type flow_mem_type is array (0 to 2 ** MEM_ADDR_WIDTH - 1) of std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);
-  type rate_mem_type is array (0 to 2 ** MEM_ADDR_WIDTH - 1) of std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
-  type calendar_mem_type is array (0 to 2 ** MEM_ADDR_WIDTH - 1) of std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0);
+  type flow_mem_type is array (0 to 2 ** FLOW_MEM_ADDR_WIDTH - 1) of std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);
+  type rate_mem_type is array (0 to 2 ** RATE_MEM_ADDR_WIDTH - 1) of std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
+  type calendar_mem_type is array (0 to 2 ** CALENDAR_MEM_ADDR_WIDTH - 1) of std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0);
 
   constant init_flow_mem_16 : flow_mem_type := (
     0  => "1000000000100000",
@@ -49,22 +49,14 @@ package bram_init_pkg is
   );
 
   constant init_calendar_mem_16 : calendar_mem_type := (
-    0  => "00000",
-    1  => CALENDAR_MEM_NULL_ENTRY,
-    2  => CALENDAR_MEM_NULL_ENTRY,
-    3  => CALENDAR_MEM_NULL_ENTRY,
-    4  => CALENDAR_MEM_NULL_ENTRY,
-    5  => CALENDAR_MEM_NULL_ENTRY,
-    6  => CALENDAR_MEM_NULL_ENTRY,
-    7  => CALENDAR_MEM_NULL_ENTRY,
-    8  => CALENDAR_MEM_NULL_ENTRY,
-    9  => CALENDAR_MEM_NULL_ENTRY,
-    10 => CALENDAR_MEM_NULL_ENTRY,
-    11 => CALENDAR_MEM_NULL_ENTRY,
-    12 => CALENDAR_MEM_NULL_ENTRY,
-    13 => CALENDAR_MEM_NULL_ENTRY,
-    14 => CALENDAR_MEM_NULL_ENTRY,
-    15 => CALENDAR_MEM_NULL_ENTRY
+    0 => "00000",
+    1 => "00001",
+    2 => CALENDAR_MEM_NULL_ENTRY,
+    3 => "01100",
+    4 => CALENDAR_MEM_NULL_ENTRY,
+    5 => "00010",
+    6 => CALENDAR_MEM_NULL_ENTRY,
+    7 => CALENDAR_MEM_NULL_ENTRY
   );
 
 end package;

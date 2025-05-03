@@ -22,7 +22,7 @@ architecture rtl of pipelined_stack_processor is
       clk          : in  std_logic;
       ena, enb     : in  std_logic;
       wea, web     : in  std_logic;
-      addra, addrb : in  std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0);
+      addra, addrb : in  std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
       dia, dib     : in  std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);
       doa, dob     : out std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0)
     );
@@ -36,7 +36,7 @@ architecture rtl of pipelined_stack_processor is
       clk          : in  std_logic;
       ena, enb     : in  std_logic;
       wea, web     : in  std_logic;
-      addra, addrb : in  std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0);
+      addra, addrb : in  std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0);
       dia, dib     : in  std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
       doa, dob     : out std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0)
     );
@@ -44,14 +44,15 @@ architecture rtl of pipelined_stack_processor is
 
   component Calendar is
     port (
-      clk            : in  std_logic;
-      rst            : in  std_logic;
-      insert_enable  : in  std_logic;
-      insert_slot    : in  unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
-      insert_address : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-      current_slot_o : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
-      head_address_o : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-      slot_advance_o : out std_logic -- Pulse when moving to the next slot
+      clk                 : in  std_logic;
+      rst                 : in  std_logic;
+      insert_enable       : in  std_logic;
+      insert_slot         : in  unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+      insert_data         : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+      prev_head_address_o : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+      head_address_o      : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+      current_slot_o      : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+      slot_advance_o      : out std_logic -- Pulse when moving to the next slot
     );
   end component;
 
@@ -59,7 +60,7 @@ architecture rtl of pipelined_stack_processor is
 
   -- Pipeline registers
   type pipe_stage is record
-    valid       : std_logic;
+    --valid       : std_logic;
     --qp          : std_logic_vector(QP_WIDTH - 1 downto 0); qp ommitted in the pipeline, current address is used instead
     cur_addr    : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     next_addr   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
@@ -74,29 +75,30 @@ architecture rtl of pipelined_stack_processor is
   type pipe_type is array (0 to PIPELINE_SIZE - 1) of pipe_stage;
 
   signal pipe_valid : std_logic_vector(PIPELINE_SIZE - 1 downto 0) := (others => '0');
-  signal pipe       : pipe_type                                    := (others => (valid => '0', cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, max_rate => (others => '0'), cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0'));
+  signal pipe       : pipe_type                                    := (others => (cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, max_rate => (others => '0'), cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0'));
 
   -- Internal flow_mem signals
   signal flow_mem_ena   : std_logic                                          := '0';
   signal flow_mem_wea   : std_logic                                          := '0';
-  signal flow_mem_addra : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0)      := MEM_DEFAULT_ADDRESS;
+  signal flow_mem_addra : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := FLOW_MEM_DEFAULT_ADDRESS;
   signal flow_mem_dia   : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
   signal flow_mem_doa   : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
 
   signal rate_mem_ena   : std_logic                                          := '0';
   signal rate_mem_wea   : std_logic                                          := '0';
-  signal rate_mem_addra : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0)      := MEM_DEFAULT_ADDRESS;
+  signal rate_mem_addra : std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0) := RATE_MEM_DEFAULT_ADDRESS;
   signal rate_mem_dia   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
   signal rate_mem_doa   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
 
   -- Calendar signals
-  signal insert_enable  : std_logic                                         := '0';
-  signal insert_slot    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
-  signal insert_address : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
-  signal current_slot_o : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
-  signal head_address_o : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal slot_advance_o : std_logic;
-  signal target_slot    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
+  signal insert_enable       : std_logic                                         := '0';
+  signal insert_slot         : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
+  signal insert_data         : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
+  signal prev_head_address_o : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal head_address_o      : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal current_slot_o      : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+  signal slot_advance_o      : std_logic;
+  signal target_slot         : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
 
 begin
 
@@ -114,7 +116,7 @@ begin
       doa   => flow_mem_doa,
       enb   => '0',
       web   => '0',
-      addrb => MEM_DEFAULT_ADDRESS,
+      addrb => FLOW_MEM_DEFAULT_ADDRESS,
       dib   => (others => '0'),
       dob   => open
     );
@@ -132,7 +134,7 @@ begin
       doa   => rate_mem_doa,
       enb   => '0',
       web   => '0',
-      addrb => MEM_DEFAULT_ADDRESS,
+      addrb => RATE_MEM_DEFAULT_ADDRESS,
       dib   => (others => '0'),
       dob   => open
     );
@@ -140,14 +142,15 @@ begin
   -- Instantiate Calendar
   calendar_inst: Calendar
     port map (
-      clk            => clk,
-      rst            => rst,
-      insert_enable  => insert_enable,
-      insert_slot    => insert_slot,
-      insert_address => insert_address,
-      current_slot_o => current_slot_o,
-      head_address_o => head_address_o,
-      slot_advance_o => slot_advance_o
+      clk                 => clk,
+      rst                 => rst,
+      insert_enable       => insert_enable,
+      insert_slot         => insert_slot,
+      insert_data         => insert_data,
+      prev_head_address_o => prev_head_address_o,
+      head_address_o      => head_address_o,
+      current_slot_o      => current_slot_o,
+      slot_advance_o      => slot_advance_o
     );
 
   -- Main pipeline logic
@@ -179,11 +182,11 @@ begin
       if pipe_valid(0) = '1' then
         flow_mem_ena <= '1';
         flow_mem_wea <= '0';
-        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(0).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
+        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(0).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0)), FLOW_MEM_ADDR_WIDTH));
 
         rate_mem_ena <= '1';
         rate_mem_wea <= '0';
-        rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(0).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
+        rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(0).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0)), RATE_MEM_ADDR_WIDTH));
       else
         flow_mem_ena <= '0';
         rate_mem_ena <= '0';
@@ -219,7 +222,7 @@ begin
       if pipe_valid(MEM_LATENCY + 3) = '1' then
         insert_enable <= '1';
         insert_slot <= target_slot;
-        insert_address <= pipe(MEM_LATENCY + 3).cur_addr;
+        insert_data <= pipe(MEM_LATENCY + 3).cur_addr;
       else
         insert_enable <= '0';
       end if;
@@ -228,12 +231,12 @@ begin
       if pipe_valid(MEM_LATENCY + 4) = '1' then
         flow_mem_ena <= '1';
         flow_mem_wea <= '1';
-        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
+        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0)), FLOW_MEM_ADDR_WIDTH));
         flow_mem_dia <= pipe(MEM_LATENCY + 4).active_flag & std_logic_vector(pipe(MEM_LATENCY + 4).seq_nr) & pipe(MEM_LATENCY + 4).next_addr & QP_padding & pipe(MEM_LATENCY + 4).cur_addr;
 
         rate_mem_ena <= '1';
         rate_mem_wea <= '1';
-        rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(MEM_ADDR_WIDTH - 1 downto 0)), MEM_ADDR_WIDTH));
+        rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0)), RATE_MEM_ADDR_WIDTH));
         rate_mem_dia <= std_logic_vector(pipe(MEM_LATENCY + 4).cur_rate) & std_logic_vector(pipe(MEM_LATENCY + 4).max_rate);
 
       else
@@ -245,12 +248,12 @@ begin
         pipe_valid <= (others => '0');
         flow_mem_ena <= '0';
         flow_mem_wea <= '0';
-        flow_mem_addra <= MEM_DEFAULT_ADDRESS;
+        flow_mem_addra <= FLOW_MEM_DEFAULT_ADDRESS;
         flow_mem_dia <= (others => '0');
 
         rate_mem_ena <= '0';
         rate_mem_wea <= '0';
-        rate_mem_addra <= MEM_DEFAULT_ADDRESS;
+        rate_mem_addra <= RATE_MEM_DEFAULT_ADDRESS;
         rate_mem_dia <= (others => '0');
       end if;
 

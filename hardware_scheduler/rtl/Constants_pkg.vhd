@@ -33,29 +33,34 @@ package constants_pkg is
   constant IPG_DIVIDEND : real := 2.34375E10; -- division numerator
 
   -- MEM constants
-  constant MEM_ADDR_WIDTH      : integer                                       := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
-  constant MEM_DEFAULT_ADDRESS : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- FIrst address in the memory
-
+  --constant MEM_ADDR_WIDTH      : integer                                       := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
+  --constant MEM_DEFAULT_ADDRESS : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
   constant MEM_LATENCY   : integer := 2;               -- Memory access latency in clock cycles
   constant PIPELINE_SIZE : integer := 5 + MEM_LATENCY; -- Number of pipeline stages for the scheduler
 
   -- Flow memory data format
   --|active_flag|seq_nr|next_addr|QP|
   --|    1      |   5  |    5    | 5|
-  constant FLOW_MEM_DATA_WIDTH : integer                                            := QP_WIDTH + SEQ_NR_WIDTH + FLOW_ADDRESS_WIDTH + 1;
-  constant FLOW_MEM_NULL_ENTRY : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := "0000001111111111";
+  constant FLOW_MEM_DATA_WIDTH      : integer                                            := QP_WIDTH + SEQ_NR_WIDTH + FLOW_ADDRESS_WIDTH + 1;
+  constant FLOW_MEM_NULL_ENTRY      : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := "0000001111111111";
+  constant FLOW_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
+  constant FLOW_MEM_DEFAULT_ADDRESS : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
 
   --Rate memory data format
   --|max_rate|cur_rate|
   --|    3   |    3   |
-  constant RATE_MEM_DATA_WIDTH : integer                                            := 2 * RATE_BIT_RESOLUTION_WIDTH;
-  constant RATE_MEM_NULL_ENTRY : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "000000";
+  constant RATE_MEM_DATA_WIDTH      : integer                                            := 2 * RATE_BIT_RESOLUTION_WIDTH;
+  constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "000000";
+  constant RATE_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
+  constant RATE_MEM_DEFAULT_ADDRESS : std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
 
   -- Calendar memory data format
   --|head_addr|
   --|    5    |
-  constant CALENDAR_MEM_DATA_WIDTH : integer                                                := FLOW_ADDRESS_WIDTH;
-  constant CALENDAR_MEM_NULL_ENTRY : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := FLOW_NULL_ADDRESS;
+  constant CALENDAR_MEM_DATA_WIDTH      : integer                                                := FLOW_ADDRESS_WIDTH;
+  constant CALENDAR_MEM_NULL_ENTRY      : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := FLOW_NULL_ADDRESS;
+  constant CALENDAR_MEM_ADDR_WIDTH      : integer                                                := CALENDAR_SLOTS_WIDTH;
+  constant CALENDAR_MEM_DEFAULT_ADDRESS : std_logic_vector(CALENDAR_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0'); -- First address in the memory
 
 end package;
 
