@@ -55,7 +55,7 @@ architecture RTL of Calendar is
   signal calendar_mem_doa, calendar_mem_dob     : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := CALENDAR_MEM_NULL_ENTRY;
 
   -- Pipelines for synchronizing: current_slot_o, slot_advance_o with head_address_o after MEM_LATENCY
-  constant PIPE_SYNCH_LATECY : integer := MEM_LATENCY + 2; -- Number of pipeline stages for synchronization
+  constant PIPE_SYNCH_LATECY : integer := MEM_LATENCY + 1; -- Number of pipeline stages for synchronization
   type current_slot_pipe_type is array (0 to PIPE_SYNCH_LATECY - 1) of unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
   type slot_advance_pipe_type is array (0 to PIPE_SYNCH_LATECY - 1) of std_logic;
 
@@ -138,7 +138,7 @@ begin
         calendar_mem_wea <= '0';
       end if;
 
-      if slot_advance_pipe(0) = '1' then
+      if update_int = '1' then
         -- Read the previous head address using port B
         calendar_mem_enb <= '1';
         calendar_mem_web <= '1';

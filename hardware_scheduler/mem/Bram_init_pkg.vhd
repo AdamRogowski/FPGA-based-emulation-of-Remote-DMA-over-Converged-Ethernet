@@ -30,18 +30,18 @@ package bram_init_pkg is
   );
 
   constant init_rate_mem_16 : rate_mem_type := (
-    0  => "101001",
-    1  => "101001",
-    2  => "101001",
-    3  => "101001",
-    4  => "101001",
-    5  => "101001",
-    6  => "101001",
-    7  => "101001",
-    8  => "101001",
-    9  => "101001",
-    10 => "101001",
-    11 => "101001",
+    0  => "100001",
+    1  => "100001",
+    2  => "100001",
+    3  => "100001",
+    4  => "100001",
+    5  => "100001",
+    6  => "100001",
+    7  => "100001",
+    8  => "100001",
+    9  => "100001",
+    10 => "100001",
+    11 => "100001",
     12 => RATE_MEM_NULL_ENTRY,
     13 => RATE_MEM_NULL_ENTRY,
     14 => RATE_MEM_NULL_ENTRY,
@@ -49,12 +49,12 @@ package bram_init_pkg is
   );
 
   constant init_calendar_mem_16 : calendar_mem_type := (
-    0 => "00000",
+    0 => CALENDAR_MEM_NULL_ENTRY,
     1 => "00001",
     2 => CALENDAR_MEM_NULL_ENTRY,
-    3 => "01100",
+    3 => CALENDAR_MEM_NULL_ENTRY,
     4 => CALENDAR_MEM_NULL_ENTRY,
-    5 => "00010",
+    5 => CALENDAR_MEM_NULL_ENTRY,
     6 => CALENDAR_MEM_NULL_ENTRY,
     7 => CALENDAR_MEM_NULL_ENTRY
   );

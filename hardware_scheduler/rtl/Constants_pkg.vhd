@@ -35,8 +35,8 @@ package constants_pkg is
   -- MEM constants
   --constant MEM_ADDR_WIDTH      : integer                                       := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   --constant MEM_DEFAULT_ADDRESS : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
-  constant MEM_LATENCY   : integer := 2;               -- Memory access latency in clock cycles
-  constant PIPELINE_SIZE : integer := 5 + MEM_LATENCY; -- Number of pipeline stages for the scheduler
+  constant MEM_LATENCY   : integer := 3;  -- Memory access latency in clock cycles
+  constant PIPELINE_SIZE : integer := 14; -- Number of pipeline stages for the scheduler
 
   -- Flow memory data format
   --|active_flag|seq_nr|next_addr|QP|

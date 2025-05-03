@@ -171,6 +171,7 @@ begin
           pipe(0).cur_addr <= head_address_o;
           pipe_valid(0) <= '1';
         end if;
+        --TODO: handle the improbable case when slot_advance_o = '1' and pipe_valid(MEM_LATENCY + 2) = '1' and pipe(MEM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS at the same time
       elsif pipe_valid(MEM_LATENCY + 2) = '1' and pipe(MEM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS then
         pipe(0).cur_addr <= pipe(MEM_LATENCY + 2).next_addr;
         pipe_valid(0) <= '1';
@@ -227,21 +228,26 @@ begin
         insert_enable <= '0';
       end if;
 
+      if pipe_valid(MEM_LATENCY + 9) = '1' then
+        pipe(MEM_LATENCY + 10).next_addr <= prev_head_address_o;
+
+      end if;
+
       -- Stage 6: writeback
-      if pipe_valid(MEM_LATENCY + 4) = '1' then
+      if pipe_valid(MEM_LATENCY + 10) = '1' then
         flow_mem_ena <= '1';
         flow_mem_wea <= '1';
-        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0)), FLOW_MEM_ADDR_WIDTH));
-        flow_mem_dia <= pipe(MEM_LATENCY + 4).active_flag & std_logic_vector(pipe(MEM_LATENCY + 4).seq_nr) & pipe(MEM_LATENCY + 4).next_addr & QP_padding & pipe(MEM_LATENCY + 4).cur_addr;
+        flow_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 10).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0)), FLOW_MEM_ADDR_WIDTH));
+        flow_mem_dia <= pipe(MEM_LATENCY + 10).active_flag & std_logic_vector(pipe(MEM_LATENCY + 10).seq_nr) & pipe(MEM_LATENCY + 10).next_addr & QP_padding & pipe(MEM_LATENCY + 10).cur_addr;
 
-        rate_mem_ena <= '1';
-        rate_mem_wea <= '1';
-        rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 4).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0)), RATE_MEM_ADDR_WIDTH));
-        rate_mem_dia <= std_logic_vector(pipe(MEM_LATENCY + 4).cur_rate) & std_logic_vector(pipe(MEM_LATENCY + 4).max_rate);
+        --rate_mem_ena <= '1';
+        --rate_mem_wea <= '1';
+        --rate_mem_addra <= std_logic_vector(resize(unsigned(pipe(MEM_LATENCY + 7).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0)), RATE_MEM_ADDR_WIDTH));
+        --rate_mem_dia <= std_logic_vector(pipe(MEM_LATENCY + 7).cur_rate) & std_logic_vector(pipe(MEM_LATENCY + 7).max_rate);
 
       else
         flow_mem_wea <= '0';
-        rate_mem_wea <= '0';
+        --rate_mem_wea <= '0';
       end if;
 
       if rst = '1' then
