@@ -142,7 +142,7 @@ begin
         -- Read the previous head address using port B
         calendar_mem_enb <= '1';
         calendar_mem_web <= '1';
-        calendar_mem_addrb <= std_logic_vector(current_slot_pipe(0));
+        calendar_mem_addrb <= std_logic_vector(cur_slot_int);
         calendar_mem_dib <= FLOW_NULL_ADDRESS;
       else
         calendar_mem_enb <= '0';

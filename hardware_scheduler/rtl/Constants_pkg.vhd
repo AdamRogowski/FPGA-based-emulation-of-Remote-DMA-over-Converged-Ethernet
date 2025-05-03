@@ -18,8 +18,8 @@ package constants_pkg is
   constant FLOW_ADDRESS_WIDTH      : integer                                           := FLAT_FLOW_ADDRESS_WIDTH + 1; -- Including additional bit to include the null address
   constant FLOW_NULL_ADDRESS       : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '1');             -- NULL address
 
-  constant CALENDAR_INTERVAL       : integer := 256;
-  constant CALENDAR_INTERVAL_WIDTH : integer := 8; -- log2(CALENDAR_INTERVAL); -- Number of bits for interval counter
+  constant CALENDAR_INTERVAL       : integer := 100;
+  constant CALENDAR_INTERVAL_WIDTH : integer := 7; -- log2(CALENDAR_INTERVAL); -- Number of bits for interval counter
 
   constant FLOW_LOADER_INTERVAL       : integer := 32; -- Clock interval for FlowLoader 
   constant FLOW_LOADER_INTERVAL_WIDTH : integer := 5;  -- log2(FLOW_LOADER_INTERVAL); -- Number of bits for interval counter 
