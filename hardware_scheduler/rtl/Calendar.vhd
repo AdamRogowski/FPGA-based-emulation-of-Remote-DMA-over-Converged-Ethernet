@@ -19,8 +19,6 @@ end entity;
 
 architecture RTL of Calendar is
 
-  --type calendar_array_t is array (0 to CALENDAR_SLOTS - 1) of std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  --signal calendar_wheel : calendar_array_t := (others => FLOW_NULL_ADDRESS); -- initialized with reset
   component CalendarCnt
     port (
       clk      : in  std_logic;
@@ -32,7 +30,7 @@ architecture RTL of Calendar is
 
   component Calendar_mem
     generic (
-      LATENCY : integer := 2 -- number of pipeline stages
+      LATENCY : integer
     );
     port (
       clk          : in  std_logic;
@@ -61,11 +59,6 @@ architecture RTL of Calendar is
 
   signal current_slot_pipe : current_slot_pipe_type := (others => (others => '0'));
   signal slot_advance_pipe : slot_advance_pipe_type := (others => '0');
-
-  -- Signal for CalendarCnt
-  --signal slot_counter : unsigned(CALENDAR_INTERVAL_WIDTH - 1 downto 0) := (others => '0');
-  --signal slot_index   : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)    := (others => '0');
-  --signal update_reg   : std_logic                                      := '0';
 
 begin
 
@@ -100,21 +93,6 @@ begin
   begin
     if rising_edge(clk) then
 
-      --if slot_counter = to_unsigned(CALENDAR_INTERVAL - 1, slot_counter'length) then
-      --  slot_counter <= (others => '0');
-      --
-      --      if slot_index = to_unsigned(CALENDAR_SLOTS - 1, slot_index'length) then
-      --    slot_index <= (others => '0');
-      --    else
-      --   slot_index <= slot_index + 1;
-      --end if;
-
-      --update_reg <= '1';
-      --else
-      -- slot_counter <= slot_counter + 1;
-      -- update_reg <= '0';
-      --end if;
-
       -- Shift the pipeline for current_slot and slot_advance
       for i in PIPE_SYNCH_LATECY - 1 downto 1 loop
         current_slot_pipe(i) <= current_slot_pipe(i - 1);
@@ -124,8 +102,6 @@ begin
       current_slot_pipe(0) <= cur_slot_int;
       slot_advance_pipe(0) <= update_int;
 
-      --current_slot_pipe(0) <= current_slot;
-      --slot_advance_pipe(0) <= slot_tick_int;
       if insert_enable = '1' then
         -- Write to calendar memory using port A
         -- Read the previous head address using port A
@@ -150,8 +126,6 @@ begin
       end if;
 
       if rst = '1' then
-        --cur_slot_int <= (others => '0');
-        --update_int <= '0';
         calendar_mem_ena <= '0';
         calendar_mem_enb <= '0';
         calendar_mem_wea <= '0';
@@ -160,11 +134,8 @@ begin
         calendar_mem_addrb <= (others => '0');
         calendar_mem_dia <= (others => '0');
         calendar_mem_dib <= (others => '0');
-        --current_slot_pipe <= (others => (others => '0'));
-        --slot_advance_pipe <= (others => '0');
-        --slot_counter <= (others => '0');
-        --slot_index <= (others => '0');
-        --update_reg <= '0';
+        current_slot_pipe <= (others => (others => '0'));
+        slot_advance_pipe <= (others => '0');
       end if;
 
     end if;
