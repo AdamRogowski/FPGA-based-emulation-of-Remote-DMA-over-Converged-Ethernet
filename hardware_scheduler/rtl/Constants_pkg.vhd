@@ -62,12 +62,11 @@ package constants_pkg is
   constant CALENDAR_MEM_LATENCY         : integer                                                := 2;
 
   -- Scheduler_pipeline constants
-  constant SCHEDULER_PIPELINE_SIZE         : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 6; -- Number of pipeline stages for the scheduler
-  constant SCHEDULER_PIPELINE_STAGE_0      : integer := 0;
-  constant SCHEDULER_PIPELINE_STAGE_1      : integer := FLOW_MEM_LATENCY + 1;
-  constant SCHEDULER_PIPELINE_STAGE_2      : integer := FLOW_MEM_LATENCY + 2;
-  constant SCHEDULER_PIPELINE_STAGE_2_NEXT : integer := SCHEDULER_PIPELINE_STAGE_2 + 1;
-  constant SCHEDULER_PIPELINE_STAGE_3      : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
+  constant SCHEDULER_PIPELINE_SIZE    : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 6; -- Number of pipeline stages for the scheduler
+  constant SCHEDULER_PIPELINE_STAGE_0 : integer := 0;
+  constant SCHEDULER_PIPELINE_STAGE_1 : integer := FLOW_MEM_LATENCY + 1;
+  constant SCHEDULER_PIPELINE_STAGE_2 : integer := FLOW_MEM_LATENCY + 2;
+  constant SCHEDULER_PIPELINE_STAGE_3 : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
 
 end package;
 

@@ -6,8 +6,12 @@ library IEEE;
 
 entity pipelined_stack_processor is
   port (
-    clk : in std_logic;
-    rst : in std_logic
+    clk        : in  std_logic;
+    rst        : in  std_logic;
+    -- Flow cmd output
+    qp_o       : out std_logic_vector(QP_WIDTH - 1 downto 0);
+    seq_nr_o   : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
+    flow_rdy_o : out std_logic
   );
 end entity;
 
@@ -107,6 +111,11 @@ architecture rtl of pipelined_stack_processor is
   signal slot_advance_o      : std_logic;
   signal target_slot         : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
 
+  -- Output signals
+  signal qp_s       : std_logic_vector(QP_WIDTH - 1 downto 0) := (others => '0');
+  signal seq_nr_s   : unsigned(SEQ_NR_WIDTH - 1 downto 0)     := (others => '0');
+  signal flow_rdy_s : std_logic                               := '0';
+
 begin
 
   -- Instantiate the BRAM internally
@@ -177,7 +186,6 @@ begin
       -- constant SCHEDULER_PIPELINE_STAGE_0      : integer := 0;
       -- constant SCHEDULER_PIPELINE_STAGE_1      : integer := FLOW_MEM_LATENCY + 1;
       -- constant SCHEDULER_PIPELINE_STAGE_2      : integer := FLOW_MEM_LATENCY + 2;
-      -- constant SCHEDULER_PIPELINE_STAGE_2_NEXT : integer := SCHEDULER_PIPELINE_STAGE_2 + 1;
       -- constant SCHEDULER_PIPELINE_STAGE_3      : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
 
       -- Stage -1: input address or feedback
@@ -222,7 +230,7 @@ begin
       if pipe_valid(SCHEDULER_PIPELINE_STAGE_1) = '1' then
         pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
         pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
-        pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH));
+        pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH)) + 1; -- increment seq_nr by 1
         pipe(SCHEDULER_PIPELINE_STAGE_2).active_flag <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
 
         pipe(SCHEDULER_PIPELINE_STAGE_2).max_rate <= unsigned(rate_mem_doa(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0));
@@ -232,14 +240,23 @@ begin
 
       -- Stage 2: update flow data and insert into calendar
       if pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' then
-        pipe(SCHEDULER_PIPELINE_STAGE_2_NEXT).seq_nr <= pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr + 1;
         target_slot <= (current_slot_o + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
-        --if active_flag = '1' then send output 
         insert_enable <= '1';
         insert_slot <= (current_slot_o + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH);
         insert_data <= pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
+        --if active_flag = '1' then send output to the calendar
+        if pipe(SCHEDULER_PIPELINE_STAGE_2).active_flag = '1' then
+          qp_s <= QP_padding & pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
+          seq_nr_s <= pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr;
+          flow_rdy_s <= '1';
+        end if;
+
       else
         insert_enable <= '0';
+
+        qp_s <= QP_padding & FLOW_NULL_ADDRESS;
+        seq_nr_s <= (others => '0');
+        flow_rdy_s <= '0';
       end if;
 
       -- Stage 3: write back to flow_mem with updated next_addr
@@ -271,9 +288,16 @@ begin
         rate_mem_wea <= '0';
         rate_mem_addra <= RATE_MEM_DEFAULT_ADDRESS;
         rate_mem_dia <= (others => '0');
-      end if;
 
+        qp_s <= (others => '0');
+        seq_nr_s <= (others => '0');
+        flow_rdy_s <= '0';
+      end if;
     end if;
   end process;
+
+  qp_o       <= qp_s;
+  seq_nr_o   <= seq_nr_s;
+  flow_rdy_o <= flow_rdy_s;
 
 end architecture;
