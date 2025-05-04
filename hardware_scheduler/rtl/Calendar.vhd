@@ -52,8 +52,8 @@ architecture RTL of Calendar is
   signal calendar_mem_dia, calendar_mem_dib     : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := CALENDAR_MEM_NULL_ENTRY;
   signal calendar_mem_doa, calendar_mem_dob     : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := CALENDAR_MEM_NULL_ENTRY;
 
-  -- Pipelines for synchronizing: current_slot_o, slot_advance_o with head_address_o after MEM_LATENCY
-  constant PIPE_SYNCH_LATECY : integer := MEM_LATENCY + 1; -- Number of pipeline stages for synchronization
+  -- Pipelines for synchronizing: current_slot_o, slot_advance_o with head_address_o after CALENDAR_MEM_LATENCY
+  constant PIPE_SYNCH_LATECY : integer := CALENDAR_MEM_LATENCY + 1; -- Number of pipeline stages for synchronization
   type current_slot_pipe_type is array (0 to PIPE_SYNCH_LATECY - 1) of unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
   type slot_advance_pipe_type is array (0 to PIPE_SYNCH_LATECY - 1) of std_logic;
 
@@ -73,7 +73,7 @@ begin
   -- Calendar memory instantiation
   Calendar_mem_inst: Calendar_mem
     generic map (
-      LATENCY => MEM_LATENCY
+      LATENCY => CALENDAR_MEM_LATENCY
     )
     port map (
       clk   => clk,

@@ -33,10 +33,6 @@ package constants_pkg is
   constant IPG_DIVIDEND : real := 2.34375E10; -- division numerator
 
   -- MEM constants
-  --constant MEM_ADDR_WIDTH      : integer                                       := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
-  --constant MEM_DEFAULT_ADDRESS : std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
-  constant MEM_LATENCY   : integer := 3;  -- Memory access latency in clock cycles
-  constant PIPELINE_SIZE : integer := 14; -- Number of pipeline stages for the scheduler
 
   -- Flow memory data format
   --|active_flag|seq_nr|next_addr|QP|
@@ -45,6 +41,7 @@ package constants_pkg is
   constant FLOW_MEM_NULL_ENTRY      : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := "0000001111111111";
   constant FLOW_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   constant FLOW_MEM_DEFAULT_ADDRESS : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
+  constant FLOW_MEM_LATENCY         : integer                                            := 3;                       -- Memory access latency in clock cycles
 
   --Rate memory data format
   --|max_rate|cur_rate|
@@ -53,6 +50,7 @@ package constants_pkg is
   constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "000000";
   constant RATE_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   constant RATE_MEM_DEFAULT_ADDRESS : std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
+  constant RATE_MEM_LATENCY         : integer                                            := FLOW_MEM_LATENCY;        -- Has to be the same as FLOW_MEM_LATENCY for the scheduler to work properly
 
   -- Calendar memory data format
   --|head_addr|
@@ -61,6 +59,15 @@ package constants_pkg is
   constant CALENDAR_MEM_NULL_ENTRY      : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := FLOW_NULL_ADDRESS;
   constant CALENDAR_MEM_ADDR_WIDTH      : integer                                                := CALENDAR_SLOTS_WIDTH;
   constant CALENDAR_MEM_DEFAULT_ADDRESS : std_logic_vector(CALENDAR_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0'); -- First address in the memory
+  constant CALENDAR_MEM_LATENCY         : integer                                                := 2;
+
+  -- Scheduler_pipeline constants
+  constant SCHEDULER_PIPELINE_SIZE         : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 6; -- Number of pipeline stages for the scheduler
+  constant SCHEDULER_PIPELINE_STAGE_0      : integer := 0;
+  constant SCHEDULER_PIPELINE_STAGE_1      : integer := FLOW_MEM_LATENCY + 1;
+  constant SCHEDULER_PIPELINE_STAGE_2      : integer := FLOW_MEM_LATENCY + 2;
+  constant SCHEDULER_PIPELINE_STAGE_2_NEXT : integer := SCHEDULER_PIPELINE_STAGE_2 + 1;
+  constant SCHEDULER_PIPELINE_STAGE_3      : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
 
 end package;
 

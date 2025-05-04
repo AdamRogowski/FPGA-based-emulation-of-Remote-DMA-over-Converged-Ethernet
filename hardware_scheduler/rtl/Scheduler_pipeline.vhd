@@ -72,10 +72,10 @@ architecture rtl of pipelined_stack_processor is
     --processed : std_logic_vector(DATA_WIDTH - 1 downto 0);
   end record;
 
-  type pipe_type is array (0 to PIPELINE_SIZE - 1) of pipe_stage;
+  type pipe_type is array (0 to SCHEDULER_PIPELINE_SIZE - 1) of pipe_stage;
 
-  signal pipe_valid : std_logic_vector(PIPELINE_SIZE - 1 downto 0) := (others => '0');
-  signal pipe       : pipe_type                                    := (others => (cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, max_rate => (others => '0'), cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0'));
+  signal pipe_valid : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := (others => '0');
+  signal pipe       : pipe_type                                              := (others => (cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, max_rate => (others => '0'), cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0'));
 
   -- Internal flow_mem signals
   signal flow_mem_ena   : std_logic                                          := '0';
@@ -112,7 +112,7 @@ begin
   -- Instantiate the BRAM internally
   flow_mem_inst: Flow_mem
     generic map (
-      LATENCY => MEM_LATENCY
+      LATENCY => FLOW_MEM_LATENCY
     )
     port map (
       clk   => clk,
@@ -131,7 +131,7 @@ begin
   -- Port B reserved for RP
   rate_mem_inst: Rate_mem
     generic map (
-      LATENCY => MEM_LATENCY
+      LATENCY => RATE_MEM_LATENCY
     )
     port map (
       clk   => clk,
@@ -168,41 +168,48 @@ begin
     if rising_edge(clk) then
 
       -- Shift pipeline stages
-      for i in PIPELINE_SIZE - 1 downto 1 loop
+      for i in SCHEDULER_PIPELINE_SIZE - 1 downto 1 loop
         pipe(i) <= pipe(i - 1);
         pipe_valid(i) <= pipe_valid(i - 1);
       end loop;
 
-      -- Stage 0: input address or feedback
+      -- constant SCHEDULER_PIPELINE_SIZE         : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 6; -- Number of pipeline stages for the scheduler
+      -- constant SCHEDULER_PIPELINE_STAGE_0      : integer := 0;
+      -- constant SCHEDULER_PIPELINE_STAGE_1      : integer := FLOW_MEM_LATENCY + 1;
+      -- constant SCHEDULER_PIPELINE_STAGE_2      : integer := FLOW_MEM_LATENCY + 2;
+      -- constant SCHEDULER_PIPELINE_STAGE_2_NEXT : integer := SCHEDULER_PIPELINE_STAGE_2 + 1;
+      -- constant SCHEDULER_PIPELINE_STAGE_3      : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
+
+      -- Stage -1: input address or feedback
       if slot_advance_o = '1' then
         if head_address_o /= FLOW_NULL_ADDRESS then
-          pipe(0).cur_addr <= head_address_o;
-          pipe_valid(0) <= '1';
+          pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= head_address_o;
+          pipe_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
         end if;
-        --TODO: handle the improbable case when slot_advance_o = '1' and pipe_valid(MEM_LATENCY + 2) = '1' and pipe(MEM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS at the same time
-      elsif pipe_valid(MEM_LATENCY + 2) = '1' and pipe(MEM_LATENCY + 2).next_addr /= FLOW_NULL_ADDRESS then
-        pipe(0).cur_addr <= pipe(MEM_LATENCY + 2).next_addr;
-        pipe_valid(0) <= '1';
+        --TODO: handle the improbable case when slot_advance_o = '1' and pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS at the same time
+      elsif pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS then
+        pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr;
+        pipe_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
       else
-        pipe_valid(0) <= '0';
+        pipe_valid(SCHEDULER_PIPELINE_STAGE_0) <= '0';
       end if;
 
       -- Stage 0 issues address to both BRAMs
-      if pipe_valid(0) = '1' then
+      if pipe_valid(SCHEDULER_PIPELINE_STAGE_0) = '1' then
         flow_mem_ena <= '1';
         flow_mem_wea <= '0';
         -- NOTE: mapping FLOW_ADDRESS_WIDTH of cur_addr to FLOW_MEM_ADDR_WIDTH which effectively truncates the null address bit in front of the cur_addr
-        flow_mem_addra <= pipe(0).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
+        flow_mem_addra <= pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
 
         rate_mem_ena <= '1';
         rate_mem_wea <= '0';
-        rate_mem_addra <= pipe(0).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0);
+        rate_mem_addra <= pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0);
       else
         flow_mem_ena <= '0';
         rate_mem_ena <= '0';
       end if;
 
-      -- Stage 3: BRAMs data arrives
+      -- Stage 1: BRAMs data arrives
       -- The flow_mem data is expected to be in the format:
       -- msb -> lsb
       -- [active_flag, seq_nr, next_addr, cur_addr]
@@ -212,48 +219,37 @@ begin
       -- msb -> lsb
       -- [cur_rate, max_rate]
       -- [RATE_BIT_RESOLUTION_WIDTH, RATE_BIT_RESOLUTION_WIDTH]
-      if pipe_valid(MEM_LATENCY + 1) = '1' then
-        pipe(MEM_LATENCY + 2).cur_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
-        pipe(MEM_LATENCY + 2).next_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
-        pipe(MEM_LATENCY + 2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH));
-        pipe(MEM_LATENCY + 2).active_flag <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
+      if pipe_valid(SCHEDULER_PIPELINE_STAGE_1) = '1' then
+        pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
+        pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
+        pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH));
+        pipe(SCHEDULER_PIPELINE_STAGE_2).active_flag <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
 
-        pipe(MEM_LATENCY + 2).max_rate <= unsigned(rate_mem_doa(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0));
-        pipe(MEM_LATENCY + 2).cur_rate <= unsigned(rate_mem_doa(2 * RATE_BIT_RESOLUTION_WIDTH - 1 downto RATE_BIT_RESOLUTION_WIDTH));
+        pipe(SCHEDULER_PIPELINE_STAGE_2).max_rate <= unsigned(rate_mem_doa(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0));
+        pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate <= unsigned(rate_mem_doa(2 * RATE_BIT_RESOLUTION_WIDTH - 1 downto RATE_BIT_RESOLUTION_WIDTH));
 
       end if;
 
-      -- Stage 4: process 1
-      if pipe_valid(MEM_LATENCY + 2) = '1' then
-        pipe(MEM_LATENCY + 3).seq_nr <= pipe(MEM_LATENCY + 2).seq_nr + 1;
-        target_slot <= (current_slot_o + pipe(MEM_LATENCY + 2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
-        -- if active_flag = '1' then send output
-        --insert_enable <= '1';
-        --insert_slot <= (current_slot_o + pipe(MEM_LATENCY + 2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH);
-        --insert_data <= pipe(MEM_LATENCY + 2).cur_addr;
-        --else
-        --insert_enable <= '0';
-      end if;
-
-      if pipe_valid(MEM_LATENCY + 3) = '1' then
+      -- Stage 2: update flow data and insert into calendar
+      if pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' then
+        pipe(SCHEDULER_PIPELINE_STAGE_2_NEXT).seq_nr <= pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr + 1;
+        target_slot <= (current_slot_o + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
+        --if active_flag = '1' then send output 
         insert_enable <= '1';
-        insert_slot <= target_slot;
-        insert_data <= pipe(MEM_LATENCY + 3).cur_addr;
+        insert_slot <= (current_slot_o + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH);
+        insert_data <= pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
       else
         insert_enable <= '0';
       end if;
 
-      if pipe_valid(MEM_LATENCY + 9) = '1' then
-        pipe(MEM_LATENCY + 10).next_addr <= prev_head_address_o;
-
-      end if;
-
-      -- Stage 6: writeback
-      if pipe_valid(MEM_LATENCY + 10) = '1' then
+      -- Stage 3: write back to flow_mem with updated next_addr
+      -- At this point prev_head_address_o is ready so flow can be written back to the memory
+      if pipe_valid(SCHEDULER_PIPELINE_STAGE_3) = '1' then
+        --pipe(SCHEDULER_PIPELINE_STAGE_3 + 1).next_addr <= prev_head_address_o;
         flow_mem_enb <= '1';
         flow_mem_web <= '1';
-        flow_mem_addrb <= pipe(MEM_LATENCY + 10).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
-        flow_mem_dib <= pipe(MEM_LATENCY + 10).active_flag & std_logic_vector(pipe(MEM_LATENCY + 10).seq_nr) & pipe(MEM_LATENCY + 10).next_addr & QP_padding & pipe(MEM_LATENCY + 10).cur_addr;
+        flow_mem_addrb <= pipe(SCHEDULER_PIPELINE_STAGE_3).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
+        flow_mem_dib <= pipe(SCHEDULER_PIPELINE_STAGE_3).active_flag & std_logic_vector(pipe(SCHEDULER_PIPELINE_STAGE_3).seq_nr) & prev_head_address_o & QP_padding & pipe(SCHEDULER_PIPELINE_STAGE_3).cur_addr;
       else
         flow_mem_enb <= '0';
         flow_mem_web <= '0';

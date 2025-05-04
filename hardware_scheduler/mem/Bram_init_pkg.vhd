@@ -49,8 +49,8 @@ package bram_init_pkg is
   );
 
   constant init_calendar_mem_16 : calendar_mem_type := (
-    0 => CALENDAR_MEM_NULL_ENTRY,
-    1 => "00001",
+    0 => "00000",
+    1 => CALENDAR_MEM_NULL_ENTRY,
     2 => CALENDAR_MEM_NULL_ENTRY,
     3 => CALENDAR_MEM_NULL_ENTRY,
     4 => CALENDAR_MEM_NULL_ENTRY,
