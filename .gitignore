@@ -32,23 +32,28 @@
 !/hardware_scheduler/populate_ram.py
 
 !/hardware_scheduler/rtl/
-!/hardware_scheduler/rtl/Calendar.vhd
-!/hardware_scheduler/rtl/CalendarCnt_mod.vhd
-!/hardware_scheduler/rtl/CalendarCnt.vhd
-!/hardware_scheduler/rtl/FlowInitMemory.vhd
-!/hardware_scheduler/rtl/FlowLoader.vhd
-!/hardware_scheduler/rtl/CalendarMain.vhd
-!/hardware_scheduler/rtl/IPG_reciprocal_pkg.vhd
 !/hardware_scheduler/rtl/Constants_pkg.vhd
-!/hardware_scheduler/rtl/FlowArray_pkg.vhd
-!/hardware_scheduler/rtl/Scheduler_pipeline.vhd
+
+!/hardware_scheduler/rtl/RP/
+!/hardware_scheduler/rtl/Scheduler/
+!/hardware_scheduler/rtl/Scheduler/Calendar.vhd
+!/hardware_scheduler/rtl/Scheduler/CalendarCnt_mod.vhd
+!/hardware_scheduler/rtl/Scheduler/CalendarCnt.vhd
+!/hardware_scheduler/rtl/Scheduler/FlowInitMemory.vhd
+!/hardware_scheduler/rtl/Scheduler/FlowLoader.vhd
+!/hardware_scheduler/rtl/Scheduler/CalendarMain.vhd
+!/hardware_scheduler/rtl/Scheduler/IPG_reciprocal_pkg.vhd
+!/hardware_scheduler/rtl/Scheduler/FlowArray_pkg.vhd
+!/hardware_scheduler/rtl/Scheduler/Scheduler_pipeline.vhd
 
 !/hardware_scheduler/sim/
-!/hardware_scheduler/sim/tb_CalendarCnt.vhd
-!/hardware_scheduler/sim/tb_Calendar.vhd
-!/hardware_scheduler/sim/tb_FlowLoader.vhd
-!/hardware_scheduler/sim/tb_CalendarMain.vhd
-!/hardware_scheduler/sim/tb_Scheduler_pipeline.vhd
+!/hardware_scheduler/sim/RP/
+!/hardware_scheduler/sim/Scheduler/
+!/hardware_scheduler/sim/Scheduler/tb_CalendarCnt.vhd
+!/hardware_scheduler/sim/Scheduler/tb_Calendar.vhd
+!/hardware_scheduler/sim/Scheduler/tb_FlowLoader.vhd
+!/hardware_scheduler/sim/Scheduler/tb_CalendarMain.vhd
+!/hardware_scheduler/sim/Scheduler/tb_Scheduler_pipeline.vhd
 
 !/hardware_scheduler/mem/
 !/hardware_scheduler/mem/Flow_mem.vhd
