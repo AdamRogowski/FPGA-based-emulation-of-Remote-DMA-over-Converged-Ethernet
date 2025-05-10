@@ -1,6 +1,8 @@
 *
 !/.gitignore
 
+#-----------------------------------------------------------------------------
+
 !/software_models/
 !/software_models/dcqcn_rp/
 !/software_models/dcqcn_rp/app_rate_timestamps.txt
@@ -27,6 +29,8 @@
 !/software_models/scheduling_algorithm/scheduler.py
 !/software_models/scheduling_algorithm/scheduler_optimized.py
 
+#-----------------------------------------------------------------------------
+
 !/hardware_scheduler/
 !/hardware_scheduler/init_flows_generator.py
 !/hardware_scheduler/populate_ram.py
@@ -35,6 +39,9 @@
 !/hardware_scheduler/rtl/Constants_pkg.vhd
 
 !/hardware_scheduler/rtl/RP/
+!/hardware_scheduler/rtl/RP/RP_flow_update.vhd
+!/hardware_scheduler/rtl/RP/Global_timer.vhd
+
 !/hardware_scheduler/rtl/Scheduler/
 !/hardware_scheduler/rtl/Scheduler/Calendar.vhd
 !/hardware_scheduler/rtl/Scheduler/CalendarCnt_mod.vhd
@@ -48,6 +55,8 @@
 
 !/hardware_scheduler/sim/
 !/hardware_scheduler/sim/RP/
+!/hardware_scheduler/sim/RP/tb_RP_flow_update.vhd
+
 !/hardware_scheduler/sim/Scheduler/
 !/hardware_scheduler/sim/Scheduler/tb_CalendarCnt.vhd
 !/hardware_scheduler/sim/Scheduler/tb_Calendar.vhd
@@ -61,3 +70,6 @@
 !/hardware_scheduler/mem/Calendar_mem.vhd
 !/hardware_scheduler/mem/Bram_init_pkg.vhd
 !/hardware_scheduler/mem/tb_Bram.vhd
+!/hardware_scheduler/mem/RP_mem.vhd
+
+#-----------------------------------------------------------------------------
