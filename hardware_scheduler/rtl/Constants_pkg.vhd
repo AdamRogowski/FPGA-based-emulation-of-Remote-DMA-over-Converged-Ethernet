@@ -91,10 +91,10 @@ package constants_pkg is
   constant T       : integer := 20; -- threshold for the Timer incrementation: 195313clk * 5.12ns/clk ~= 10ms
   constant T_WIDTH : integer := 8;  -- log2(T)
 
-  constant F                                             : integer                        := 5; -- Fast Recovery iterations
-  constant F_WIDTH                                       : integer                        := 3;
-  constant TC_WIDTH, BC_WIDTH, FC_WIDTH                  : integer                        := 3;
-  constant F_DEFAULT, TC_DEFAULT, BC_DEFAULT, FC_DEFAULT : unsigned(F_WIDTH - 1 downto 0) := (others => '0');
+  constant F                                 : integer                        := 5; -- Fast Recovery iterations
+  constant F_WIDTH                           : integer                        := 3;
+  constant TC_WIDTH, BC_WIDTH                : integer                        := 3;
+  constant F_DEFAULT, TC_DEFAULT, BC_DEFAULT : unsigned(F_WIDTH - 1 downto 0) := (others => '0');
 
   constant GLOBAL_TIMER_WIDTH  : integer                              := 16;                 -- TODO: consider the least sufficient size for the global timer
   constant RP_RATE_WIDTH       : integer                              := 16;
@@ -102,7 +102,7 @@ package constants_pkg is
   constant RP_RATE_MAX_DEFAULT : unsigned(RP_RATE_WIDTH - 1 downto 0) := (others => '1');    -- Maximum rate for the RP
 
   -- RP internal flow mem
-  constant RP_MEM_DATA_WIDTH      : integer                                            := 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH + FC_WIDTH;
+  constant RP_MEM_DATA_WIDTH      : integer                                            := 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH;
   constant RP_MEM_NULL_ENTRY      : std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0)   := (others => '0');
   constant RP_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   constant RP_MEM_DEFAULT_ADDRESS : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory

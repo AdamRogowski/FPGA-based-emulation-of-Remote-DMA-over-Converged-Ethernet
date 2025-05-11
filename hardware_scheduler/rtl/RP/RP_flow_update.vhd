@@ -85,7 +85,6 @@ architecture rtl of RP_Flow_Update is
     last_T_update     : unsigned(GLOBAL_TIMER_WIDTH - 1 downto 0);
     BC                : unsigned(BC_WIDTH - 1 downto 0);
     ByteCnt           : unsigned(B_WIDTH - 1 downto 0);
-    FC                : unsigned(FC_WIDTH - 1 downto 0);
     elapsed_alpha     : unsigned(GLOBAL_TIMER_WIDTH - 1 downto 0);
     TC_update         : std_logic;
     elapsed_T         : unsigned(GLOBAL_TIMER_WIDTH - 1 downto 0);
@@ -112,7 +111,6 @@ architecture rtl of RP_Flow_Update is
                                                      last_T_update     => (others => '0'),
                                                      BC                => BC_DEFAULT,
                                                      ByteCnt           => (others => '0'),
-                                                     FC                => FC_DEFAULT,
                                                      elapsed_alpha     => (others => '0'),
                                                      TC_update         => '0',
                                                      elapsed_T         => (others => '0'),
@@ -213,8 +211,8 @@ begin
 
       -- The RP_mem is expected to be in the following format:
       -- msb -> lsb
-      -- [FC, ByteCnt, BC, last_T_update, TC, last_alpha_update, alpha, Rt, Rc, R_max]
-      -- [FC_WIDTH, B_WIDTH, BC_WIDTH, GLOBAL_TIMER_WIDTH, TC_WIDTH, GLOBAL_TIMER_WIDTH, ALPHA_WIDTH, RP_RATE_WIDTH, RP_RATE_WIDTH, RP_RATE_WIDTH]
+      -- [ByteCnt, BC, last_T_update, TC, last_alpha_update, alpha, Rt, Rc, R_max]
+      -- [B_WIDTH, BC_WIDTH, GLOBAL_TIMER_WIDTH, TC_WIDTH, GLOBAL_TIMER_WIDTH, ALPHA_WIDTH, RP_RATE_WIDTH, RP_RATE_WIDTH, RP_RATE_WIDTH]
       if RP_pipe_valid(RP_PIPELINE_STAGE_1) = '1' then
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).R_max <= unsigned(RP_mem_doa(RP_RATE_WIDTH - 1 downto 0));
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).Rc <= unsigned(RP_mem_doa(2 * RP_RATE_WIDTH - 1 downto RP_RATE_WIDTH));
@@ -225,7 +223,6 @@ begin
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_T_update <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH));
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).BC <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH));
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH));
-        RP_upgrade_pipe(RP_PIPELINE_STAGE_2).FC <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH + FC_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH));
       end if;
 
       -- Stage 2
@@ -252,7 +249,6 @@ begin
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_T <= (others => '0');
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC <= BC_DEFAULT;
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).ByteCnt <= (others => '0');
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).FC <= FC_DEFAULT;
         else
           -- Update Rc and Rt based on elapsed timers and conditions
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha >= K then
@@ -268,16 +264,7 @@ begin
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC < F then
               RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC + 1; -- Increment TC
             end if;
-
-            --if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC >= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).FC then
             RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update <= '1'; -- Set TC update flag
-
-            --if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).FC < F then
-            --  RP_upgrade_pipe(RP_PIPELINE_STAGE_4).FC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).FC + 1; -- Increment FC
-            --end if;
-
-            --end if;
-
           else
             RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update <= '0'; -- Clear TC update flag
           end if;
@@ -290,16 +277,7 @@ begin
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC < F then
               RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC + 1; -- Increment BC
             end if;
-
-            --if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC >= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).FC then
             RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update <= '1'; -- Set BC update flag
-
-            --if not (RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_T >= T and RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC = RP_upgrade_pipe(RP_PIPELINE_STAGE_3).FC) and RP_upgrade_pipe(RP_PIPELINE_STAGE_3).FC < F then
-            --  RP_upgrade_pipe(RP_PIPELINE_STAGE_4).FC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).FC + 1; -- Increment FC
-            --end if;
-
-            --end if;
-
           else
             RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update <= '0'; -- Clear BC update flag
           end if;
@@ -354,9 +332,8 @@ begin
         --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_T_update <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH));
         --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).BC <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH));
         --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).FC <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH + FC_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH));
         RP_mem_dib <= std_logic_vector(
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_5).FC & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).ByteCnt & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).BC & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).last_T_update & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).TC & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).last_alpha_update & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).alpha & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).R_max
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_5).ByteCnt & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).BC & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).last_T_update & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).TC & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).last_alpha_update & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).alpha & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).R_max
         );
         rate_mem_enb <= '1';
         rate_mem_web <= '1';
@@ -394,7 +371,6 @@ begin
                               last_T_update     => (others => '0'),
                               BC                => BC_DEFAULT,
                               ByteCnt           => (others => '0'),
-                              FC                => FC_DEFAULT,
                               elapsed_alpha     => (others => '0'),
                               TC_update         => '0',
                               elapsed_T         => (others => '0'),
