@@ -100,6 +100,7 @@ package constants_pkg is
   constant RP_RATE_WIDTH       : integer                              := 16;
   constant RP_RATE_DEFAULT     : unsigned(RP_RATE_WIDTH - 1 downto 0) := "0000000011111111"; -- Never set to 0!
   constant RP_RATE_MAX_DEFAULT : unsigned(RP_RATE_WIDTH - 1 downto 0) := (others => '1');    -- Maximum rate for the RP
+  constant RP_DATA_SENT_WIDTH  : integer                              := 1;                  -- Number of bits for the data sent input, 1 bit = std_logic
 
   -- RP internal flow mem
   constant RP_MEM_DATA_WIDTH      : integer                                            := 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH;

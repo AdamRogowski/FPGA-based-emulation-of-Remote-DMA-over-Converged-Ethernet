@@ -11,7 +11,7 @@ entity RP_Flow_Update is
     flow_rdy_i  : in std_logic;
     is_cnp_i    : in std_logic;
     flow_id_i   : in std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
-    data_sent_i : in std_logic -- the unit will always be just 1 MTU, so no need to pass the actual size
+    data_sent_i : in unsigned(RP_DATA_SENT_WIDTH - 1 downto 0) -- the unit will most likely be just 1 MTU, so effectively it is just std_logic
   );
 end entity;
 
@@ -93,7 +93,7 @@ architecture rtl of RP_Flow_Update is
 
   type RP_input_stage is record
     flow_id   : std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
-    data_sent : std_logic;
+    data_sent : unsigned(RP_DATA_SENT_WIDTH - 1 downto 0);
     is_cnp    : std_logic;
 
   end record;
@@ -118,7 +118,7 @@ architecture rtl of RP_Flow_Update is
                                                    ));
   signal RP_input_pipe : RP_input_pipe_type := (others => (
                                                   flow_id   => (others => '0'),
-                                                  data_sent => '0',
+                                                  data_sent => "0",
                                                   is_cnp    => '0')); -- TODO: Fix/clean all the constants
   signal RP_pipe_valid : std_logic_vector(RP_PIPELINE_SIZE - 1 downto 0) := (others => '0');
 
@@ -229,9 +229,7 @@ begin
       if RP_pipe_valid(RP_PIPELINE_STAGE_2) = '1' then
         RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_alpha_update;
         RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_T <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_T_update;
-        if RP_input_pipe(RP_PIPELINE_STAGE_2).data_sent = '1' then
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt + 1; -- Increment ByteCnt if data_sent is '1'
-        end if;
+        RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt + RP_input_pipe(RP_PIPELINE_STAGE_2).data_sent;
       end if;
 
       -- Stage 3
@@ -378,7 +376,7 @@ begin
                             ));
         RP_input_pipe <= (others => (
                             flow_id   => (others => '0'),
-                            data_sent => '0',
+                            data_sent => "0",
                             is_cnp    => '0'
                           ));
         RP_pipe_valid <= (others => '0');
