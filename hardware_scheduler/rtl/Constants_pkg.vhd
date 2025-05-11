@@ -71,30 +71,30 @@ package constants_pkg is
   constant SCHEDULER_PIPELINE_STAGE_3 : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
 
   -- RP_flow_update constants
-  constant R_AI  : integer := 1;  -- Additive increase rate increment value
-  constant R_HAI : integer := 10; -- Huper Additive increase rate increment value
-  constant G     : integer := 1;  -- weight factor
+  constant R_AI  : integer := 50;  -- Additive increase rate increment value
+  constant R_HAI : integer := 100; -- Huper Additive increase rate increment value
+  constant G     : integer := 1;   -- weight factor
 
-  constant K                 : integer                            := 1024; --Reduction factor update threshold, originally around 55us ONLY associated with change of alpha
-  constant K_WIDTH           : integer                            := 10;
+  constant K                 : integer                            := 50; --Reduction factor update threshold, originally around 55us ONLY associated with change of alpha
+  constant K_WIDTH           : integer                            := 7;
   constant ALPHA_WIDTH       : integer                            := 16;
   constant ALPHA_DEFAULT     : unsigned(ALPHA_WIDTH - 1 downto 0) := (others => '0');
   constant ALPHA_TIMER_WIDTH : integer                            := K_WIDTH;
 
   -- The cycle duration of 150 KBytes is chosen to correspond to the transmission of 100 frames, each 1500 Bytes long. [17] IEEE. 802.11Qau. Congestion notification, 2010.
   -- B constant is associated with BC
-  constant B       : integer := 16; -- threshold for the ByteCounter incrementation: n times MTU; (default 100 x MTU)
-  constant B_WIDTH : integer := 4;  -- log2(B)
+  constant B       : integer := 6; -- threshold for the ByteCounter incrementation: n times MTU; (default 100 x MTU)
+  constant B_WIDTH : integer := 3; -- log2(B)
 
   -- The Timer functions similarly as the Byte Counter: it is reset when a feedback message arrives, enters FR
   -- and counts out 5 cycles of T ms duration (T is 10 ms long in the baseline). [17] IEEE. 802.11Qau. Congestion notification, 2010.
-  constant T       : integer := 1024; -- threshold for the Timer incrementation: 195313clk * 5.12ns/clk ~= 10ms
-  constant T_WIDTH : integer := 10;   -- log2(T)
+  constant T       : integer := 20; -- threshold for the Timer incrementation: 195313clk * 5.12ns/clk ~= 10ms
+  constant T_WIDTH : integer := 8;  -- log2(T)
 
-  constant F                                 : integer                        := 5; -- Fast Recovery iterations
-  constant F_WIDTH                           : integer                        := 3;
-  constant TC_WIDTH, BC_WIDTH                : integer                        := 3;
-  constant F_DEFAULT, TC_DEFAULT, BC_DEFAULT : unsigned(F_WIDTH - 1 downto 0) := (others => '0');
+  constant F                                             : integer                        := 5; -- Fast Recovery iterations
+  constant F_WIDTH                                       : integer                        := 3;
+  constant TC_WIDTH, BC_WIDTH, FC_WIDTH                  : integer                        := 3;
+  constant F_DEFAULT, TC_DEFAULT, BC_DEFAULT, FC_DEFAULT : unsigned(F_WIDTH - 1 downto 0) := (others => '0');
 
   constant GLOBAL_TIMER_WIDTH  : integer                              := 16;                 -- TODO: consider the least sufficient size for the global timer
   constant RP_RATE_WIDTH       : integer                              := 16;
@@ -102,7 +102,7 @@ package constants_pkg is
   constant RP_RATE_MAX_DEFAULT : unsigned(RP_RATE_WIDTH - 1 downto 0) := (others => '1');    -- Maximum rate for the RP
 
   -- RP internal flow mem
-  constant RP_MEM_DATA_WIDTH      : integer                                            := 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH;
+  constant RP_MEM_DATA_WIDTH      : integer                                            := 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH + FC_WIDTH;
   constant RP_MEM_NULL_ENTRY      : std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0)   := (others => '0');
   constant RP_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   constant RP_MEM_DEFAULT_ADDRESS : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
