@@ -88,7 +88,7 @@ package constants_pkg is
 
   -- The Timer functions similarly as the Byte Counter: it is reset when a feedback message arrives, enters FR
   -- and counts out 5 cycles of T ms duration (T is 10 ms long in the baseline). [17] IEEE. 802.11Qau. Congestion notification, 2010.
-  constant T       : integer := 20; -- threshold for the Timer incrementation: 195313clk * 5.12ns/clk ~= 10ms
+  constant T       : integer := 20; -- threshold for the Timer incrementation: 1953125clk * 5.12ns/clk ~= 10ms
   constant T_WIDTH : integer := 8;  -- log2(T)
 
   constant F                                 : integer                        := 5; -- Fast Recovery iterations
