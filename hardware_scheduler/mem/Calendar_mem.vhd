@@ -22,7 +22,7 @@ end entity;
 
 architecture rtl of Calendar_mem is
 
-  signal ram : calendar_mem_type := init_calendar_mem_262144;
+  signal ram : calendar_mem_type_test := init_calendar_mem_16;
 
   -- Pipelined outputs
   type pipeline_array is array (0 to LATENCY - 1) of std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0);

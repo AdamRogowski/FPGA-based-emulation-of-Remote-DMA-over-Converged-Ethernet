@@ -22,7 +22,7 @@ end entity;
 
 architecture rtl of RP_mem is
 
-  signal ram : RP_mem_type := init_RP_mem_16;
+  signal ram : RP_mem_type_test := init_RP_mem_16;
 
   -- Pipelined outputs
   type pipeline_array is array (0 to LATENCY - 1) of std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0);

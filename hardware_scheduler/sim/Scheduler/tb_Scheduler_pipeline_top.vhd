@@ -3,13 +3,13 @@ library IEEE;
   use IEEE.NUMERIC_STD.all;
   use work.constants_pkg.all;
 
-entity tb_pipelined_stack_processor is
+entity tb_Scheduler_pipeline_top is
 end entity;
 
-architecture sim of tb_pipelined_stack_processor is
+architecture sim of tb_Scheduler_pipeline_top is
 
   -- Component under test
-  component pipelined_stack_processor is
+  component Scheduler_pipeline_top is
     port (
       clk        : in  std_logic;
       rst        : in  std_logic;
@@ -37,7 +37,7 @@ begin
   end process;
 
   -- DUT instantiation
-  dut: pipelined_stack_processor
+  dut: Scheduler_pipeline_top
     port map (
       clk        => clk,
       rst        => rst,

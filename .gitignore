@@ -54,6 +54,8 @@
 !/hardware_scheduler/rtl/Scheduler/IPG_reciprocal_pkg.vhd
 !/hardware_scheduler/rtl/Scheduler/FlowArray_pkg.vhd
 !/hardware_scheduler/rtl/Scheduler/Scheduler_pipeline.vhd
+!/hardware_scheduler/rtl/Scheduler/Scheduler_pipeline_top.vhd
+!/hardware_scheduler/rtl/Scheduler/fifo_generic.vhd
 
 !/hardware_scheduler/sim/
 !/hardware_scheduler/sim/RP/
@@ -64,7 +66,8 @@
 !/hardware_scheduler/sim/Scheduler/tb_Calendar.vhd
 !/hardware_scheduler/sim/Scheduler/tb_FlowLoader.vhd
 !/hardware_scheduler/sim/Scheduler/tb_CalendarMain.vhd
-!/hardware_scheduler/sim/Scheduler/tb_Scheduler_pipeline.vhd
+!/hardware_scheduler/sim/Scheduler/tb_Scheduler_pipeline_top.vhd
+!/hardware_scheduler/sim/Scheduler/tb_fifo_generic.vhd
 
 !/hardware_scheduler/mem/
 !/hardware_scheduler/mem/Flow_mem.vhd

@@ -8,7 +8,7 @@ package bram_init_pkg is
   -- Memory
   type flow_mem_type_test is array (0 to 2 ** 4 - 1) of std_logic_vector(16 - 1 downto 0);
   type flow_mem_type is array (0 to 2 ** FLOW_MEM_ADDR_WIDTH - 1) of std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);
-  type rate_mem_type_test is array (0 to 2 ** 4 - 1) of std_logic_vector(16 - 1 downto 0);
+  type rate_mem_type_test is array (0 to 2 ** 4 - 1) of std_logic_vector(3 - 1 downto 0);
   type rate_mem_type is array (0 to 2 ** RATE_MEM_ADDR_WIDTH - 1) of std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
   type calendar_mem_type_test is array (0 to 2 ** 3 - 1) of std_logic_vector(5 - 1 downto 0);
   type calendar_mem_type is array (0 to 2 ** CALENDAR_MEM_ADDR_WIDTH - 1) of std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0);
@@ -37,36 +37,36 @@ package bram_init_pkg is
   constant init_flow_mem_262144 : flow_mem_type := (others => FLOW_MEM_NULL_ENTRY);
 
   constant init_rate_mem_16 : rate_mem_type_test := (
-    0  => "0000000011111111",
-    1  => "0000000011111111",
-    2  => "0000000011111111",
-    3  => "0000000011111111",
-    4  => "0000000011111111",
-    5  => "0000000011111111",
-    6  => "0000000011111111",
-    7  => "0000000011111111",
-    8  => "0000000011111111",
-    9  => "0000000011111111",
-    10 => "0000000011111111",
-    11 => "0000000011111111",
+    0  => "111",
+    1  => "111",
+    2  => "111",
+    3  => "111",
+    4  => "111",
+    5  => "111",
+    6  => "111",
+    7  => "111",
+    8  => "111",
+    9  => "110",
+    10 => "110",
+    11 => "110",
     --11 => "100001", -- Test values for scheduler
-    12 => "0000000011111111",
-    13 => "0000000011111111",
-    14 => "0000000011111111",
-    15 => "0000000011111111"
+    12 => "111",
+    13 => "111",
+    14 => "111",
+    15 => "111"
   );
 
   constant init_rate_mem_262144 : rate_mem_type := (others => RATE_MEM_NULL_ENTRY);
 
   constant init_calendar_mem_16 : calendar_mem_type_test := (
     0 => "00000",
-    1 => "00000",
-    2 => "00000",
-    3 => "00000",
-    4 => "00000",
-    5 => "00000",
-    6 => "00000",
-    7 => "00000"
+    1 => "11111",
+    2 => "11111",
+    3 => "11111",
+    4 => "11111",
+    5 => "11111",
+    6 => "11111",
+    7 => "11111"
   );
   constant init_calendar_mem_262144 : calendar_mem_type := (others => CALENDAR_MEM_NULL_ENTRY);
 
