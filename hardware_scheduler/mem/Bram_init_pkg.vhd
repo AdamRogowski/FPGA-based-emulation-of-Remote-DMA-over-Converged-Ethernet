@@ -6,12 +6,16 @@ library IEEE;
 package bram_init_pkg is
 
   -- Memory
+  type flow_mem_type_test is array (0 to 2 ** 4 - 1) of std_logic_vector(16 - 1 downto 0);
   type flow_mem_type is array (0 to 2 ** FLOW_MEM_ADDR_WIDTH - 1) of std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);
+  type rate_mem_type_test is array (0 to 2 ** 4 - 1) of std_logic_vector(16 - 1 downto 0);
   type rate_mem_type is array (0 to 2 ** RATE_MEM_ADDR_WIDTH - 1) of std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
+  type calendar_mem_type_test is array (0 to 2 ** 3 - 1) of std_logic_vector(5 - 1 downto 0);
   type calendar_mem_type is array (0 to 2 ** CALENDAR_MEM_ADDR_WIDTH - 1) of std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0);
+  type RP_mem_type_test is array (0 to 2 ** 4 - 1) of std_logic_vector(105 - 1 downto 0);
   type RP_mem_type is array (0 to 2 ** RP_MEM_ADDR_WIDTH - 1) of std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0);
 
-  constant init_flow_mem_16 : flow_mem_type := (
+  constant init_flow_mem_16 : flow_mem_type_test := (
     0  => "1000000000100000",
     1  => "1000000001000001",
     2  => "1000000001100010",
@@ -24,13 +28,15 @@ package bram_init_pkg is
     9  => "1000000101001001",
     10 => "1000000101101010",
     11 => "1000001111101011",
-    12 => FLOW_MEM_NULL_ENTRY,
-    13 => FLOW_MEM_NULL_ENTRY,
-    14 => FLOW_MEM_NULL_ENTRY,
-    15 => FLOW_MEM_NULL_ENTRY
+    12 => "1000001111101011",
+    13 => "1000001111101011",
+    14 => "1000001111101011",
+    15 => "1000001111101011"
   );
 
-  constant init_rate_mem_16 : rate_mem_type := (
+  constant init_flow_mem_262144 : flow_mem_type := (others => FLOW_MEM_NULL_ENTRY);
+
+  constant init_rate_mem_16 : rate_mem_type_test := (
     0  => "0000000011111111",
     1  => "0000000011111111",
     2  => "0000000011111111",
@@ -44,24 +50,27 @@ package bram_init_pkg is
     10 => "0000000011111111",
     11 => "0000000011111111",
     --11 => "100001", -- Test values for scheduler
-    12 => RATE_MEM_NULL_ENTRY,
-    13 => RATE_MEM_NULL_ENTRY,
-    14 => RATE_MEM_NULL_ENTRY,
-    15 => RATE_MEM_NULL_ENTRY
+    12 => "0000000011111111",
+    13 => "0000000011111111",
+    14 => "0000000011111111",
+    15 => "0000000011111111"
   );
 
-  constant init_calendar_mem_16 : calendar_mem_type := (
+  constant init_rate_mem_262144 : rate_mem_type := (others => RATE_MEM_NULL_ENTRY);
+
+  constant init_calendar_mem_16 : calendar_mem_type_test := (
     0 => "00000",
-    1 => CALENDAR_MEM_NULL_ENTRY,
-    2 => CALENDAR_MEM_NULL_ENTRY,
-    3 => CALENDAR_MEM_NULL_ENTRY,
-    4 => CALENDAR_MEM_NULL_ENTRY,
-    5 => CALENDAR_MEM_NULL_ENTRY,
-    6 => CALENDAR_MEM_NULL_ENTRY,
-    7 => CALENDAR_MEM_NULL_ENTRY
+    1 => "00000",
+    2 => "00000",
+    3 => "00000",
+    4 => "00000",
+    5 => "00000",
+    6 => "00000",
+    7 => "00000"
   );
+  constant init_calendar_mem_262144 : calendar_mem_type := (others => CALENDAR_MEM_NULL_ENTRY);
 
-  constant init_RP_mem_16 : RP_mem_type := (
+  constant init_RP_mem_16 : RP_mem_type_test := (
     0  => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
     1  => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
     2  => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
@@ -74,10 +83,10 @@ package bram_init_pkg is
     9  => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
     10 => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
     11 => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
-    12 => RP_MEM_NULL_ENTRY,
-    13 => RP_MEM_NULL_ENTRY,
-    14 => RP_MEM_NULL_ENTRY,
-    15 => RP_MEM_NULL_ENTRY
+    12 => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
+    13 => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
+    14 => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111",
+    15 => "000000000000000000000000000000000000000000000000000000000000000111111111100000011111111110111111111111111"
   );
 
 end package;

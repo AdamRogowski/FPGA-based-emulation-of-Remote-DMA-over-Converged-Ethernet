@@ -22,7 +22,7 @@ end entity;
 
 architecture rtl of Rate_mem is
 
-  signal ram : rate_mem_type := init_rate_mem_16;
+  signal ram : rate_mem_type := init_rate_mem_262144;
 
   -- Pipelined outputs
   type pipeline_array is array (0 to LATENCY - 1) of std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);

@@ -36,6 +36,8 @@
 !/hardware_scheduler/populate_ram.py
 
 !/hardware_scheduler/rtl/
+!/hardware_scheduler/rtl/Constants_max_flows_pkg.vhd
+!/hardware_scheduler/rtl/Constants_test_flows_pkg.vhd
 !/hardware_scheduler/rtl/Constants_pkg.vhd
 
 !/hardware_scheduler/rtl/RP/

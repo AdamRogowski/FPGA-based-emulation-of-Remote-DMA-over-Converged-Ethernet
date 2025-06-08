@@ -68,7 +68,6 @@ architecture rtl of pipelined_stack_processor is
     --qp          : std_logic_vector(QP_WIDTH - 1 downto 0); qp ommitted in the pipeline, current address is used instead
     cur_addr    : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     next_addr   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-    max_rate    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
     cur_rate    : unsigned(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0);
     seq_nr      : unsigned(SEQ_NR_WIDTH - 1 downto 0);
     active_flag : std_logic;
@@ -79,7 +78,7 @@ architecture rtl of pipelined_stack_processor is
   type pipe_type is array (0 to SCHEDULER_PIPELINE_SIZE - 1) of pipe_stage;
 
   signal pipe_valid : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := (others => '0');
-  signal pipe       : pipe_type                                              := (others => (cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, max_rate => (others => '0'), cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0'));
+  signal pipe       : pipe_type                                              := (others => (cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0'));
 
   -- Internal flow_mem signals
   signal flow_mem_ena   : std_logic                                          := '0';
@@ -109,7 +108,6 @@ architecture rtl of pipelined_stack_processor is
   signal head_address_o      : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
   signal current_slot_o      : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
   signal slot_advance_o      : std_logic;
-  signal target_slot         : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
 
   -- Output signals
   signal qp_s       : std_logic_vector(QP_WIDTH - 1 downto 0) := (others => '0');
@@ -225,24 +223,22 @@ begin
 
       -- The rate_mem data is expected to be in the format:
       -- msb -> lsb
-      -- [cur_rate, max_rate]
-      -- [RATE_BIT_RESOLUTION_WIDTH, RATE_BIT_RESOLUTION_WIDTH]
+      -- [cur_rate]
+      -- [RATE_BIT_RESOLUTION_WIDTH]
       if pipe_valid(SCHEDULER_PIPELINE_STAGE_1) = '1' then
         pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
         pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
         pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH)) + 1; -- increment seq_nr by 1
         pipe(SCHEDULER_PIPELINE_STAGE_2).active_flag <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
 
-        pipe(SCHEDULER_PIPELINE_STAGE_2).max_rate <= unsigned(rate_mem_doa(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0));
-        pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate <= unsigned(rate_mem_doa(2 * RATE_BIT_RESOLUTION_WIDTH - 1 downto RATE_BIT_RESOLUTION_WIDTH));
+        pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate <= unsigned(rate_mem_doa(RATE_BIT_RESOLUTION_WIDTH - 1 downto 0));
 
       end if;
 
       -- Stage 2: update flow data and insert into calendar
       if pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' then
-        target_slot <= (current_slot_o + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
         insert_enable <= '1';
-        insert_slot <= (current_slot_o + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH);
+        insert_slot <= (current_slot_o + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
         insert_data <= pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
         --if active_flag = '1' then send output to the calendar
         if pipe(SCHEDULER_PIPELINE_STAGE_2).active_flag = '1' then
