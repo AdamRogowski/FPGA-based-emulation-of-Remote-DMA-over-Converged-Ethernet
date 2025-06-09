@@ -5,11 +5,11 @@ library IEEE;
 
 entity Scheduler_pipeline_top is
   port (
-    clk        : in  std_logic;
-    rst        : in  std_logic;
-    qp_o       : out std_logic_vector(QP_WIDTH - 1 downto 0);
-    seq_nr_o   : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
-    flow_rdy_o : out std_logic
+    clk            : in  std_logic;
+    rst            : in  std_logic;
+    qp_out         : out std_logic_vector(QP_WIDTH - 1 downto 0);
+    seq_nr_out     : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
+    flow_ready_out : out std_logic
       -- Optionally, expose Rate_mem port B here if needed
   );
 end entity;
@@ -30,13 +30,13 @@ architecture rtl of Scheduler_pipeline_top is
   signal rate_mem_dib   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
   signal rate_mem_dob   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0);
 
-  component pipelined_stack_processor is
+  component scheduler_pipeline_main is
     port (
       clk            : in  std_logic;
       rst            : in  std_logic;
-      qp_o           : out std_logic_vector(QP_WIDTH - 1 downto 0);
-      seq_nr_o       : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
-      flow_rdy_o     : out std_logic;
+      qp_out         : out std_logic_vector(QP_WIDTH - 1 downto 0);
+      seq_nr_out     : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
+      flow_ready_out : out std_logic;
       rate_mem_ena   : out std_logic;
       rate_mem_wea   : out std_logic;
       rate_mem_addra : out std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0);
@@ -62,13 +62,13 @@ architecture rtl of Scheduler_pipeline_top is
 begin
 
   -- Instantiate the scheduler pipeline
-  scheduler_inst: pipelined_stack_processor
+  scheduler_inst: scheduler_pipeline_main
     port map (
       clk            => clk,
       rst            => rst,
-      qp_o           => qp_o,
-      seq_nr_o       => seq_nr_o,
-      flow_rdy_o     => flow_rdy_o,
+      qp_out         => qp_out,
+      seq_nr_out     => seq_nr_out,
+      flow_ready_out => flow_ready_out,
       rate_mem_ena   => rate_mem_ena,
       rate_mem_wea   => rate_mem_wea,
       rate_mem_addra => rate_mem_addra,

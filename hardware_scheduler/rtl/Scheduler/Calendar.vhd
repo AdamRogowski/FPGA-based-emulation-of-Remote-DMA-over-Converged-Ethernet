@@ -1,7 +1,15 @@
 library IEEE;
   use IEEE.STD_LOGIC_1164.all;
   use IEEE.NUMERIC_STD.all;
-  use work.constants_pkg.all; -- Import constants
+  use work.constants_pkg.all;
+
+  -- ============================================================================
+  -- Entity: Calendar
+  -- Description:
+  --   Calendar structure for DCQCN scheduler.
+  --   - Handles slot advancement and flow insertion.
+  --   - Synchronizes outputs with memory latency.
+  -- ============================================================================
 
 entity Calendar is
   port (
@@ -17,18 +25,18 @@ entity Calendar is
   );
 end entity;
 
-architecture RTL of Calendar is
+architecture rtl of Calendar is
 
-  component CalendarCnt
+  component CalendarCnt is
     port (
-      clk      : in  std_logic;
-      rst      : in  std_logic;
-      cur_slot : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
-      update   : out std_logic
+      clk         : in  std_logic;
+      rst         : in  std_logic;
+      slot_index  : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+      slot_update : out std_logic
     );
   end component;
 
-  component Calendar_mem
+  component Calendar_mem is
     generic (
       LATENCY : integer
     );
@@ -42,32 +50,34 @@ architecture RTL of Calendar is
     );
   end component;
 
-  signal cur_slot_int : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0) := (others => '0');
-  signal update_int   : std_logic                                   := '0';
+  -- Internal signals
+  signal slot_index_int  : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0) := (others => '0');
+  signal slot_update_int : std_logic                                   := '0';
 
-  -- Internal signals for the calendar memory
-  signal calendar_mem_ena, calendar_mem_enb     : std_logic                                              := '0';
-  signal calendar_mem_wea, calendar_mem_web     : std_logic                                              := '0';
-  signal calendar_mem_addra, calendar_mem_addrb : std_logic_vector(CALENDAR_MEM_ADDR_WIDTH - 1 downto 0) := CALENDAR_MEM_DEFAULT_ADDRESS;
-  signal calendar_mem_dia, calendar_mem_dib     : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := CALENDAR_MEM_NULL_ENTRY;
-  signal calendar_mem_doa, calendar_mem_dob     : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := CALENDAR_MEM_NULL_ENTRY;
+  -- Calendar memory interface
+  signal cal_mem_ena, cal_mem_enb     : std_logic                                              := '0';
+  signal cal_mem_wea, cal_mem_web     : std_logic                                              := '0';
+  signal cal_mem_addra, cal_mem_addrb : std_logic_vector(CALENDAR_MEM_ADDR_WIDTH - 1 downto 0) := CALENDAR_MEM_DEFAULT_ADDRESS;
+  signal cal_mem_dia, cal_mem_dib     : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := CALENDAR_MEM_NULL_ENTRY;
+  signal cal_mem_doa, cal_mem_dob     : std_logic_vector(CALENDAR_MEM_DATA_WIDTH - 1 downto 0) := CALENDAR_MEM_NULL_ENTRY;
 
-  -- Pipelines for synchronizing: current_slot_o, slot_advance_o with head_address_o after CALENDAR_MEM_LATENCY
-  constant PIPE_SYNCH_LATECY : integer := CALENDAR_MEM_LATENCY + 1; -- Number of pipeline stages for synchronization
-  type current_slot_pipe_type is array (0 to PIPE_SYNCH_LATECY - 1) of unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
-  type slot_advance_pipe_type is array (0 to PIPE_SYNCH_LATECY - 1) of std_logic;
+  -- Pipelines for synchronizing outputs with memory latency
+  constant PIPE_SYNC_LATENCY : integer := CALENDAR_MEM_LATENCY + 1;
+  type slot_pipe_t is array (0 to PIPE_SYNC_LATENCY - 1) of unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+  type adv_pipe_t is array (0 to PIPE_SYNC_LATENCY - 1) of std_logic;
 
-  signal current_slot_pipe : current_slot_pipe_type := (others => (others => '0'));
-  signal slot_advance_pipe : slot_advance_pipe_type := (others => '0');
+  signal slot_pipe    : slot_pipe_t := (others => (others => '0'));
+  signal advance_pipe : adv_pipe_t  := (others => '0');
 
 begin
 
-  CalendarCounter_inst: CalendarCnt
+  -- Calendar slot counter
+  CalendarCnt_inst: CalendarCnt
     port map (
-      clk      => clk,
-      rst      => rst,
-      cur_slot => cur_slot_int,
-      update   => update_int
+      clk         => clk,
+      rst         => rst,
+      slot_index  => slot_index_int,
+      slot_update => slot_update_int
     );
 
   -- Calendar memory instantiation
@@ -77,73 +87,74 @@ begin
     )
     port map (
       clk   => clk,
-      ena   => calendar_mem_ena,
-      enb   => calendar_mem_enb,
-      wea   => calendar_mem_wea,
-      web   => calendar_mem_web,
-      addra => calendar_mem_addra,
-      addrb => calendar_mem_addrb,
-      dia   => calendar_mem_dia,
-      dib   => calendar_mem_dib,
-      doa   => calendar_mem_doa,
-      dob   => calendar_mem_dob
+      ena   => cal_mem_ena,
+      enb   => cal_mem_enb,
+      wea   => cal_mem_wea,
+      web   => cal_mem_web,
+      addra => cal_mem_addra,
+      addrb => cal_mem_addrb,
+      dia   => cal_mem_dia,
+      dib   => cal_mem_dib,
+      doa   => cal_mem_doa,
+      dob   => cal_mem_dob
     );
 
+  -- Synchronize slot and advance signals with memory latency
   process (clk)
   begin
     if rising_edge(clk) then
 
-      -- Shift the pipeline for current_slot and slot_advance
-      for i in PIPE_SYNCH_LATECY - 1 downto 1 loop
-        current_slot_pipe(i) <= current_slot_pipe(i - 1);
-        slot_advance_pipe(i) <= slot_advance_pipe(i - 1);
+      -- Shift pipelines for slot and advance
+      for i in PIPE_SYNC_LATENCY - 1 downto 1 loop
+        slot_pipe(i) <= slot_pipe(i - 1);
+        advance_pipe(i) <= advance_pipe(i - 1);
       end loop;
+      slot_pipe(0) <= slot_index_int;
+      advance_pipe(0) <= slot_update_int;
 
-      current_slot_pipe(0) <= cur_slot_int;
-      slot_advance_pipe(0) <= update_int;
-
+      -- Handle insert operation (port A)
       if insert_enable = '1' then
-        -- Write to calendar memory using port A
-        -- Read the previous head address using port A
-        calendar_mem_ena <= '1';
-        calendar_mem_wea <= '1';
-        calendar_mem_addra <= std_logic_vector(insert_slot);
-        calendar_mem_dia <= insert_data;
+        cal_mem_ena <= '1';
+        cal_mem_wea <= '1';
+        cal_mem_addra <= std_logic_vector(insert_slot);
+        cal_mem_dia <= insert_data;
       else
-        calendar_mem_ena <= '0';
-        calendar_mem_wea <= '0';
+        cal_mem_ena <= '0';
+        cal_mem_wea <= '0';
       end if;
 
-      if update_int = '1' then
-        -- Read the previous head address using port B
-        calendar_mem_enb <= '1';
-        calendar_mem_web <= '1';
-        calendar_mem_addrb <= std_logic_vector(cur_slot_int);
-        calendar_mem_dib <= FLOW_NULL_ADDRESS;
+      -- Handle slot advance operation (port B)
+      if slot_update_int = '1' then
+        cal_mem_enb <= '1';
+        cal_mem_web <= '1';
+        cal_mem_addrb <= std_logic_vector(slot_index_int);
+        cal_mem_dib <= FLOW_NULL_ADDRESS;
       else
-        calendar_mem_enb <= '0';
-        calendar_mem_web <= '0';
+        cal_mem_enb <= '0';
+        cal_mem_web <= '0';
       end if;
 
+      -- Synchronous reset
       if rst = '1' then
-        calendar_mem_ena <= '0';
-        calendar_mem_enb <= '0';
-        calendar_mem_wea <= '0';
-        calendar_mem_web <= '0';
-        calendar_mem_addra <= (others => '0');
-        calendar_mem_addrb <= (others => '0');
-        calendar_mem_dia <= (others => '0');
-        calendar_mem_dib <= (others => '0');
-        current_slot_pipe <= (others => (others => '0'));
-        slot_advance_pipe <= (others => '0');
+        cal_mem_ena <= '0';
+        cal_mem_enb <= '0';
+        cal_mem_wea <= '0';
+        cal_mem_web <= '0';
+        cal_mem_addra <= (others => '0');
+        cal_mem_addrb <= (others => '0');
+        cal_mem_dia <= (others => '0');
+        cal_mem_dib <= (others => '0');
+        slot_pipe <= (others => (others => '0'));
+        advance_pipe <= (others => '0');
       end if;
 
     end if;
   end process;
 
-  slot_advance_o      <= slot_advance_pipe(PIPE_SYNCH_LATECY - 1);
-  current_slot_o      <= current_slot_pipe(PIPE_SYNCH_LATECY - 1);
-  head_address_o      <= calendar_mem_dob;
-  prev_head_address_o <= calendar_mem_doa;
+  -- Output assignments (synchronized with memory latency)
+  slot_advance_o      <= advance_pipe(PIPE_SYNC_LATENCY - 1);
+  current_slot_o      <= slot_pipe(PIPE_SYNC_LATENCY - 1);
+  head_address_o      <= cal_mem_dob;
+  prev_head_address_o <= cal_mem_doa;
 
 end architecture;

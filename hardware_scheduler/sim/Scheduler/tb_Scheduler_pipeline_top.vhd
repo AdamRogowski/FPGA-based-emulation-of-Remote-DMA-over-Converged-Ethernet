@@ -11,19 +11,19 @@ architecture sim of tb_Scheduler_pipeline_top is
   -- Component under test
   component Scheduler_pipeline_top is
     port (
-      clk        : in  std_logic;
-      rst        : in  std_logic;
-      qp_o       : out std_logic_vector(QP_WIDTH - 1 downto 0);
-      seq_nr_o   : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
-      flow_rdy_o : out std_logic
+      clk            : in  std_logic;
+      rst            : in  std_logic;
+      qp_out         : out std_logic_vector(QP_WIDTH - 1 downto 0);
+      seq_nr_out     : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
+      flow_ready_out : out std_logic
     );
   end component;
 
-  signal clk        : std_logic := '0';
-  signal rst        : std_logic := '1';
-  signal qp_o       : std_logic_vector(QP_WIDTH - 1 downto 0);
-  signal seq_nr_o   : unsigned(SEQ_NR_WIDTH - 1 downto 0);
-  signal flow_rdy_o : std_logic;
+  signal clk            : std_logic := '0';
+  signal rst            : std_logic := '1';
+  signal qp_out         : std_logic_vector(QP_WIDTH - 1 downto 0);
+  signal seq_nr_out     : unsigned(SEQ_NR_WIDTH - 1 downto 0);
+  signal flow_ready_out : std_logic;
 
 begin
 
@@ -39,11 +39,11 @@ begin
   -- DUT instantiation
   dut: Scheduler_pipeline_top
     port map (
-      clk        => clk,
-      rst        => rst,
-      qp_o       => qp_o,
-      seq_nr_o   => seq_nr_o,
-      flow_rdy_o => flow_rdy_o
+      clk            => clk,
+      rst            => rst,
+      qp_out         => qp_out,
+      seq_nr_out     => seq_nr_out,
+      flow_ready_out => flow_ready_out
     );
 
   -- Stimulus process

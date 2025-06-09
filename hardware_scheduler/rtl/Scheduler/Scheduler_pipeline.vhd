@@ -2,16 +2,37 @@ library IEEE;
   use IEEE.STD_LOGIC_1164.all;
   use IEEE.NUMERIC_STD.all;
   use work.constants_pkg.all;
-  use work.bram_init_pkg.all; -- Import constants
+  use work.bram_init_pkg.all;
 
-entity pipelined_stack_processor is
+  -- ============================================================================
+  -- Entity: scheduler_pipeline_main
+  -- Description:
+  --   Main scheduler pipeline for DCQCN hardware scheduler.
+  --   - Multi-stage pipeline for flow scheduling
+  --   - Externalized Rate_mem interface
+  --   - Integrated FIFO for overflow/feedback
+  --   - Parameterized pipeline depth and memory latencies
+  --   - All memory and FIFO accesses are synchronous
+  --
+  -- Pipeline stages:
+  --   0: Issue address to memories
+  --   1: Receive memory data
+  --   2: Update flow data, insert into calendar
+  --   3: Write back to flow_mem
+  --
+  -- Data formats:
+  --   flow_mem: [active_flag, seq_nr, next_addr, cur_addr]
+  --   rate_mem: [cur_rate]
+  -- ============================================================================
+
+entity scheduler_pipeline_main is
   port (
     clk            : in  std_logic;
     rst            : in  std_logic;
-    -- Flow cmd output
-    qp_o           : out std_logic_vector(QP_WIDTH - 1 downto 0);
-    seq_nr_o       : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
-    flow_rdy_o     : out std_logic;
+    -- Flow command output
+    qp_out         : out std_logic_vector(QP_WIDTH - 1 downto 0);
+    seq_nr_out     : out unsigned(SEQ_NR_WIDTH - 1 downto 0);
+    flow_ready_out : out std_logic;
     -- External Rate_mem interface
     rate_mem_ena   : out std_logic;
     rate_mem_wea   : out std_logic;
@@ -21,9 +42,11 @@ entity pipelined_stack_processor is
   );
 end entity;
 
-architecture rtl of pipelined_stack_processor is
+architecture rtl of scheduler_pipeline_main is
 
-  -- BRAM component declaration
+  -- ==========================================================================
+  -- Component Declarations
+  -- ==========================================================================
   component Flow_mem is
     generic (
       LATENCY : integer
@@ -69,25 +92,39 @@ architecture rtl of pipelined_stack_processor is
     );
   end component;
 
-  constant QP_padding : std_logic_vector(QP_WIDTH - FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0'); -- Padding for QP
+  -- ==========================================================================
+  -- Constants and Types
+  -- ==========================================================================
+  constant QP_PADDING : std_logic_vector(QP_WIDTH - FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
 
-  -- Pipeline registers
-  type pipe_stage is record
-    --qp          : std_logic_vector(QP_WIDTH - 1 downto 0); qp ommitted in the pipeline, current address is used instead
+  -- Pipeline stage record
+  type pipeline_stage_t is record
     cur_addr    : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     next_addr   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     cur_rate    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
     seq_nr      : unsigned(SEQ_NR_WIDTH - 1 downto 0);
     active_flag : std_logic;
-    cur_slot    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0); -- Current slot in the calendar
+    cur_slot    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
   end record;
 
-  type pipe_type is array (0 to SCHEDULER_PIPELINE_SIZE - 1) of pipe_stage;
+  type pipeline_array_t is array (0 to SCHEDULER_PIPELINE_SIZE - 1) of pipeline_stage_t;
 
-  signal pipe_valid : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := (others => '0');
-  signal pipe       : pipe_type                                              := (others => (cur_addr => FLOW_NULL_ADDRESS, next_addr => FLOW_NULL_ADDRESS, cur_rate => (others => '0'), seq_nr => (others => '0'), active_flag => '0', cur_slot => (others => '0')));
+  -- ==========================================================================
+  -- Internal Signals
+  -- ==========================================================================
 
-  -- Internal flow_mem signals
+  -- Pipeline registers
+  signal pipeline_valid : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := (others => '0');
+  signal pipeline       : pipeline_array_t                                       := (others => (
+                                           cur_addr    => FLOW_NULL_ADDRESS,
+                                           next_addr   => FLOW_NULL_ADDRESS,
+                                           cur_rate    => (others => '0'),
+                                           seq_nr      => (others => '0'),
+                                           active_flag => '0',
+                                           cur_slot    => (others => '0')
+                                         ));
+
+  -- Flow_mem signals
   signal flow_mem_ena   : std_logic                                          := '0';
   signal flow_mem_wea   : std_logic                                          := '0';
   signal flow_mem_addra : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := FLOW_MEM_DEFAULT_ADDRESS;
@@ -101,38 +138,38 @@ architecture rtl of pipelined_stack_processor is
   signal flow_mem_dob   : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
 
   -- Calendar signals
-  signal insert_enable       : std_logic                                         := '0';
-  signal insert_slot         : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
-  signal insert_data         : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
-  signal prev_head_address_o : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal head_address_o      : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal current_slot_o      : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
-  signal slot_advance_o      : std_logic;
+  signal calendar_insert_en   : std_logic                                         := '0';
+  signal calendar_insert_slot : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)       := (others => '0');
+  signal calendar_insert_data : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
+  signal calendar_prev_head   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal calendar_head        : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal calendar_cur_slot    : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
+  signal calendar_slot_adv    : std_logic;
 
-  -- Fifo signals
-  signal append_enable  : std_logic                                                                := '0';
-  signal new_element    : std_logic_vector(FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH - 1 downto 0) := (others => '0');
-  signal pop_enable     : std_logic                                                                := '0';
-  signal popped_element : std_logic_vector(FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH - 1 downto 0);
-  signal empty          : std_logic;
-  signal full           : std_logic;
+  -- FIFO signals
+  signal fifo_append_en   : std_logic                                                                := '0';
+  signal fifo_new_element : std_logic_vector(FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH - 1 downto 0) := (others => '0');
+  signal fifo_pop_en      : std_logic                                                                := '0';
+  signal fifo_popped_elem : std_logic_vector(FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH - 1 downto 0);
+  signal fifo_empty       : std_logic;
+  signal fifo_full        : std_logic;
+  signal fifo_access      : std_logic_vector(1 downto 0)                                             := (others => '0');
+  signal popped_flag      : std_logic                                                                := '0';
 
-  --signal slot_advance_rdy : std_logic                        := '0'; -- Ready signal for slot advance operation
-  signal fifo_access : std_logic_vector(2 - 1 downto 0) := (others => '0');
-  signal popped_flag : std_logic                        := '0'; -- Flag to indicate that the element was popped from the FIFO last cycle
+  -- Output registers
+  signal qp_reg       : std_logic_vector(QP_WIDTH - 1 downto 0) := (others => '0');
+  signal seq_nr_reg   : unsigned(SEQ_NR_WIDTH - 1 downto 0)     := (others => '0');
+  signal flow_rdy_reg : std_logic                               := '0';
 
-  -- Output signals
-  signal qp_s       : std_logic_vector(QP_WIDTH - 1 downto 0) := (others => '0');
-  signal seq_nr_s   : unsigned(SEQ_NR_WIDTH - 1 downto 0)     := (others => '0');
-  signal flow_rdy_s : std_logic                               := '0';
-
-  -- Function to check if pipe_valid matches any of the PIPE_READY_PATTERNS
-  function is_pipe_ready(
-      signal pipe_valid : std_logic_vector
+  -- ==========================================================================
+  -- Helper Function: Pipeline Ready Pattern Check
+  -- ==========================================================================
+  function is_pipeline_ready(
+      signal valid : std_logic_vector
     ) return boolean is
   begin
     for i in 0 to PIPE_READY_PATTERNS_SIZE - 1 loop
-      if pipe_valid = PIPE_READY_PATTERNS(i) then
+      if valid = PIPE_READY_PATTERNS(i) then
         return true;
       end if;
     end loop;
@@ -141,7 +178,9 @@ architecture rtl of pipelined_stack_processor is
 
 begin
 
-  -- Instantiate the BRAM internally
+  -- ==========================================================================
+  -- Component Instantiations
+  -- ==========================================================================
   flow_mem_inst: Flow_mem
     generic map (
       LATENCY => FLOW_MEM_LATENCY
@@ -160,21 +199,20 @@ begin
       dob   => flow_mem_dob
     );
 
-  -- Instantiate Calendar
   calendar_inst: Calendar
     port map (
       clk                 => clk,
       rst                 => rst,
-      insert_enable       => insert_enable,
-      insert_slot         => insert_slot,
-      insert_data         => insert_data,
-      prev_head_address_o => prev_head_address_o,
-      head_address_o      => head_address_o,
-      current_slot_o      => current_slot_o,
-      slot_advance_o      => slot_advance_o
+      insert_enable       => calendar_insert_en,
+      insert_slot         => calendar_insert_slot,
+      insert_data         => calendar_insert_data,
+      prev_head_address_o => calendar_prev_head,
+      head_address_o      => calendar_head,
+      current_slot_o      => calendar_cur_slot,
+      slot_advance_o      => calendar_slot_adv
     );
 
-  fifo_instance: fifo
+  fifo_inst: fifo
     generic map (
       DATA_WIDTH => FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH,
       ADDR_WIDTH => OVERFLOW_BUFFER_SIZE
@@ -182,160 +220,141 @@ begin
     port map (
       clk            => clk,
       rst            => rst,
-      append_enable  => append_enable,
-      new_element    => new_element,
-      pop_enable     => pop_enable,
-      popped_element => popped_element,
-      empty          => empty,
-      full           => full
+      append_enable  => fifo_append_en,
+      new_element    => fifo_new_element,
+      pop_enable     => fifo_pop_en,
+      popped_element => fifo_popped_elem,
+      empty          => fifo_empty,
+      full           => fifo_full
     );
 
-  -- Main pipeline logic
+  -- ==========================================================================
+  -- Main Pipeline Process
+
+  -- ==========================================================================
   process (clk)
   begin
-
     if rising_edge(clk) then
 
       -- Shift pipeline stages
       for i in SCHEDULER_PIPELINE_SIZE - 1 downto 1 loop
-        pipe(i) <= pipe(i - 1);
-        pipe_valid(i) <= pipe_valid(i - 1);
+        pipeline(i) <= pipeline(i - 1);
+        pipeline_valid(i) <= pipeline_valid(i - 1);
       end loop;
 
-      -- Shift fifo access
+      -- Shift FIFO access tracking
       fifo_access(1) <= fifo_access(0);
-      if slot_advance_o = '1' and head_address_o /= FLOW_NULL_ADDRESS then
-        append_enable <= '1';
-        new_element <= head_address_o & std_logic_vector(current_slot_o);
+
+      -- FIFO append logic: add new element on slot advance
+      if calendar_slot_adv = '1' and calendar_head /= FLOW_NULL_ADDRESS then
+        fifo_append_en <= '1';
+        fifo_new_element <= calendar_head & std_logic_vector(calendar_cur_slot);
       else
-        append_enable <= '0';
+        fifo_append_en <= '0';
       end if;
 
-      if (empty = '0') and popped_flag = '0' and is_pipe_ready(pipe_valid) then
-        -- If the FIFO is not empty and the pipeline is empty, pop an element from the FIFO
-        pop_enable <= '1';
-        fifo_access(0) <= '1'; -- Pop operation
-        --pipe_valid <= '1' & pipe_valid(SCHEDULER_PIPELINE_SIZE - 2 downto 0); -- Set the first stage valid
-        popped_flag <= '1'; -- Set the popped flag to indicate that an element was popped
+      -- FIFO pop logic: pop if pipeline is ready and FIFO not empty
+      if (fifo_empty = '0') and popped_flag = '0' and is_pipeline_ready(pipeline_valid) then
+        fifo_pop_en <= '1';
+        fifo_access(0) <= '1';
+        popped_flag <= '1';
       else
-        pop_enable <= '0';
-        fifo_access(0) <= '0'; -- No operation
-        popped_flag <= '0'; -- Reset the popped flag
+        fifo_pop_en <= '0';
+        fifo_access(0) <= '0';
+        popped_flag <= '0';
       end if;
-
-      -- constant SCHEDULER_PIPELINE_SIZE         : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 6; -- Number of pipeline stages for the scheduler
-      -- constant SCHEDULER_PIPELINE_STAGE_0      : integer := 0;
-      -- constant SCHEDULER_PIPELINE_STAGE_1      : integer := FLOW_MEM_LATENCY + 1;
-      -- constant SCHEDULER_PIPELINE_STAGE_2      : integer := FLOW_MEM_LATENCY + 2;
-      -- constant SCHEDULER_PIPELINE_STAGE_3      : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
 
       -- Stage -1: input address or feedback
       if fifo_access(1) = '1' then
-        pipe(SCHEDULER_PIPELINE_STAGE_0).cur_slot <= unsigned(popped_element(CALENDAR_SLOTS_WIDTH - 1 downto 0));
-        pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= popped_element(FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH - 1 downto CALENDAR_SLOTS_WIDTH);
-        pipe_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
-        --TODO: handle the improbable case when slot_advance_o = '1' and pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS at the same time
-      elsif pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS then
-        pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr;
-        pipe_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
+        pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_slot <= unsigned(fifo_popped_elem(CALENDAR_SLOTS_WIDTH - 1 downto 0));
+        pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= fifo_popped_elem(FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH - 1 downto CALENDAR_SLOTS_WIDTH);
+        pipeline_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
+        -- TODO: handle rare case when slot_advance_o = '1' and pipeline_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipeline(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS at the same time
+      elsif pipeline_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipeline(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS then
+        pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= pipeline(SCHEDULER_PIPELINE_STAGE_2).next_addr;
+        pipeline_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
       else
-        pipe_valid(SCHEDULER_PIPELINE_STAGE_0) <= '0';
+        pipeline_valid(SCHEDULER_PIPELINE_STAGE_0) <= '0';
       end if;
 
-      -- Stage 0 issues address to both BRAMs
-      if pipe_valid(SCHEDULER_PIPELINE_STAGE_0) = '1' then
+      -- Stage 0: Issue address to both BRAMs
+      if pipeline_valid(SCHEDULER_PIPELINE_STAGE_0) = '1' then
         flow_mem_ena <= '1';
         flow_mem_wea <= '0';
-        -- NOTE: mapping FLOW_ADDRESS_WIDTH of cur_addr to FLOW_MEM_ADDR_WIDTH which effectively truncates the null address bit in front of the cur_addr
-        flow_mem_addra <= pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
+        flow_mem_addra <= pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
 
         rate_mem_ena <= '1';
         rate_mem_wea <= '0';
-        rate_mem_addra <= pipe(SCHEDULER_PIPELINE_STAGE_0).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0);
+        rate_mem_addra <= pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_addr(RATE_MEM_ADDR_WIDTH - 1 downto 0);
       else
         flow_mem_ena <= '0';
         rate_mem_ena <= '0';
       end if;
 
       -- Stage 1: BRAMs data arrives
-      -- The flow_mem data is expected to be in the format:
-      -- msb -> lsb
-      -- [active_flag, seq_nr, next_addr, cur_addr]
-      -- [ 1, SEQ_NR_WIDTH, FLOW_ADDRESS_WIDTH, QP_WIDTH[empty bits: QP_padding, FLOW_ADDRESS_WIDTH]]
-
-      -- The rate_mem data is expected to be in the format:
-      -- msb -> lsb
-      -- [cur_rate]
-      -- [CALENDAR_SLOTS_WIDTH]
-      if pipe_valid(SCHEDULER_PIPELINE_STAGE_1) = '1' then
-        pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
-        pipe(SCHEDULER_PIPELINE_STAGE_2).next_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
-        pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH)) + 1; -- increment seq_nr by 1
-        pipe(SCHEDULER_PIPELINE_STAGE_2).active_flag <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
-
-        pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate <= unsigned(rate_mem_doa(CALENDAR_SLOTS_WIDTH - 1 downto 0));
-
+      if pipeline_valid(SCHEDULER_PIPELINE_STAGE_1) = '1' then
+        pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH - 1 downto 0);
+        pipeline(SCHEDULER_PIPELINE_STAGE_2).next_addr <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH - 1 downto QP_WIDTH);
+        pipeline(SCHEDULER_PIPELINE_STAGE_2).seq_nr <= unsigned(flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH - 1 downto FLOW_ADDRESS_WIDTH + QP_WIDTH)) + 1;
+        pipeline(SCHEDULER_PIPELINE_STAGE_2).active_flag <= flow_mem_doa(FLOW_ADDRESS_WIDTH + QP_WIDTH + SEQ_NR_WIDTH);
+        pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_rate <= unsigned(rate_mem_doa(CALENDAR_SLOTS_WIDTH - 1 downto 0));
       end if;
 
       -- Stage 2: update flow data and insert into calendar
-      if pipe_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' then
-        insert_enable <= '1';
-        insert_slot <= (pipe(SCHEDULER_PIPELINE_STAGE_2).cur_slot + pipe(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH); -- schedule in a circular manner
-        insert_data <= pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
-        --if active_flag = '1' then send output to the calendar
-        if pipe(SCHEDULER_PIPELINE_STAGE_2).active_flag = '1' then
-          qp_s <= QP_padding & pipe(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
-          seq_nr_s <= pipe(SCHEDULER_PIPELINE_STAGE_2).seq_nr;
-          flow_rdy_s <= '1';
+      if pipeline_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' then
+        calendar_insert_en <= '1';
+        calendar_insert_slot <= (pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_slot + pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH);
+        calendar_insert_data <= pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
+        if pipeline(SCHEDULER_PIPELINE_STAGE_2).active_flag = '1' then
+          qp_reg <= QP_PADDING & pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
+          seq_nr_reg <= pipeline(SCHEDULER_PIPELINE_STAGE_2).seq_nr;
+          flow_rdy_reg <= '1';
         end if;
-
       else
-        insert_enable <= '0';
-
-        qp_s <= QP_padding & FLOW_NULL_ADDRESS;
-        seq_nr_s <= (others => '0');
-        flow_rdy_s <= '0';
+        calendar_insert_en <= '0';
+        qp_reg <= QP_PADDING & FLOW_NULL_ADDRESS;
+        seq_nr_reg <= (others => '0');
+        flow_rdy_reg <= '0';
       end if;
 
       -- Stage 3: write back to flow_mem with updated next_addr
-      -- At this point prev_head_address_o is ready so flow can be written back to the memory
-      if pipe_valid(SCHEDULER_PIPELINE_STAGE_3) = '1' then
-        --pipe(SCHEDULER_PIPELINE_STAGE_3 + 1).next_addr <= prev_head_address_o;
+      if pipeline_valid(SCHEDULER_PIPELINE_STAGE_3) = '1' then
         flow_mem_enb <= '1';
         flow_mem_web <= '1';
-        flow_mem_addrb <= pipe(SCHEDULER_PIPELINE_STAGE_3).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
-        flow_mem_dib <= pipe(SCHEDULER_PIPELINE_STAGE_3).active_flag & std_logic_vector(pipe(SCHEDULER_PIPELINE_STAGE_3).seq_nr) & prev_head_address_o & QP_padding & pipe(SCHEDULER_PIPELINE_STAGE_3).cur_addr;
+        flow_mem_addrb <= pipeline(SCHEDULER_PIPELINE_STAGE_3).cur_addr(FLOW_MEM_ADDR_WIDTH - 1 downto 0);
+        flow_mem_dib <= pipeline(SCHEDULER_PIPELINE_STAGE_3).active_flag & std_logic_vector(pipeline(SCHEDULER_PIPELINE_STAGE_3).seq_nr) & calendar_prev_head & QP_PADDING & pipeline(SCHEDULER_PIPELINE_STAGE_3).cur_addr;
       else
         flow_mem_enb <= '0';
         flow_mem_web <= '0';
       end if;
 
+      -- Synchronous reset
       if rst = '1' then
-        pipe_valid <= (others => '0');
+        pipeline_valid <= (others => '0');
         flow_mem_ena <= '0';
         flow_mem_wea <= '0';
         flow_mem_addra <= FLOW_MEM_DEFAULT_ADDRESS;
         flow_mem_dia <= (others => '0');
-
         flow_mem_enb <= '0';
         flow_mem_web <= '0';
         flow_mem_addrb <= FLOW_MEM_DEFAULT_ADDRESS;
         flow_mem_dib <= (others => '0');
-
         rate_mem_ena <= '0';
         rate_mem_wea <= '0';
         rate_mem_addra <= RATE_MEM_DEFAULT_ADDRESS;
         rate_mem_dia <= (others => '0');
-
-        qp_s <= (others => '0');
-        seq_nr_s <= (others => '0');
-        flow_rdy_s <= '0';
+        qp_reg <= (others => '0');
+        seq_nr_reg <= (others => '0');
+        flow_rdy_reg <= '0';
       end if;
     end if;
   end process;
 
-  qp_o       <= qp_s;
-  seq_nr_o   <= seq_nr_s;
-  flow_rdy_o <= flow_rdy_s;
+  -- ==========================================================================
+  -- Output Assignments
+  -- ==========================================================================
+  qp_out         <= qp_reg;
+  seq_nr_out     <= seq_nr_reg;
+  flow_ready_out <= flow_rdy_reg;
 
 end architecture;
