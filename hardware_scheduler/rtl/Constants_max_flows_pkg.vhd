@@ -67,6 +67,26 @@ package constants_pkg is
   constant SCHEDULER_PIPELINE_STAGE_2 : integer := FLOW_MEM_LATENCY + 2;
   constant SCHEDULER_PIPELINE_STAGE_3 : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 5;
 
+  -- Constant for the Scheduler overlow buffer
+  -- The overflow buffer is used to store elements that cannot be processed immediately by the scheduler pipeline
+  constant OVERFLOW_BUFFER_SIZE : integer := 2; -- Size of the overflow buffer for the scheduler
+
+  constant PIPE_READY_PATTERNS_SIZE : integer := 6; -- Number of patterns for PIPE_READY
+  -- Patterns indicating when the scheduler pipeline (PIPE_VALID) is ready to accept a new element from the FIFO
+  type PIPE_READY_PATTERNS_T is array (0 to PIPE_READY_PATTERNS_SIZE - 1) of std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0);
+
+  -- Each constant below represents a specific state of the scheduler pipeline where it is ready for a new FIFO element
+  constant PIPE_READY_PATTERN_0 : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := "00000000000"; -- All stages are idle
+  constant PIPE_READY_PATTERN_1 : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := "00001000000";
+  constant PIPE_READY_PATTERN_2 : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := "00010000000";
+  constant PIPE_READY_PATTERN_3 : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := "00100000000";
+  constant PIPE_READY_PATTERN_4 : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := "01000000000";
+  constant PIPE_READY_PATTERN_5 : std_logic_vector(SCHEDULER_PIPELINE_SIZE - 1 downto 0) := "10000000000";
+
+  constant PIPE_READY_PATTERNS : PIPE_READY_PATTERNS_T := (
+    PIPE_READY_PATTERN_0, PIPE_READY_PATTERN_1, PIPE_READY_PATTERN_2, PIPE_READY_PATTERN_3, PIPE_READY_PATTERN_4, PIPE_READY_PATTERN_5
+  );
+
   -- RP_flow_update constants
   constant R_AI  : integer := 50;  -- Additive increase rate increment value
   constant R_HAI : integer := 100; -- Huper Additive increase rate increment value

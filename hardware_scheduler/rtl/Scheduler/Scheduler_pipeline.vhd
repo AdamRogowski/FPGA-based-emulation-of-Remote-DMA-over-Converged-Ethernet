@@ -55,7 +55,7 @@ architecture rtl of pipelined_stack_processor is
   component fifo
     generic (
       DATA_WIDTH : integer := FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH;
-      ADDR_WIDTH : integer := 2
+      ADDR_WIDTH : integer := OVERFLOW_BUFFER_SIZE
     );
     port (
       clk            : in  std_logic;
@@ -119,11 +119,25 @@ architecture rtl of pipelined_stack_processor is
 
   --signal slot_advance_rdy : std_logic                        := '0'; -- Ready signal for slot advance operation
   signal fifo_access : std_logic_vector(2 - 1 downto 0) := (others => '0');
+  signal popped_flag : std_logic                        := '0'; -- Flag to indicate that the element was popped from the FIFO last cycle
 
   -- Output signals
   signal qp_s       : std_logic_vector(QP_WIDTH - 1 downto 0) := (others => '0');
   signal seq_nr_s   : unsigned(SEQ_NR_WIDTH - 1 downto 0)     := (others => '0');
   signal flow_rdy_s : std_logic                               := '0';
+
+  -- Function to check if pipe_valid matches any of the PIPE_READY_PATTERNS
+  function is_pipe_ready(
+      signal pipe_valid : std_logic_vector
+    ) return boolean is
+  begin
+    for i in 0 to PIPE_READY_PATTERNS_SIZE - 1 loop
+      if pipe_valid = PIPE_READY_PATTERNS(i) then
+        return true;
+      end if;
+    end loop;
+    return false;
+  end function;
 
 begin
 
@@ -163,7 +177,7 @@ begin
   fifo_instance: fifo
     generic map (
       DATA_WIDTH => FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH,
-      ADDR_WIDTH => 2
+      ADDR_WIDTH => OVERFLOW_BUFFER_SIZE
     )
     port map (
       clk            => clk,
@@ -197,14 +211,16 @@ begin
         append_enable <= '0';
       end if;
 
-      if (empty = '0') and (pipe_valid = "000000000000" or pipe_valid = "000001000000" or pipe_valid = "000010000000" or pipe_valid = "000100000000" or pipe_valid = "001000000000" or pipe_valid = "010000000000") then
+      if (empty = '0') and popped_flag = '0' and is_pipe_ready(pipe_valid) then
         -- If the FIFO is not empty and the pipeline is empty, pop an element from the FIFO
         pop_enable <= '1';
         fifo_access(0) <= '1'; -- Pop operation
-        pipe_valid <= '1' & pipe_valid(SCHEDULER_PIPELINE_SIZE - 2 downto 0); -- Set the first stage valid
+        --pipe_valid <= '1' & pipe_valid(SCHEDULER_PIPELINE_SIZE - 2 downto 0); -- Set the first stage valid
+        popped_flag <= '1'; -- Set the popped flag to indicate that an element was popped
       else
         pop_enable <= '0';
         fifo_access(0) <= '0'; -- No operation
+        popped_flag <= '0'; -- Reset the popped flag
       end if;
 
       -- constant SCHEDULER_PIPELINE_SIZE         : integer := FLOW_MEM_LATENCY + CALENDAR_MEM_LATENCY + 6; -- Number of pipeline stages for the scheduler
