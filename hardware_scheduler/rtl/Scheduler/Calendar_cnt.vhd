@@ -4,14 +4,14 @@ library IEEE;
   use work.constants_pkg.all; -- Import constants
 
   -- ============================================================================
-  -- Entity: CalendarCnt
+  -- Entity: Calendar_cnt
   -- Description:
   --   Calendar slot counter for DCQCN scheduler.
   --   - Generates current slot index and update pulse at each interval.
   --   - Handles slot wrap-around and synchronous reset.
   -- ============================================================================
 
-entity CalendarCnt is
+entity Calendar_cnt is
   port (
     clk         : in  std_logic;
     rst         : in  std_logic;
@@ -20,7 +20,7 @@ entity CalendarCnt is
   );
 end entity;
 
-architecture rtl of CalendarCnt is
+architecture rtl of Calendar_cnt is
 
   signal interval_counter : unsigned(CALENDAR_INTERVAL_WIDTH - 1 downto 0) := (others => '0');
   signal slot_counter     : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0)    := (others => '0');

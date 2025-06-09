@@ -27,7 +27,7 @@ end entity;
 
 architecture rtl of Calendar is
 
-  component CalendarCnt is
+  component Calendar_cnt is
     port (
       clk         : in  std_logic;
       rst         : in  std_logic;
@@ -72,7 +72,7 @@ architecture rtl of Calendar is
 begin
 
   -- Calendar slot counter
-  CalendarCnt_inst: CalendarCnt
+  Calendar_cnt_inst: Calendar_cnt
     port map (
       clk         => clk,
       rst         => rst,
