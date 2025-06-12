@@ -177,6 +177,11 @@ begin
 
   -- Main pipeline logic
   process (clk)
+    -- Temporary variables introduced to enable slicing after multiplication in the same clock cycle
+    -- This is necessary to avoid the need for a second clock cycle to truncate the result of the multiplication
+    variable Rc_temp    : unsigned(FLOATING_POINT_WIDTH + RP_RATE_WIDTH - 1 downto 0);
+    variable alpha_temp : unsigned(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto 0);
+
   begin
 
     if rising_edge(clk) then
@@ -236,10 +241,16 @@ begin
       if RP_pipe_valid(RP_PIPELINE_STAGE_3) = '1' then
 
         if RP_input_pipe(RP_PIPELINE_STAGE_3).is_cnp = '1' then
+
+          -- /* Heavy combinational logic depth, risk violating timing constraints
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc;
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc <= shift_right(RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc, 1); -- TODO: Temporary fix for CNP, just cut the rate in half
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc <= (RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc * (ONE - (RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha / 2))) / ONE;
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha + 1; -- TODO: Fix this, it should be a function of G
+
+          alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha * (ONE - G); -- alpha = alpha * (1 - G) + G, G added after truncation
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G; -- Truncate to ALPHA_WIDTH bits, then add G
+
+          Rc_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc * (ONE - shift_right(alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G, 1)); -- Rc = Rc * (1 - new_alpha/2)
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc <= Rc_temp(FLOATING_POINT_WIDTH + RP_RATE_WIDTH - 1 downto FLOATING_POINT_WIDTH); -- Truncate to RP_RATE_WIDTH bits
+          -- */ Potentially could be split into two stages to reduce combinational depth
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_alpha_update <= RP_global_timer;
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_alpha <= (others => '0');
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC <= TC_DEFAULT;
@@ -250,7 +261,10 @@ begin
         else
           -- Update Rc and Rt based on elapsed timers and conditions
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha >= K then
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha + 10; -- TODO: Fix this, it should be a function of G
+
+            alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha * (ONE - G); -- alpha = alpha * (1 - G)
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH); -- Truncate to ALPHA_WIDTH bits
+
             RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_alpha_update <= RP_global_timer; -- Reset alpha timer
           end if;
 
@@ -286,15 +300,18 @@ begin
       if RP_pipe_valid(RP_PIPELINE_STAGE_4) = '1' then
         if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update = '1' or RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update = '1' then -- equivalent to Rate_Increase_Event
 
+          -- In every case (FR, AI, HAI) Rc is updated to the average of Rc and Rt
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
+
           -- Fast Recovery stage
           --if maximum(RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC, RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC) < F then
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC < F and RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC < F then
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
+            -- RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
 
             -- Hyper Additive Increase stage
             --elsif minimum(RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC, RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC) >= F then
           elsif RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC >= F and RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC >= F then
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
+            -- RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
             -- Rt cant exceed R_max
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt + R_HAI > RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max then
               RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max;
@@ -303,7 +320,7 @@ begin
             end if;
             -- Additive Increase stage
           else
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
+            -- RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
             -- Rt cant exceed R_max
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt + R_AI > RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max then
               RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max;
@@ -336,7 +353,7 @@ begin
         rate_mem_enb <= '1';
         rate_mem_web <= '1';
         rate_mem_addrb <= RP_input_pipe(RP_PIPELINE_STAGE_5).flow_id;
-        rate_mem_dib <= std_logic_vector(RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc);
+        rate_mem_dib <= std_logic_vector(RP_upgrade_pipe(RP_PIPELINE_STAGE_6).Rc(2 downto 0)); -- TODO: ONLY FOR QUICK FIX TESTING PURPOSES, REMOVE SLICING LATER
       else
         RP_mem_enb <= '0';
         RP_mem_web <= '0';

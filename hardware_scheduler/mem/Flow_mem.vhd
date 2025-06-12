@@ -22,7 +22,7 @@ end entity;
 
 architecture rtl of Flow_mem is
 
-  signal ram : flow_mem_type_test := init_flow_mem_16;
+  signal ram : flow_mem_type := init_flow_mem_262144;
 
   -- Pipelined outputs
   type pipeline_array is array (0 to LATENCY - 1) of std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0);

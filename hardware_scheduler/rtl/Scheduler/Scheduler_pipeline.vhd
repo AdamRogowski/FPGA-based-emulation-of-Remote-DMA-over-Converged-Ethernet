@@ -269,9 +269,9 @@ begin
         pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_slot <= unsigned(fifo_popped_elem(CALENDAR_SLOTS_WIDTH - 1 downto 0));
         pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= fifo_popped_elem(FLOW_ADDRESS_WIDTH + CALENDAR_SLOTS_WIDTH - 1 downto CALENDAR_SLOTS_WIDTH);
         pipeline_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
-        -- TODO: handle rare case when slot_advance_o = '1' and pipeline_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipeline(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS at the same time
       elsif pipeline_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' and pipeline(SCHEDULER_PIPELINE_STAGE_2).next_addr /= FLOW_NULL_ADDRESS then
         pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_addr <= pipeline(SCHEDULER_PIPELINE_STAGE_2).next_addr;
+        -- pipeline(SCHEDULER_PIPELINE_STAGE_0).cur_slot is taken from the previous stage, from calendar head
         pipeline_valid(SCHEDULER_PIPELINE_STAGE_0) <= '1';
       else
         pipeline_valid(SCHEDULER_PIPELINE_STAGE_0) <= '0';
@@ -303,6 +303,8 @@ begin
       -- Stage 2: update flow data and insert into calendar
       if pipeline_valid(SCHEDULER_PIPELINE_STAGE_2) = '1' then
         calendar_insert_en <= '1';
+        -- Insert into calendar at current slot + rate
+        -- Should be check that slot + rate > calendar_cur_slot (insert slot does not refer to the past, in a corner case of high rate flow being blocked by long chain); ommitted as not probable
         calendar_insert_slot <= (pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_slot + pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_rate) and to_unsigned(CALENDAR_SLOTS - 1, CALENDAR_SLOTS_WIDTH);
         calendar_insert_data <= pipeline(SCHEDULER_PIPELINE_STAGE_2).cur_addr;
         if pipeline(SCHEDULER_PIPELINE_STAGE_2).active_flag = '1' then

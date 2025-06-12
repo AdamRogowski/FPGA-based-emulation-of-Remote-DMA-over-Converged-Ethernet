@@ -91,9 +91,17 @@ package constants_pkg is
   );
 
   -- RP_flow_update constants
-  constant R_AI  : integer := 50;  -- Additive increase rate increment value
-  constant R_HAI : integer := 100; -- Huper Additive increase rate increment value
-  constant G     : integer := 1;   -- weight factor
+  constant GLOBAL_TIMER_WIDTH  : integer                              := 16;                 -- TODO: consider the least sufficient size for the global timer
+  constant RP_RATE_WIDTH       : integer                              := 16;
+  constant RP_RATE_DEFAULT     : unsigned(RP_RATE_WIDTH - 1 downto 0) := "0000000011111111"; -- Never set to 0!
+  constant RP_RATE_MAX_DEFAULT : unsigned(RP_RATE_WIDTH - 1 downto 0) := (others => '1');    -- Maximum rate for the RP
+  constant RP_DATA_SENT_WIDTH  : integer                              := 1;                  -- Number of bits for the data sent input, 1 bit = std_logic
+
+  constant FLOATING_POINT_WIDTH : integer                                     := 16;                              -- Width of the floating point representation for the rate update
+  constant ONE                  : unsigned(FLOATING_POINT_WIDTH - 1 downto 0) := (others => '1');                 -- to_unsigned(65536, 16); Q16 fixed point 1.0
+  constant G                    : unsigned(FLOATING_POINT_WIDTH - 1 downto 0) := "0011111111111111";              -- weight factor, to_unsigned(16384, 16); Q16 fixed point 0.25
+  constant R_AI                 : unsigned(RP_RATE_WIDTH - 1 downto 0)        := to_unsigned(10, RP_RATE_WIDTH);  -- Additive increase rate increment value
+  constant R_HAI                : unsigned(RP_RATE_WIDTH - 1 downto 0)        := to_unsigned(100, RP_RATE_WIDTH); -- Huper Additive increase rate increment value
 
   constant K                 : integer                            := 50; --Reduction factor update threshold, originally around 55us ONLY associated with change of alpha
   constant K_WIDTH           : integer                            := 7;
@@ -116,12 +124,6 @@ package constants_pkg is
   constant TC_WIDTH, BC_WIDTH                : integer                        := 3;
   constant F_DEFAULT, TC_DEFAULT, BC_DEFAULT : unsigned(F_WIDTH - 1 downto 0) := (others => '0');
 
-  constant GLOBAL_TIMER_WIDTH  : integer                              := 16;                 -- TODO: consider the least sufficient size for the global timer
-  constant RP_RATE_WIDTH       : integer                              := 16;
-  constant RP_RATE_DEFAULT     : unsigned(RP_RATE_WIDTH - 1 downto 0) := "0000000011111111"; -- Never set to 0!
-  constant RP_RATE_MAX_DEFAULT : unsigned(RP_RATE_WIDTH - 1 downto 0) := (others => '1');    -- Maximum rate for the RP
-  constant RP_DATA_SENT_WIDTH  : integer                              := 1;                  -- Number of bits for the data sent input, 1 bit = std_logic
-
   -- RP internal flow mem
   constant RP_MEM_DATA_WIDTH      : integer                                            := 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH;
   constant RP_MEM_NULL_ENTRY      : std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0)   := (others => '0');
@@ -129,13 +131,14 @@ package constants_pkg is
   constant RP_MEM_DEFAULT_ADDRESS : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
   constant RP_MEM_LATENCY         : integer                                            := 3;                       -- Memory access latency in clock cycles
 
-  constant RP_PIPELINE_SIZE    : integer := RP_MEM_LATENCY + 6; -- Number of pipeline stages for the RP
+  constant RP_PIPELINE_SIZE    : integer := RP_MEM_LATENCY + 7; -- Number of pipeline stages for the RP
   constant RP_PIPELINE_STAGE_0 : integer := 0;
   constant RP_PIPELINE_STAGE_1 : integer := RP_MEM_LATENCY + 1;
   constant RP_PIPELINE_STAGE_2 : integer := RP_MEM_LATENCY + 2;
   constant RP_PIPELINE_STAGE_3 : integer := RP_MEM_LATENCY + 3;
   constant RP_PIPELINE_STAGE_4 : integer := RP_MEM_LATENCY + 4;
   constant RP_PIPELINE_STAGE_5 : integer := RP_MEM_LATENCY + 5;
+  constant RP_PIPELINE_STAGE_6 : integer := RP_MEM_LATENCY + 6;
 
 end package;
 
