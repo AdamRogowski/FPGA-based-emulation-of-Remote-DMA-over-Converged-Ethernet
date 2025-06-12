@@ -232,9 +232,25 @@ begin
 
       -- Stage 2
       if RP_pipe_valid(RP_PIPELINE_STAGE_2) = '1' then
-        RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_alpha_update;
-        RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_T <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_T_update;
-        RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt + RP_input_pipe(RP_PIPELINE_STAGE_2).data_sent;
+        if RP_input_pipe(RP_PIPELINE_STAGE_2).is_cnp = '1' then
+          -- First part of CNP processng. First alpha is updated, because it is used to calculate Rc in the next stage
+          -- Rc is updated to Rt, and alpha is updated based on the new G value
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_2).Rc;
+          alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_2).alpha * (ONE - G); -- alpha = alpha * (1 - G) + G, G added after truncation
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G; -- Truncate to ALPHA_WIDTH bits, then add G
+
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).last_alpha_update <= RP_global_timer;
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha <= (others => '0');
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC <= TC_DEFAULT;
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).last_T_update <= RP_global_timer;
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_T <= (others => '0');
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC <= BC_DEFAULT;
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt <= (others => '0');
+        else
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_alpha_update;
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_T <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_T_update;
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt + RP_input_pipe(RP_PIPELINE_STAGE_2).data_sent;
+        end if;
       end if;
 
       -- Stage 3
@@ -243,21 +259,19 @@ begin
         if RP_input_pipe(RP_PIPELINE_STAGE_3).is_cnp = '1' then
 
           -- /* Heavy combinational logic depth, risk violating timing constraints
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc;
-
-          alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha * (ONE - G); -- alpha = alpha * (1 - G) + G, G added after truncation
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G; -- Truncate to ALPHA_WIDTH bits, then add G
-
-          Rc_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc * (ONE - shift_right(alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G, 1)); -- Rc = Rc * (1 - new_alpha/2)
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc;
+          --alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha * (ONE - G); -- alpha = alpha * (1 - G) + G, G added after truncation
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G; -- Truncate to ALPHA_WIDTH bits, then add G
+          Rc_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc * (ONE - shift_right(RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha, 1)); -- Rc = Rc * (1 - new_alpha/2)
           RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc <= Rc_temp(FLOATING_POINT_WIDTH + RP_RATE_WIDTH - 1 downto FLOATING_POINT_WIDTH); -- Truncate to RP_RATE_WIDTH bits
           -- */ Potentially could be split into two stages to reduce combinational depth
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_alpha_update <= RP_global_timer;
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_alpha <= (others => '0');
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC <= TC_DEFAULT;
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_T_update <= RP_global_timer;
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_T <= (others => '0');
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC <= BC_DEFAULT;
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).ByteCnt <= (others => '0');
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_alpha_update <= RP_global_timer;
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_alpha <= (others => '0');
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC <= TC_DEFAULT;
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_T_update <= RP_global_timer;
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_T <= (others => '0');
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC <= BC_DEFAULT;
+          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).ByteCnt <= (others => '0');
         else
           -- Update Rc and Rt based on elapsed timers and conditions
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha >= K then
