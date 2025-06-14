@@ -367,7 +367,7 @@ begin
         rate_mem_enb <= '1';
         rate_mem_web <= '1';
         rate_mem_addrb <= RP_input_pipe(RP_PIPELINE_STAGE_5).flow_id;
-        rate_mem_dib <= std_logic_vector(RP_upgrade_pipe(RP_PIPELINE_STAGE_6).Rc(2 downto 0)); -- TODO: ONLY FOR QUICK FIX TESTING PURPOSES, REMOVE SLICING LATER
+        rate_mem_dib <= std_logic_vector(RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc(2 downto 0)); -- TODO: ONLY FOR QUICK FIX TESTING PURPOSES, REMOVE SLICING LATER
       else
         RP_mem_enb <= '0';
         RP_mem_web <= '0';

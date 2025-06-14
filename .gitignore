@@ -43,6 +43,7 @@
 !/hardware_scheduler/rtl/RP/
 !/hardware_scheduler/rtl/RP/RP_flow_update.vhd
 !/hardware_scheduler/rtl/RP/Global_timer.vhd
+!/hardware_scheduler/rtl/RP/RP_input_queue.vhd
 
 !/hardware_scheduler/rtl/Scheduler/
 !/hardware_scheduler/rtl/Scheduler/Calendar.vhd
@@ -54,6 +55,7 @@
 !/hardware_scheduler/sim/
 !/hardware_scheduler/sim/RP/
 !/hardware_scheduler/sim/RP/tb_RP_flow_update.vhd
+!/hardware_scheduler/sim/RP/tb_RP_input_queue.vhd
 
 !/hardware_scheduler/sim/Scheduler/
 !/hardware_scheduler/sim/Scheduler/tb_CalendarCnt.vhd

@@ -95,7 +95,6 @@ architecture rtl of scheduler_pipeline_main is
   -- ==========================================================================
   -- Constants and Types
   -- ==========================================================================
-  constant QP_PADDING : std_logic_vector(QP_WIDTH - FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
 
   -- Pipeline stage record
   type pipeline_stage_t is record

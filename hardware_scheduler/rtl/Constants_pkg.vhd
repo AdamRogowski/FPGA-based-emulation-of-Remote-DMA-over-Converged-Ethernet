@@ -21,9 +21,6 @@ package constants_pkg is
   constant CALENDAR_INTERVAL       : integer := 32;
   constant CALENDAR_INTERVAL_WIDTH : integer := 5; -- log2(CALENDAR_INTERVAL); -- Number of bits for interval counter
 
-  constant FLOW_LOADER_INTERVAL       : integer := 32; -- Clock interval for FlowLoader 
-  constant FLOW_LOADER_INTERVAL_WIDTH : integer := 5;  -- log2(FLOW_LOADER_INTERVAL); -- Number of bits for interval counter 
-
   constant RATE_BIT_RESOLUTION       : integer := 8;
   constant RATE_BIT_RESOLUTION_WIDTH : integer := 3; -- log2(RATE_BIT_RESOLUTION); -- Number of bits for rate resolution
 
@@ -33,12 +30,14 @@ package constants_pkg is
   constant IPG_DIVIDEND : real := 2.34375E10; -- division numerator
 
   -- MEM constants
+  constant QP_PADDING : std_logic_vector(QP_WIDTH - FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0'); -- Padding for QP to match FLOW_ADDRESS_WIDTH
 
   -- Flow memory data format
   --|active_flag|seq_nr|next_addr|QP|
   --|    1      |   5  |    5    | 5|
-  constant FLOW_MEM_DATA_WIDTH      : integer                                            := QP_WIDTH + SEQ_NR_WIDTH + FLOW_ADDRESS_WIDTH + 1;
-  constant FLOW_MEM_NULL_ENTRY      : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := "0000001111111111";
+  constant FLOW_MEM_DATA_WIDTH : integer                                            := QP_WIDTH + SEQ_NR_WIDTH + FLOW_ADDRESS_WIDTH + 1;
+  constant FLOW_MEM_NULL_ENTRY : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := std_logic_vector(to_unsigned(0, 1) & to_unsigned(0, SEQ_NR_WIDTH) & to_unsigned(1, FLOW_ADDRESS_WIDTH) & to_unsigned(0, QP_WIDTH - FLOW_ADDRESS_WIDTH) & to_unsigned(1, FLOW_ADDRESS_WIDTH));
+  --constant FLOW_MEM_NULL_ENTRY      : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := "0000001111111111";
   constant FLOW_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   constant FLOW_MEM_DEFAULT_ADDRESS : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
   constant FLOW_MEM_LATENCY         : integer                                            := 3;                       -- Memory access latency in clock cycles
@@ -49,7 +48,7 @@ package constants_pkg is
   --constant RATE_MEM_DATA_WIDTH      : integer                                            := 2 * RATE_BIT_RESOLUTION_WIDTH; -- Test values for scheduler
   --constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "000000"; -- Test values for scheduler
   constant RATE_MEM_DATA_WIDTH      : integer                                            := CALENDAR_SLOTS_WIDTH;
-  constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "111";
+  constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '1');
   constant RATE_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   constant RATE_MEM_DEFAULT_ADDRESS : std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
   constant RATE_MEM_LATENCY         : integer                                            := FLOW_MEM_LATENCY;        -- Has to be the same as FLOW_MEM_LATENCY for the scheduler to work properly
@@ -131,14 +130,13 @@ package constants_pkg is
   constant RP_MEM_DEFAULT_ADDRESS : std_logic_vector(FLOW_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
   constant RP_MEM_LATENCY         : integer                                            := 3;                       -- Memory access latency in clock cycles
 
-  constant RP_PIPELINE_SIZE    : integer := RP_MEM_LATENCY + 7; -- Number of pipeline stages for the RP
+  constant RP_PIPELINE_SIZE    : integer := RP_MEM_LATENCY + 6; -- Number of pipeline stages for the RP
   constant RP_PIPELINE_STAGE_0 : integer := 0;
   constant RP_PIPELINE_STAGE_1 : integer := RP_MEM_LATENCY + 1;
   constant RP_PIPELINE_STAGE_2 : integer := RP_MEM_LATENCY + 2;
   constant RP_PIPELINE_STAGE_3 : integer := RP_MEM_LATENCY + 3;
   constant RP_PIPELINE_STAGE_4 : integer := RP_MEM_LATENCY + 4;
   constant RP_PIPELINE_STAGE_5 : integer := RP_MEM_LATENCY + 5;
-  constant RP_PIPELINE_STAGE_6 : integer := RP_MEM_LATENCY + 6;
 
 end package;
 
