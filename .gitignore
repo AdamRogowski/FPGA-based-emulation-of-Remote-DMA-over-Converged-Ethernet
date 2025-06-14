@@ -44,6 +44,7 @@
 !/hardware_scheduler/rtl/RP/RP_flow_update.vhd
 !/hardware_scheduler/rtl/RP/Global_timer.vhd
 !/hardware_scheduler/rtl/RP/RP_input_queue.vhd
+!/hardware_scheduler/rtl/RP/RP_input_queue_simplified.vhd
 
 !/hardware_scheduler/rtl/Scheduler/
 !/hardware_scheduler/rtl/Scheduler/Calendar.vhd

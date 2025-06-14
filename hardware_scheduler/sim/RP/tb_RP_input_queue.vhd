@@ -8,7 +8,6 @@ end entity;
 
 architecture sim of tb_RP_input_queue is
 
-  constant FLOW_ID_WIDTH       : integer := 8;
   constant DATA_SENT_WIDTH     : integer := 1;
   constant NUM_FLOWS_WIDTH     : integer := 8; -- log2(16)
   constant PIPELINE_ADDR_WIDTH : integer := 4; -- log2(4)
@@ -17,20 +16,19 @@ architecture sim of tb_RP_input_queue is
   signal clk : std_logic := '0';
   signal rst : std_logic := '1';
 
-  signal cnp_valid    : std_logic                                    := '0';
-  signal cnp_flow_id  : std_logic_vector(FLOW_ID_WIDTH - 1 downto 0) := (others => '0');
-  signal data_valid   : std_logic                                    := '0';
-  signal data_flow_id : std_logic_vector(FLOW_ID_WIDTH - 1 downto 0) := (others => '0');
-  signal data_sent    : unsigned(DATA_SENT_WIDTH - 1 downto 0)       := (others => '0');
+  signal cnp_valid    : std_logic                                      := '0';
+  signal cnp_flow_id  : std_logic_vector(NUM_FLOWS_WIDTH - 1 downto 0) := (others => '0');
+  signal data_valid   : std_logic                                      := '0';
+  signal data_flow_id : std_logic_vector(NUM_FLOWS_WIDTH - 1 downto 0) := (others => '0');
+  signal data_sent    : unsigned(DATA_SENT_WIDTH - 1 downto 0)         := (others => '0');
 
   signal flow_rdy_o  : std_logic;
   signal is_cnp_o    : std_logic;
-  signal flow_id_o   : std_logic_vector(FLOW_ID_WIDTH - 1 downto 0);
+  signal flow_id_o   : std_logic_vector(NUM_FLOWS_WIDTH - 1 downto 0);
   signal data_sent_o : unsigned(DATA_SENT_WIDTH - 1 downto 0);
 
   component RP_input_queue
     generic (
-      FLOW_ID_WIDTH       : integer;
       DATA_SENT_WIDTH     : integer;
       NUM_FLOWS_WIDTH     : integer;
       PIPELINE_ADDR_WIDTH : integer;
@@ -40,13 +38,13 @@ architecture sim of tb_RP_input_queue is
       clk          : in  std_logic;
       rst          : in  std_logic;
       cnp_valid    : in  std_logic;
-      cnp_flow_id  : in  std_logic_vector(FLOW_ID_WIDTH - 1 downto 0);
+      cnp_flow_id  : in  std_logic_vector(NUM_FLOWS_WIDTH - 1 downto 0);
       data_valid   : in  std_logic;
-      data_flow_id : in  std_logic_vector(FLOW_ID_WIDTH - 1 downto 0);
+      data_flow_id : in  std_logic_vector(NUM_FLOWS_WIDTH - 1 downto 0);
       data_sent    : in  unsigned(DATA_SENT_WIDTH - 1 downto 0);
       flow_rdy_o   : out std_logic;
       is_cnp_o     : out std_logic;
-      flow_id_o    : out std_logic_vector(FLOW_ID_WIDTH - 1 downto 0);
+      flow_id_o    : out std_logic_vector(NUM_FLOWS_WIDTH - 1 downto 0);
       data_sent_o  : out unsigned(DATA_SENT_WIDTH - 1 downto 0)
     );
   end component;
@@ -56,7 +54,6 @@ begin
   -- Instantiate DUT
   uut: RP_input_queue
     generic map (
-      FLOW_ID_WIDTH       => FLOW_ID_WIDTH,
       DATA_SENT_WIDTH     => DATA_SENT_WIDTH,
       NUM_FLOWS_WIDTH     => NUM_FLOWS_WIDTH,
       PIPELINE_ADDR_WIDTH => PIPELINE_ADDR_WIDTH,
@@ -99,10 +96,10 @@ begin
     wait for 10 * CLK_PERIOD; -- Allow some time for reset to propagate
 
     -- Send a CNP notification for flow 1
-    cnp_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    cnp_flow_id <= std_logic_vector(to_unsigned(1, NUM_FLOWS_WIDTH));
     cnp_valid <= '1';
 
-    data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    data_flow_id <= std_logic_vector(to_unsigned(1, NUM_FLOWS_WIDTH));
     data_sent <= "1";
     data_valid <= '1';
     wait for CLK_PERIOD;
@@ -110,21 +107,21 @@ begin
     data_valid <= '0';
     wait for 5 * CLK_PERIOD;
 
-    cnp_flow_id <= std_logic_vector(to_unsigned(3, FLOW_ID_WIDTH));
+    cnp_flow_id <= std_logic_vector(to_unsigned(3, NUM_FLOWS_WIDTH));
     cnp_valid <= '1';
 
-    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_flow_id <= std_logic_vector(to_unsigned(1, NUM_FLOWS_WIDTH));
     --data_sent <= "1";
     --data_valid <= '1';
     wait for CLK_PERIOD;
     cnp_valid <= '0';
     --data_valid <= '0';
-    wait for 5 * CLK_PERIOD;
+    wait for 15 * CLK_PERIOD;
 
-    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, NUM_FLOWS_WIDTH));
     cnp_valid <= '1';
 
-    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_flow_id <= std_logic_vector(to_unsigned(1, NUM_FLOWS_WIDTH));
     --data_sent <= "1";
     --data_valid <= '1';
     wait for CLK_PERIOD;
@@ -133,7 +130,7 @@ begin
     wait for CLK_PERIOD;
 
     --wait for CLK_PERIOD;
-    data_flow_id <= std_logic_vector(to_unsigned(16, FLOW_ID_WIDTH));
+    data_flow_id <= std_logic_vector(to_unsigned(16, NUM_FLOWS_WIDTH));
     data_sent <= "1";
     data_valid <= '1';
     wait for CLK_PERIOD;
@@ -142,10 +139,10 @@ begin
     wait for 3 * CLK_PERIOD; -- Allow some time for reset to propagate
 
     -- Send a CNP notification for flow 1
-    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, NUM_FLOWS_WIDTH));
     cnp_valid <= '1';
 
-    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_flow_id <= std_logic_vector(to_unsigned(1, NUM_FLOWS_WIDTH));
     --data_sent <= "1";
     --data_valid <= '1';
     wait for CLK_PERIOD;
@@ -154,10 +151,10 @@ begin
     wait for 5 * CLK_PERIOD; -- Allow some time for reset to propagate
 
     -- Send a CNP notification for flow 1
-    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, NUM_FLOWS_WIDTH));
     cnp_valid <= '1';
 
-    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_flow_id <= std_logic_vector(to_unsigned(1, NUM_FLOWS_WIDTH));
     --data_sent <= "1";
     --data_valid <= '1';
     wait for CLK_PERIOD;
@@ -166,10 +163,10 @@ begin
     wait for 5 * CLK_PERIOD; -- Allow some time for reset to propagate
 
     -- Send a CNP notification for flow 1
-    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, NUM_FLOWS_WIDTH));
     cnp_valid <= '1';
 
-    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_flow_id <= std_logic_vector(to_unsigned(1, NUM_FLOWS_WIDTH));
     --data_sent <= "1";
     --data_valid <= '1';
     wait for CLK_PERIOD;
