@@ -12,7 +12,7 @@ architecture sim of tb_RP_input_queue is
   constant DATA_SENT_WIDTH     : integer := 1;
   constant NUM_FLOWS_WIDTH     : integer := 8; -- log2(16)
   constant PIPELINE_ADDR_WIDTH : integer := 4; -- log2(4)
-  constant FIFO_ADDR_WIDTH     : integer := 4; -- log2(8)
+  constant FIFO_ADDR_WIDTH     : integer := 3; -- log2(8)
 
   signal clk : std_logic := '0';
   signal rst : std_logic := '1';
@@ -108,12 +108,72 @@ begin
     wait for CLK_PERIOD;
     cnp_valid <= '0';
     data_valid <= '0';
+    wait for 5 * CLK_PERIOD;
 
-    --data_flow_id <= std_logic_vector(to_unsigned(2, FLOW_ID_WIDTH));
+    cnp_flow_id <= std_logic_vector(to_unsigned(3, FLOW_ID_WIDTH));
+    cnp_valid <= '1';
+
+    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
     --data_sent <= "1";
     --data_valid <= '1';
-    --wait for CLK_PERIOD;
+    wait for CLK_PERIOD;
+    cnp_valid <= '0';
     --data_valid <= '0';
+    wait for 5 * CLK_PERIOD;
+
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_valid <= '1';
+
+    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_sent <= "1";
+    --data_valid <= '1';
+    wait for CLK_PERIOD;
+    cnp_valid <= '0';
+    --data_valid <= '0';
+    wait for CLK_PERIOD;
+
+    --wait for CLK_PERIOD;
+    data_flow_id <= std_logic_vector(to_unsigned(16, FLOW_ID_WIDTH));
+    data_sent <= "1";
+    data_valid <= '1';
+    wait for CLK_PERIOD;
+    data_valid <= '0';
+
+    wait for 3 * CLK_PERIOD; -- Allow some time for reset to propagate
+
+    -- Send a CNP notification for flow 1
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_valid <= '1';
+
+    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_sent <= "1";
+    --data_valid <= '1';
+    wait for CLK_PERIOD;
+    cnp_valid <= '0';
+
+    wait for 5 * CLK_PERIOD; -- Allow some time for reset to propagate
+
+    -- Send a CNP notification for flow 1
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_valid <= '1';
+
+    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_sent <= "1";
+    --data_valid <= '1';
+    wait for CLK_PERIOD;
+    cnp_valid <= '0';
+
+    wait for 5 * CLK_PERIOD; -- Allow some time for reset to propagate
+
+    -- Send a CNP notification for flow 1
+    cnp_flow_id <= std_logic_vector(to_unsigned(5, FLOW_ID_WIDTH));
+    cnp_valid <= '1';
+
+    --data_flow_id <= std_logic_vector(to_unsigned(1, FLOW_ID_WIDTH));
+    --data_sent <= "1";
+    --data_valid <= '1';
+    wait for CLK_PERIOD;
+    cnp_valid <= '0';
 
     -- End simulation
     wait;

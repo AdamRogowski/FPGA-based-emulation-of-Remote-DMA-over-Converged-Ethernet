@@ -151,30 +151,33 @@ begin
         found := false;
         case rr_ptr_v(1 downto 0) is
           when "00" => -- CNP slot
-            if cnp_fifo_count_v > 0 then
-              candidate := cnp_fifo(to_integer(cnp_fifo_rd_v));
-              -- Inline is_in_pipeline
-              in_pipeline := false;
-              for i in 0 to PIPELINE_DEPTH - 1 loop
-                if pipeline_valid_v(i) = '1' and pipeline_flows_v(i) = candidate.flow_id then
-                  in_pipeline := true;
-                end if;
-              end loop;
-              if not in_pipeline then
-                notif_out_v := candidate;
-                notif_valid_v := '1';
-                pipeline_flows_v(PIPELINE_DEPTH - 1) := candidate.flow_id;
-                pipeline_valid_v(PIPELINE_DEPTH - 1) := '1';
-                cnp_fifo_rd_v := (cnp_fifo_rd_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
-                cnp_fifo_count_v := cnp_fifo_count_v - 1;
-                found := true;
-              else
-                -- Postpone: put at end of FIFO
-                if cnp_fifo_count_v < FIFO_DEPTH then
-                  cnp_fifo(to_integer(cnp_fifo_wr_v)) <= candidate;
-                  cnp_fifo_wr_v := (cnp_fifo_wr_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
+            if cnp_valid = '0' then
+              if cnp_fifo_count_v > 0 then
+                candidate := cnp_fifo(to_integer(cnp_fifo_rd_v));
+                -- Inline is_in_pipeline
+                in_pipeline := false;
+                for i in 0 to PIPELINE_DEPTH - 1 loop
+                  if pipeline_valid_v(i) = '1' and pipeline_flows_v(i) = candidate.flow_id then
+                    in_pipeline := true;
+                  end if;
+                end loop;
+                if not in_pipeline then
+                  notif_out_v := candidate;
+                  notif_valid_v := '1';
+                  pipeline_flows_v(PIPELINE_DEPTH - 1) := candidate.flow_id;
+                  pipeline_valid_v(PIPELINE_DEPTH - 1) := '1';
                   cnp_fifo_rd_v := (cnp_fifo_rd_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
-                  -- count unchanged
+                  cnp_fifo_count_v := cnp_fifo_count_v - 1;
+                  found := true;
+                else
+                  if cnp_fifo_count_v < FIFO_DEPTH then
+                    -- Postpone: put at end of FIFO only if fifo not already written by incoming CNP
+                    -- else do nothing
+                    cnp_fifo(to_integer(cnp_fifo_wr_v)) <= candidate;
+                    cnp_fifo_wr_v := (cnp_fifo_wr_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
+                    cnp_fifo_rd_v := (cnp_fifo_rd_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
+                    -- count unchanged
+                  end if;
                 end if;
               end if;
             end if;
@@ -186,37 +189,39 @@ begin
                   in_pipeline := true;
                 end if;
               end loop;
+              scan_flow_id_v := (scan_flow_id_v + 1) and to_unsigned(NUM_FLOWS - 1, NUM_FLOWS_WIDTH);
               if not in_pipeline then
                 notif_out_v := scan_candidate;
                 notif_valid_v := '1';
                 pipeline_flows_v(PIPELINE_DEPTH - 1) := scan_candidate.flow_id;
                 pipeline_valid_v(PIPELINE_DEPTH - 1) := '1';
-                scan_flow_id_v := (scan_flow_id_v + 1) and to_unsigned(NUM_FLOWS - 1, NUM_FLOWS_WIDTH);
                 found := true;
               end if;
             end if;
           when "01" => -- Data slot
-            if data_fifo_count_v > 0 then
-              candidate := data_fifo(to_integer(data_fifo_rd_v));
-              in_pipeline := false;
-              for i in 0 to PIPELINE_DEPTH - 1 loop
-                if pipeline_valid_v(i) = '1' and pipeline_flows_v(i) = candidate.flow_id then
-                  in_pipeline := true;
-                end if;
-              end loop;
-              if not in_pipeline then
-                notif_out_v := candidate;
-                notif_valid_v := '1';
-                pipeline_flows_v(PIPELINE_DEPTH - 1) := candidate.flow_id;
-                pipeline_valid_v(PIPELINE_DEPTH - 1) := '1';
-                data_fifo_rd_v := (data_fifo_rd_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
-                data_fifo_count_v := data_fifo_count_v - 1;
-                found := true;
-              else
-                if data_fifo_count_v < FIFO_DEPTH then
-                  data_fifo(to_integer(data_fifo_wr_v)) <= candidate;
-                  data_fifo_wr_v := (data_fifo_wr_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
+            if data_valid = '0' then
+              if data_fifo_count_v > 0 then
+                candidate := data_fifo(to_integer(data_fifo_rd_v));
+                in_pipeline := false;
+                for i in 0 to PIPELINE_DEPTH - 1 loop
+                  if pipeline_valid_v(i) = '1' and pipeline_flows_v(i) = candidate.flow_id then
+                    in_pipeline := true;
+                  end if;
+                end loop;
+                if not in_pipeline then
+                  notif_out_v := candidate;
+                  notif_valid_v := '1';
+                  pipeline_flows_v(PIPELINE_DEPTH - 1) := candidate.flow_id;
+                  pipeline_valid_v(PIPELINE_DEPTH - 1) := '1';
                   data_fifo_rd_v := (data_fifo_rd_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
+                  data_fifo_count_v := data_fifo_count_v - 1;
+                  found := true;
+                else
+                  if data_fifo_count_v < FIFO_DEPTH then
+                    data_fifo(to_integer(data_fifo_wr_v)) <= candidate;
+                    data_fifo_wr_v := (data_fifo_wr_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
+                    data_fifo_rd_v := (data_fifo_rd_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
+                  end if;
                 end if;
               end if;
             end if;
@@ -227,12 +232,12 @@ begin
                   in_pipeline := true;
                 end if;
               end loop;
+              scan_flow_id_v := (scan_flow_id_v + 1) and to_unsigned(NUM_FLOWS - 1, NUM_FLOWS_WIDTH);
               if not in_pipeline then
                 notif_out_v := scan_candidate;
                 notif_valid_v := '1';
                 pipeline_flows_v(PIPELINE_DEPTH - 1) := scan_candidate.flow_id;
                 pipeline_valid_v(PIPELINE_DEPTH - 1) := '1';
-                scan_flow_id_v := (scan_flow_id_v + 1) and to_unsigned(NUM_FLOWS - 1, NUM_FLOWS_WIDTH);
                 found := true;
               end if;
             end if;
@@ -243,12 +248,12 @@ begin
                 in_pipeline := true;
               end if;
             end loop;
+            scan_flow_id_v := (scan_flow_id_v + 1) and to_unsigned(NUM_FLOWS - 1, NUM_FLOWS_WIDTH);
             if not in_pipeline then
               notif_out_v := scan_candidate;
               notif_valid_v := '1';
               pipeline_flows_v(PIPELINE_DEPTH - 1) := scan_candidate.flow_id;
               pipeline_valid_v(PIPELINE_DEPTH - 1) := '1';
-              scan_flow_id_v := (scan_flow_id_v + 1) and to_unsigned(NUM_FLOWS - 1, NUM_FLOWS_WIDTH);
               found := true;
             end if;
           when others =>
