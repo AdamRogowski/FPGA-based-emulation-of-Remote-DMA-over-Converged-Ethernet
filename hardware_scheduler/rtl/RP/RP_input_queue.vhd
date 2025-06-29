@@ -2,6 +2,16 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
+  -- ============================================================================
+  --  Entity: RP_input_queue
+  --  Description:
+  --    Arbitration and queueing logic for DCQCN RP_flow_update input.
+  --    Accepts CNP and data notifications, buffers them in separate FIFOs,
+  --    and arbitrates which flow update to send to the RP pipeline.
+  --    Ensures no duplicate flow is in the pipeline at once.
+  --    Also supports round-robin scan to guarantee liveness.
+  -- ============================================================================
+
 entity RP_input_queue is
   generic (
     DATA_SENT_WIDTH     : integer := 1;
@@ -56,12 +66,12 @@ architecture rtl of RP_input_queue is
   signal data_fifo_wr    : unsigned(FIFO_ADDR_WIDTH - 1 downto 0) := (others => '0');
   signal data_fifo_count : unsigned(FIFO_ADDR_WIDTH downto 0)     := (others => '0');
 
-  -- Pipeline tracker: shift register
+  -- Pipeline tracker: shift register of flow_ids in pipeline
   type pipeline_array_t is array (0 to PIPELINE_DEPTH - 1) of std_logic_vector(NUM_FLOWS_WIDTH - 1 downto 0);
   signal pipeline_flows : pipeline_array_t                          := (others => (others => '0'));
   signal pipeline_valid : std_logic_vector(0 to PIPELINE_DEPTH - 1) := (others => '0');
 
-  -- Scanning
+  -- Scan logic
   signal scan_flow_id : unsigned(NUM_FLOWS_WIDTH - 1 downto 0) := (others => '0');
 
   -- Output register
@@ -73,6 +83,9 @@ architecture rtl of RP_input_queue is
 
 begin
 
+  -- ==========================================================================
+  --  Main Process: Arbitration, FIFO, and Pipeline Tracking
+  -- ==========================================================================
   process (clk)
     variable candidate                           : notif_t;
     variable scan_candidate                      : notif_t;
@@ -91,6 +104,7 @@ begin
   begin
     if rising_edge(clk) then
       if rst = '1' then
+        -- Reset all state
         cnp_fifo_rd <= (others => '0');
         cnp_fifo_wr <= (others => '0');
         cnp_fifo_count <= (others => '0');
@@ -118,7 +132,9 @@ begin
         notif_out_v := notif_out;
         notif_valid_v := '0';
 
+        -- =========================
         -- Input FIFOs for CNP and Data notifications
+        -- =========================
         if cnp_valid = '1' and cnp_fifo_count_v < FIFO_DEPTH then
           cnp_fifo(to_integer(cnp_fifo_wr_v)).flow_id <= cnp_flow_id;
           cnp_fifo(to_integer(cnp_fifo_wr_v)).is_cnp <= '1';
@@ -134,26 +150,32 @@ begin
           data_fifo_count_v := data_fifo_count_v + 1;
         end if;
 
-        -- Shift pipeline tracker (simulate pipeline advance)
+        -- =========================
+        -- Shift pipeline tracker
+        -- =========================
         for i in 0 to PIPELINE_DEPTH - 2 loop
           pipeline_flows_v(i) := pipeline_flows_v(i + 1);
           pipeline_valid_v(i) := pipeline_valid_v(i + 1);
         end loop;
         pipeline_valid_v(PIPELINE_DEPTH - 1) := '0';
 
+        -- =========================
         -- Prepare scan candidate
+        -- =========================
         scan_candidate.flow_id := std_logic_vector(resize(scan_flow_id_v, NUM_FLOWS_WIDTH));
         scan_candidate.is_cnp := '0';
         scan_candidate.data_sent := (others => '0');
 
+        -- =========================
         -- Round-robin arbitration with scan fallback
+        -- =========================
         found := false;
         case rr_ptr_v(1 downto 0) is
           when "00" => -- CNP slot
             if cnp_valid = '0' then
               if cnp_fifo_count_v > 0 then
                 candidate := cnp_fifo(to_integer(cnp_fifo_rd_v));
-                -- Inline is_in_pipeline
+                -- Check if flow is already in pipeline
                 in_pipeline := false;
                 for i in 0 to PIPELINE_DEPTH - 1 loop
                   if pipeline_valid_v(i) = '1' and pipeline_flows_v(i) = candidate.flow_id then
@@ -169,13 +191,11 @@ begin
                   cnp_fifo_count_v := cnp_fifo_count_v - 1;
                   found := true;
                 else
+                  -- Postpone: put at end of FIFO if not full
                   if cnp_fifo_count_v < FIFO_DEPTH then
-                    -- Postpone: put at end of FIFO only if fifo not already written by incoming CNP
-                    -- else do nothing
                     cnp_fifo(to_integer(cnp_fifo_wr_v)) <= candidate;
                     cnp_fifo_wr_v := (cnp_fifo_wr_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
                     cnp_fifo_rd_v := (cnp_fifo_rd_v + 1) and to_unsigned(FIFO_DEPTH - 1, FIFO_ADDR_WIDTH);
-                    -- count unchanged
                   end if;
                 end if;
               end if;
@@ -188,6 +208,7 @@ begin
                   in_pipeline := true;
                 end if;
               end loop;
+              -- Increment scan flow ID regardless if in pipeline (if in pipeline, updated recently, can be skipped)
               scan_flow_id_v := (scan_flow_id_v + 1) and to_unsigned(NUM_FLOWS - 1, NUM_FLOWS_WIDTH);
               if not in_pipeline then
                 notif_out_v := scan_candidate;
@@ -283,7 +304,9 @@ begin
     end if;
   end process;
 
-  -- Output assignment
+  -- ==========================================================================
+  --  Output assignment
+  -- ==========================================================================
   flow_rdy_o  <= notif_valid;
   is_cnp_o    <= notif_out.is_cnp;
   flow_id_o   <= notif_out.flow_id;

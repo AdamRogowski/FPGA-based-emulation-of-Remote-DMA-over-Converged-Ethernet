@@ -3,20 +3,34 @@ library IEEE;
   use IEEE.NUMERIC_STD.all;
   use work.constants_pkg.all; -- Import constants
 
+  -- ============================================================================
+  --  Entity: RP_Flow_Update
+  --  Description:
+  --    Implements the DCQCN Rate-based Congestion Control update logic for a
+  --    single flow. Handles CNP (Congestion Notification Packets) and data
+  --    notifications, updating flow state in memory and applying DCQCN rules.
+  --    The pipeline is designed for high-throughput, pipelined operation.
+  -- ============================================================================
+
 entity RP_Flow_Update is
   port (
     clk         : in std_logic;
     rst         : in std_logic;
 
-    flow_rdy_i  : in std_logic;
-    is_cnp_i    : in std_logic;
-    flow_id_i   : in std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
-    data_sent_i : in unsigned(RP_DATA_SENT_WIDTH - 1 downto 0) -- the unit will most likely be just 1 MTU, so effectively it is just std_logic
+    flow_rdy_i  : in std_logic;                                        -- Indicates a new flow update is ready
+    is_cnp_i    : in std_logic;                                        -- 1 if CNP notification, 0 if data notification
+    flow_id_i   : in std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0); -- Flow ID
+    data_sent_i : in unsigned(RP_DATA_SENT_WIDTH - 1 downto 0)         -- Data sent (usually 1 MTU)
   );
 end entity;
 
 architecture rtl of RP_Flow_Update is
 
+  -- ==========================================================================
+  --  Component Declarations
+  -- ==========================================================================
+
+  -- RP memory: stores per-flow state (Rc, Rt, alpha, counters, etc.)
   component RP_mem
     generic (
       LATENCY : integer
@@ -31,6 +45,7 @@ architecture rtl of RP_Flow_Update is
     );
   end component;
 
+  -- Rate memory: stores current rate for each flow (for scheduler)
   component Rate_mem is
     generic (
       LATENCY : integer
@@ -45,6 +60,7 @@ architecture rtl of RP_Flow_Update is
     );
   end component;
 
+  -- Global timer: provides a global time reference for all flows
   component Global_timer is
     generic (
       GLOBAL_TIMER_WIDTH : integer
@@ -56,26 +72,33 @@ architecture rtl of RP_Flow_Update is
     );
   end component;
 
-  -- Internal signals for the RP memory
+  -- ==========================================================================
+  --  Internal Signals
+  -- ==========================================================================
+
+  -- RP memory interface signals
   signal RP_mem_ena, RP_mem_enb     : std_logic                                        := '0';
   signal RP_mem_wea, RP_mem_web     : std_logic                                        := '0';
   signal RP_mem_addra, RP_mem_addrb : std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0) := RP_MEM_DEFAULT_ADDRESS;
   signal RP_mem_dia, RP_mem_dib     : std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0) := RP_MEM_NULL_ENTRY;
   signal RP_mem_doa, RP_mem_dob     : std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0) := RP_MEM_NULL_ENTRY;
 
-  -- Internal rate_mem signals  
+  -- Rate memory interface signals
   signal rate_mem_enb   : std_logic                                          := '0';
   signal rate_mem_web   : std_logic                                          := '0';
   signal rate_mem_addrb : std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0) := RATE_MEM_DEFAULT_ADDRESS;
   signal rate_mem_dib   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
   signal rate_mem_dob   : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
 
-  -- Internal signals for the global timer
+  -- Global timer signal
   signal RP_global_timer : unsigned(GLOBAL_TIMER_WIDTH - 1 downto 0);
 
-  -- Pipeline registers
+  -- ==========================================================================
+  --  Pipeline Registers and Types
+  -- ==========================================================================
+
+  -- Per-stage update state (values read from RP_mem, plus working registers)
   type RP_update_stage is record
-    -- values read from RP_mem
     R_max             : unsigned(RP_RATE_WIDTH - 1 downto 0);
     Rc                : unsigned(RP_RATE_WIDTH - 1 downto 0);
     Rt                : unsigned(RP_RATE_WIDTH - 1 downto 0);
@@ -91,13 +114,14 @@ architecture rtl of RP_Flow_Update is
     BC_update         : std_logic;
   end record;
 
+  -- Per-stage input state (flow id, data sent, CNP flag)
   type RP_input_stage is record
     flow_id   : std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
     data_sent : unsigned(RP_DATA_SENT_WIDTH - 1 downto 0);
     is_cnp    : std_logic;
-
   end record;
 
+  -- Pipeline arrays
   type RP_update_pipe_type is array (0 to RP_PIPELINE_SIZE - 1) of RP_update_stage;
   type RP_input_pipe_type is array (0 to RP_PIPELINE_SIZE - 1) of RP_input_stage;
 
@@ -119,14 +143,17 @@ architecture rtl of RP_Flow_Update is
   signal RP_input_pipe : RP_input_pipe_type := (others => (
                                                   flow_id   => (others => '0'),
                                                   data_sent => "0",
-                                                  is_cnp    => '0')); -- TODO: Fix/clean all the constants
+                                                  is_cnp    => '0'
+                                                ));
   signal RP_pipe_valid : std_logic_vector(RP_PIPELINE_SIZE - 1 downto 0) := (others => '0');
 
-  -- Local constants
-  --constant ONE : unsigned(15 downto 0) := to_unsigned(65536, 16); -- Q16 fixed point 1.0
-
 begin
-  -- RP memory instantiation
+
+  -- ==========================================================================
+  --  Memory and Timer Instantiations
+  -- ==========================================================================
+
+  -- RP memory (per-flow state)
   RP_mem_inst: RP_mem
     generic map (
       LATENCY => RP_MEM_LATENCY
@@ -145,7 +172,7 @@ begin
       dob   => RP_mem_dob
     );
 
-  -- Port A reserved for Scheduler
+  -- Rate memory (for scheduler)
   rate_mem_inst: Rate_mem
     generic map (
       LATENCY => RATE_MEM_LATENCY
@@ -164,7 +191,7 @@ begin
       dob   => rate_mem_dob
     );
 
-  -- Global timer instantiation
+  -- Global timer
   global_timer_inst: Global_timer
     generic map (
       GLOBAL_TIMER_WIDTH => GLOBAL_TIMER_WIDTH
@@ -175,25 +202,29 @@ begin
       global_timer => RP_global_timer
     );
 
-  -- Main pipeline logic
+  -- ==========================================================================
+  --  Main Pipeline Logic
+
+  -- ==========================================================================
   process (clk)
-    -- Temporary variables introduced to enable slicing after multiplication in the same clock cycle
-    -- This is necessary to avoid the need for a second clock cycle to truncate the result of the multiplication
+    -- Temporary variables for fixed-point math
     variable Rc_temp    : unsigned(FLOATING_POINT_WIDTH + RP_RATE_WIDTH - 1 downto 0);
     variable alpha_temp : unsigned(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto 0);
-
   begin
-
     if rising_edge(clk) then
 
-      -- Shift pipeline stages
+      -- ----------------------------------------------------------------------
+      -- Pipeline Shift: advance all pipeline stages
+      -- ----------------------------------------------------------------------
       for i in RP_PIPELINE_SIZE - 1 downto 1 loop
         RP_upgrade_pipe(i) <= RP_upgrade_pipe(i - 1);
         RP_input_pipe(i) <= RP_input_pipe(i - 1);
         RP_pipe_valid(i) <= RP_pipe_valid(i - 1);
       end loop;
 
-      -- Stage -1
+      -- ----------------------------------------------------------------------
+      -- Stage -1: Accept new input if ready
+      -- ----------------------------------------------------------------------
       if flow_rdy_i = '1' then
         RP_input_pipe(RP_PIPELINE_STAGE_0).flow_id <= flow_id_i;
         RP_input_pipe(RP_PIPELINE_STAGE_0).data_sent <= data_sent_i;
@@ -203,7 +234,9 @@ begin
         RP_pipe_valid(RP_PIPELINE_STAGE_0) <= '0';
       end if;
 
-      -- Stage 0
+      -- ----------------------------------------------------------------------
+      -- Stage 0: Initiate memory read for this flow
+      -- ----------------------------------------------------------------------
       if RP_pipe_valid(RP_PIPELINE_STAGE_0) = '1' then
         RP_mem_ena <= '1';
         RP_mem_wea <= '0';
@@ -212,13 +245,11 @@ begin
         RP_mem_ena <= '0';
       end if;
 
-      -- Stage 1
-
-      -- The RP_mem is expected to be in the following format:
-      -- msb -> lsb
-      -- [ByteCnt, BC, last_T_update, TC, last_alpha_update, alpha, Rt, Rc, R_max]
-      -- [B_WIDTH, BC_WIDTH, GLOBAL_TIMER_WIDTH, TC_WIDTH, GLOBAL_TIMER_WIDTH, ALPHA_WIDTH, RP_RATE_WIDTH, RP_RATE_WIDTH, RP_RATE_WIDTH]
+      -- ----------------------------------------------------------------------
+      -- Stage 1: Latch memory output into pipeline
+      -- ----------------------------------------------------------------------
       if RP_pipe_valid(RP_PIPELINE_STAGE_1) = '1' then
+        -- Unpack RP_mem_doa into pipeline registers
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).R_max <= unsigned(RP_mem_doa(RP_RATE_WIDTH - 1 downto 0));
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).Rc <= unsigned(RP_mem_doa(2 * RP_RATE_WIDTH - 1 downto RP_RATE_WIDTH));
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).Rt <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH - 1 downto 2 * RP_RATE_WIDTH));
@@ -230,15 +261,15 @@ begin
         RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH));
       end if;
 
-      -- Stage 2
+      -- ----------------------------------------------------------------------
+      -- Stage 2: Handle CNP or data notification
+      -- ----------------------------------------------------------------------
       if RP_pipe_valid(RP_PIPELINE_STAGE_2) = '1' then
         if RP_input_pipe(RP_PIPELINE_STAGE_2).is_cnp = '1' then
-          -- First part of CNP processng. First alpha is updated, because it is used to calculate Rc in the next stage
-          -- Rc is updated to Rt, and alpha is updated based on the new G value
+          -- CNP: update alpha and timers, set Rt = Rc
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_2).Rc;
-          alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_2).alpha * (ONE - G); -- alpha = alpha * (1 - G) + G, G added after truncation
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G; -- Truncate to ALPHA_WIDTH bits, then add G
-
+          alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_2).alpha * (ONE - G); -- alpha = alpha * (1 - G) + G
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G;
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).last_alpha_update <= RP_global_timer;
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha <= (others => '0');
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC <= TC_DEFAULT;
@@ -247,127 +278,95 @@ begin
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC <= BC_DEFAULT;
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt <= (others => '0');
         else
+          -- Data: update timers and counters
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_alpha_update;
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_T <= RP_global_timer - RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_T_update;
           RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt + RP_input_pipe(RP_PIPELINE_STAGE_2).data_sent;
         end if;
       end if;
 
-      -- Stage 3
+      -- ----------------------------------------------------------------------
+      -- Stage 3: Apply DCQCN update rules
+      -- ----------------------------------------------------------------------
       if RP_pipe_valid(RP_PIPELINE_STAGE_3) = '1' then
-
         if RP_input_pipe(RP_PIPELINE_STAGE_3).is_cnp = '1' then
-
-          -- /* Heavy combinational logic depth, risk violating timing constraints
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc;
-          --alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha * (ONE - G); -- alpha = alpha * (1 - G) + G, G added after truncation
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH) + G; -- Truncate to ALPHA_WIDTH bits, then add G
+          -- CNP: update Rc using new alpha
           Rc_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).Rc * (ONE - shift_right(RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha, 1)); -- Rc = Rc * (1 - new_alpha/2)
-          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc <= Rc_temp(FLOATING_POINT_WIDTH + RP_RATE_WIDTH - 1 downto FLOATING_POINT_WIDTH); -- Truncate to RP_RATE_WIDTH bits
-          -- */ Potentially could be split into two stages to reduce combinational depth
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_alpha_update <= RP_global_timer;
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_alpha <= (others => '0');
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC <= TC_DEFAULT;
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_T_update <= RP_global_timer;
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).elapsed_T <= (others => '0');
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC <= BC_DEFAULT;
-          --RP_upgrade_pipe(RP_PIPELINE_STAGE_4).ByteCnt <= (others => '0');
+          RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc <= Rc_temp(FLOATING_POINT_WIDTH + RP_RATE_WIDTH - 1 downto FLOATING_POINT_WIDTH);
         else
-          -- Update Rc and Rt based on elapsed timers and conditions
+          -- Data: update alpha, timers, counters if thresholds reached
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_alpha >= K then
-
-            alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha * (ONE - G); -- alpha = alpha * (1 - G)
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH); -- Truncate to ALPHA_WIDTH bits
-
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_alpha_update <= RP_global_timer; -- Reset alpha timer
+            alpha_temp := RP_upgrade_pipe(RP_PIPELINE_STAGE_3).alpha * (ONE - G);
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).alpha <= alpha_temp(FLOATING_POINT_WIDTH + ALPHA_WIDTH - 1 downto FLOATING_POINT_WIDTH);
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_alpha_update <= RP_global_timer;
           end if;
 
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).elapsed_T >= T then
-
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_T_update <= RP_global_timer; -- Reset T timer
-
-            -- Increment TC counter only if it is less than F
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).last_T_update <= RP_global_timer;
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC < F then
-              RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC + 1; -- Increment TC
+              RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).TC + 1;
             end if;
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update <= '1'; -- Set TC update flag
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update <= '1';
           else
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update <= '0'; -- Clear TC update flag
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update <= '0';
           end if;
 
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).ByteCnt >= B then
-
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).ByteCnt <= (others => '0'); -- Reset ByteCnt
-
-            -- Increment BC counter only if it is less than F
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).ByteCnt <= (others => '0');
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC < F then
-              RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC + 1; -- Increment BC
+              RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC <= RP_upgrade_pipe(RP_PIPELINE_STAGE_3).BC + 1;
             end if;
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update <= '1'; -- Set BC update flag
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update <= '1';
           else
-            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update <= '0'; -- Clear BC update flag
+            RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update <= '0';
           end if;
         end if;
       end if;
 
-      -- stage 4
+      -- ----------------------------------------------------------------------
+      -- Stage 4: Rate Increase Event (FR, AI, HAI)
+      -- ----------------------------------------------------------------------
       if RP_pipe_valid(RP_PIPELINE_STAGE_4) = '1' then
-        if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update = '1' or RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update = '1' then -- equivalent to Rate_Increase_Event
-
-          -- In every case (FR, AI, HAI) Rc is updated to the average of Rc and Rt
+        if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC_update = '1' or RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC_update = '1' then
+          -- Always update Rc to average of Rc and Rt
           RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
 
-          -- Fast Recovery stage
-          --if maximum(RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC, RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC) < F then
+          -- Fast Recovery
           if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC < F and RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC < F then
-            -- RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
-
-            -- Hyper Additive Increase stage
-            --elsif minimum(RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC, RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC) >= F then
+            -- No Rt update in FR
+            -- Hyper Additive Increase
           elsif RP_upgrade_pipe(RP_PIPELINE_STAGE_4).TC >= F and RP_upgrade_pipe(RP_PIPELINE_STAGE_4).BC >= F then
-            -- RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
-            -- Rt cant exceed R_max
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt + R_HAI > RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max then
               RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max;
             else
               RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt + R_HAI;
             end if;
-            -- Additive Increase stage
+            -- Additive Increase
           else
-            -- RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc <= shift_right((RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rc + RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt), 1);
-            -- Rt cant exceed R_max
             if RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt + R_AI > RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max then
               RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_4).R_max;
             else
               RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt <= RP_upgrade_pipe(RP_PIPELINE_STAGE_4).Rt + R_AI;
             end if;
           end if;
-
         end if;
       end if;
 
-      -- Stage 5: Write-back to memory
+      -- ----------------------------------------------------------------------
+      -- Stage 5: Write-back updated state to memories
+      -- ----------------------------------------------------------------------
       if RP_pipe_valid(RP_PIPELINE_STAGE_5) = '1' then
         RP_mem_enb <= '1';
         RP_mem_web <= '1';
         RP_mem_addrb <= RP_input_pipe(RP_PIPELINE_STAGE_5).flow_id;
-
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).R_max <= unsigned(RP_mem_doa(RP_RATE_WIDTH - 1 downto 0));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).Rc <= unsigned(RP_mem_doa(2 * RP_RATE_WIDTH - 1 downto RP_RATE_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).Rt <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH - 1 downto 2 * RP_RATE_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).alpha <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH - 1 downto 3 * RP_RATE_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_alpha_update <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).TC <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).last_T_update <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).BC <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH));
-        --RP_upgrade_pipe(RP_PIPELINE_STAGE_2).ByteCnt <= unsigned(RP_mem_doa(3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH - 1 downto 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH));
         RP_mem_dib <= std_logic_vector(
           RP_upgrade_pipe(RP_PIPELINE_STAGE_5).ByteCnt & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).BC & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).last_T_update & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).TC & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).last_alpha_update & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).alpha & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rt & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc & RP_upgrade_pipe(RP_PIPELINE_STAGE_5).R_max
         );
+        -- Write Rc to rate memory (for scheduler); slicing for test only
         rate_mem_enb <= '1';
         rate_mem_web <= '1';
         rate_mem_addrb <= RP_input_pipe(RP_PIPELINE_STAGE_5).flow_id;
-        rate_mem_dib <= std_logic_vector(RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc(2 downto 0)); -- TODO: ONLY FOR QUICK FIX TESTING PURPOSES, REMOVE SLICING LATER
+        rate_mem_dib <= std_logic_vector(RP_upgrade_pipe(RP_PIPELINE_STAGE_5).Rc(2 downto 0)); -- TODO: Remove slicing for production
       else
         RP_mem_enb <= '0';
         RP_mem_web <= '0';
@@ -375,6 +374,9 @@ begin
         rate_mem_web <= '0';
       end if;
 
+      -- ----------------------------------------------------------------------
+      -- Reset logic: clear all state
+      -- ----------------------------------------------------------------------
       if rst = '1' then
         RP_mem_ena <= '0';
         RP_mem_enb <= '0';
@@ -384,12 +386,10 @@ begin
         RP_mem_addrb <= RP_MEM_DEFAULT_ADDRESS;
         RP_mem_dia <= (others => '0');
         RP_mem_dib <= (others => '0');
-
         rate_mem_enb <= '0';
         rate_mem_web <= '0';
         rate_mem_addrb <= RATE_MEM_DEFAULT_ADDRESS;
         rate_mem_dib <= (others => '0');
-
         RP_upgrade_pipe <= (others => (
                               R_max             => RP_RATE_MAX_DEFAULT,
                               Rc                => RP_RATE_DEFAULT,
