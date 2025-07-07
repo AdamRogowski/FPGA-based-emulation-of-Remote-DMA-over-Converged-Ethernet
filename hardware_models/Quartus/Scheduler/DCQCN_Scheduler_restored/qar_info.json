@@ -1,0 +1,7 @@
+{
+	"common_dir" : "C:",
+	"acds_version" : "Version 20.1.1",
+	"platform" : "windows",
+	"os" : "Windows 10",
+	"qpf" : "intelFPGA_standard/projects/dcqcn_scheduler/dcqcn_scheduler.qpf"
+}

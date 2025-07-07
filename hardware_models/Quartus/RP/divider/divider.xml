@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy
+ date="2025.07.02.12:57:24"
+ outputDirectory="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider/">
+ <perimeter>
+  <parameter
+     name="AUTO_GENERATION_ID"
+     type="Integer"
+     defaultValue="0"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_UNIQUE_ID"
+     type="String"
+     defaultValue=""
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_FAMILY"
+     type="String"
+     defaultValue="Arria 10"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE"
+     type="String"
+     defaultValue="10AX115U4F45I3VG"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_SPEEDGRADE"
+     type="String"
+     defaultValue="3"
+     onHdl="0"
+     affectsHdl="1" />
+  <interface name="lpm_divide_input" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <port name="numer" direction="input" role="numer" width="36" />
+   <port name="denom" direction="input" role="denom" width="16" />
+   <port name="clock" direction="input" role="clock" width="1" />
+  </interface>
+  <interface name="lpm_divide_output" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <port name="quotient" direction="output" role="quotient" width="36" />
+   <port name="remain" direction="output" role="remain" width="16" />
+  </interface>
+ </perimeter>
+ <entity kind="divider" version="1.0" name="divider">
+  <parameter name="AUTO_GENERATION_ID" value="1751453843" />
+  <parameter name="AUTO_DEVICE" value="10AX115U4F45I3VG" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Arria 10" />
+  <parameter name="AUTO_UNIQUE_ID" value="" />
+  <parameter name="AUTO_DEVICE_SPEEDGRADE" value="3" />
+  <generatedFiles>
+   <file
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider\lpm_divide_201\synth\divider_pkg.vhd"
+       attributes="IS_CONFIGURATION_PACKAGE" />
+   <file
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider\synth\divider.vhd"
+       attributes="CONTAINS_INLINE_CONFIGURATION" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider\lpm_divide_201\synth\divider_pkg.vhd"
+       attributes="IS_CONFIGURATION_PACKAGE" />
+   <file
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider\synth\divider.vhd"
+       attributes="CONTAINS_INLINE_CONFIGURATION" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file
+       path="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider.qsys" />
+  </sourceFiles>
+  <childSourceFiles>
+   <file
+       path="C:/intelfpga_standard/ip/altera/megafunctions/lpm_divide/lpm_divide_hw.tcl" />
+  </childSourceFiles>
+  <messages>
+   <message level="Info" culprit="divider">"Generating: divider"</message>
+   <message level="Info" culprit="divider">"Generating: divider_lpm_divide_201_gohehnq"</message>
+   <message level="Info" culprit="lpm_divide_0">Generating top-level entity divider_lpm_divide_201_gohehnq.</message>
+  </messages>
+ </entity>
+ <entity
+   kind="lpm_divide"
+   version="20.1"
+   name="divider_lpm_divide_201_gohehnq">
+  <parameter name="GUI_MAXIMIZE_SPEED" value="Default Optimization" />
+  <parameter name="GUI_LPM_dREPRESENTATION" value="Unsigned" />
+  <parameter name="GUI_LPM_REMAINDERPOSITIVE" value="Yes" />
+  <parameter name="DEVICE_FAMILY" value="Arria 10" />
+  <parameter name="GUI_LPM_WIDTHd" value="16" />
+  <parameter name="GUI_LPM_nREPRESENTATION" value="Unsigned" />
+  <parameter name="GUI_LPM_PIPELINE" value="10" />
+  <parameter name="GUI_USE_CLKEN" value="false" />
+  <parameter name="GUI_LPM_WIDTHn" value="36" />
+  <parameter name="GUI_USE_ACLR" value="false" />
+  <generatedFiles>
+   <file
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider\lpm_divide_201\synth\divider_lpm_divide_201_gohehnq.v"
+       attributes="" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider\lpm_divide_201\synth\divider_lpm_divide_201_gohehnq.v"
+       attributes="" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file
+       path="C:/intelfpga_standard/ip/altera/megafunctions/lpm_divide/lpm_divide_hw.tcl" />
+  </sourceFiles>
+  <childSourceFiles/>
+  <instantiator instantiator="divider" as="lpm_divide_0" />
+  <messages>
+   <message level="Info" culprit="divider">"Generating: divider_lpm_divide_201_gohehnq"</message>
+   <message level="Info" culprit="lpm_divide_0">Generating top-level entity divider_lpm_divide_201_gohehnq.</message>
+  </messages>
+ </entity>
+</deploy>

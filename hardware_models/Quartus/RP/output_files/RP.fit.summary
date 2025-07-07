@@ -1,0 +1,17 @@
+Fitter Status : Successful - Wed Jul 02 13:34:03 2025
+Quartus Prime Version : 20.1.1 Build 720 11/11/2020 SJ Standard Edition
+Revision Name : RP
+Top-level Entity Name : divider_wrapper
+Family : Arria 10
+Device : 10AX115U4F45I3VG
+Timing Models : Final
+Logic utilization (in ALMs) : 447 / 427,200 ( < 1 % )
+Total registers : 544
+Total pins : 34 / 928 ( 4 % )
+Total virtual pins : 0
+Total block memory bits : 0 / 55,562,240 ( 0 % )
+Total RAM Blocks : 0 / 2,713 ( 0 % )
+Total DSP Blocks : 0 / 1,518 ( 0 % )
+Total HSSI RX channels : 0 / 96 ( 0 % )
+Total HSSI TX channels : 0 / 96 ( 0 % )
+Total PLLs : 0 / 176 ( 0 % )

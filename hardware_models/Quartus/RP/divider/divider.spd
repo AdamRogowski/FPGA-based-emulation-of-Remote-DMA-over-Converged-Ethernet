@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="lpm_divide_201/sim/divider_lpm_divide_201_gohehnq.vhd"
+   type="VHDL"
+   library="divider_lpm_divide_201" />
+ <file path="sim/divider.vhd" type="VHDL" hasInlineConfiguration="true" />
+ <topLevel name="divider" />
+ <deviceFamily name="arria10" />
+</simPackage>

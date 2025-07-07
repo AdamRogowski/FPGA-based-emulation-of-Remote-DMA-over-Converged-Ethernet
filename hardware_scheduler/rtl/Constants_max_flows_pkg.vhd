@@ -46,7 +46,7 @@ package constants_pkg is
   --constant RATE_MEM_DATA_WIDTH      : integer                                            := 2 * RATE_BIT_RESOLUTION_WIDTH; -- Test values for scheduler
   --constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "000000"; -- Test values for scheduler
   constant RATE_MEM_DATA_WIDTH      : integer                                            := CALENDAR_SLOTS_WIDTH;
-  constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "00000000000000000";
+  constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');         -- Null entry for the rate memory
   constant RATE_MEM_ADDR_WIDTH      : integer                                            := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
   constant RATE_MEM_DEFAULT_ADDRESS : std_logic_vector(RATE_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
   constant RATE_MEM_LATENCY         : integer                                            := FLOW_MEM_LATENCY;        -- Has to be the same as FLOW_MEM_LATENCY for the scheduler to work properly

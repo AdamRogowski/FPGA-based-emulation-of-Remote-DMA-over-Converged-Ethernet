@@ -1,0 +1,18 @@
+# system info divider_optimized on 2025.07.02.13:23:19
+system_info:
+name,value
+DEVICE,10AX115U4F45I3VG
+DEVICE_FAMILY,Arria 10
+GENERATION_ID,1751455399
+#
+#
+# Files generated for divider_optimized on 2025.07.02.13:23:19
+files:
+filepath,kind,attributes,module,is_top
+sim/divider_optimized.vhd,VHDL,CONTAINS_INLINE_CONFIGURATION,divider_optimized,true
+lpm_divide_201/sim/divider_optimized_lpm_divide_201_ruc2ypa.vhd,VHDL,,divider_optimized_lpm_divide_201_ruc2ypa,false
+#
+# Map from instance-path to kind of module
+instances:
+instancePath,module
+divider_optimized.lpm_divide_0,divider_optimized_lpm_divide_201_ruc2ypa

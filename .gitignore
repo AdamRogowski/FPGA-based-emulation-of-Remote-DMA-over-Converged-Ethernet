@@ -79,3 +79,6 @@
 !/hardware_scheduler/mem/RP_mem.vhd
 
 #-----------------------------------------------------------------------------
+
+!/hardware_models/
+!/hardware_models/**
