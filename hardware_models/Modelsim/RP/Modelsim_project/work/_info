@@ -14,20 +14,20 @@ Z0 DPx4 work 13 constants_pkg 0 22 D=gni^S`YRF1dZW9I;QS;2
 Z1 DPx4 ieee 11 numeric_std 0 22 aU^R8eGcicLcUFIaBQSL>3
 Z2 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
 Z3 DPx4 ieee 14 std_logic_1164 0 22 cVAk:aDinOX8^VGI1ekP<3
-!i122 525
-w1751963954
+!i122 568
+w1751968382
 Z4 dC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/Modelsim_project
 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Bram_init_pkg.vhd
 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Bram_init_pkg.vhd
 l0
 L7 1
-Vz;THTDEb==@:zZBFb=BC^3
-!s100 F5IBGiDkW4;2G8]6infJ[1
+VILe?K>[_mGkci9YoPTaQ20
+!s100 5N`>Cz2NO4gA?VORN883H0
 Z5 OV;C;2020.1;71
 32
-Z6 !s110 1751966492
+Z6 !s110 1751968800
 !i10b 1
-Z7 !s108 1751966492.000000
+Z7 !s108 1751968800.000000
 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Bram_init_pkg.vhd|
 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Bram_init_pkg.vhd|
 !i113 1
@@ -37,7 +37,7 @@ Pconstants_pkg
 R1
 R2
 R3
-!i122 524
+!i122 567
 Z10 w1751964477
 R4
 Z11 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/Constants_pkg.vhd
@@ -61,7 +61,7 @@ R0
 R1
 R2
 R3
-!i122 524
+!i122 567
 l0
 L94 1
 V`;:HgPU06z?Y?Ab^OM9h[3
@@ -82,7 +82,7 @@ R0
 R1
 R2
 R3
-!i122 528
+!i122 571
 R4
 Z16 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/Global_timer.vhd
 Z17 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/Global_timer.vhd
@@ -92,11 +92,11 @@ VP=8R<YEYFz97XE=[EeS8@1
 !s100 IbSNC]^?>b:hkezAG2fe@2
 R5
 32
-Z18 !s110 1751966493
+Z18 !s110 1751968801
 !i10b 1
-R7
-Z19 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/Global_timer.vhd|
-Z20 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/Global_timer.vhd|
+Z19 !s108 1751968801.000000
+Z20 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/Global_timer.vhd|
+Z21 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/Global_timer.vhd|
 !i113 1
 R8
 R9
@@ -106,7 +106,7 @@ R1
 R2
 R3
 DEx4 work 12 global_timer 0 22 P=8R<YEYFz97XE=[EeS8@1
-!i122 528
+!i122 571
 l19
 L17 17
 V>^?Ud5^h^YYaNdD0l5QLB3
@@ -115,32 +115,32 @@ R5
 32
 R18
 !i10b 1
-R7
 R19
 R20
+R21
 !i113 1
 R8
 R9
 Erate_2_slot_conv
-Z21 w1751965729
+Z22 w1751965729
 R1
 R2
 R3
-!i122 535
+!i122 578
 R4
-Z22 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd
-Z23 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd
+Z23 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd
+Z24 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd
 l0
 L5 1
 VXL]G3BMXJ4jU9WEBm9`zO2
 !s100 9WAG7QIdWBTe=<e3QR3:e2
 R5
 32
-Z24 !s110 1751966494
+Z25 !s110 1751968802
 !i10b 1
-Z25 !s108 1751966494.000000
-Z26 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd|
-Z27 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd|
+Z26 !s108 1751968802.000000
+Z27 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd|
+Z28 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/rate_2_slot_conv.vhd|
 !i113 1
 R8
 R9
@@ -149,32 +149,32 @@ R1
 R2
 R3
 DEx4 work 16 rate_2_slot_conv 0 22 XL]G3BMXJ4jU9WEBm9`zO2
-!i122 535
+!i122 578
 l27
-Z28 L19 36
+Z29 L19 36
 V8AcOmJ4gO_1jGFGTLRn8_3
 !s100 RD<6F_D;:?RU4Fl3D0:IW3
 R5
 32
-R24
-!i10b 1
 R25
+!i10b 1
 R26
 R27
+R28
 !i113 1
 R8
 R9
 Erate_mem
-Z29 w1751873954
+Z30 w1751873954
 R0
-Z30 DPx4 work 13 bram_init_pkg 0 22 z;THTDEb==@:zZBFb=BC^3
+Z31 DPx4 work 13 bram_init_pkg 0 22 ILe?K>[_mGkci9YoPTaQ20
 R1
 R2
 R3
-!i122 526
+!i122 569
 R4
-Z31 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd
-Z32 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd
+Z32 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd
+Z33 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd
 l0
 L9 1
 VA;dVD_=Xn;cD0dZI9I]oE2
@@ -184,21 +184,21 @@ R5
 R6
 !i10b 1
 R7
-Z33 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd|
-Z34 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd|
+Z34 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd|
+Z35 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/Rate_mem.vhd|
 !i113 1
 R8
 R9
 Artl
 R0
-R30
+R31
 R1
 R2
 R3
 DEx4 work 8 rate_mem 0 22 A;dVD_=Xn;cD0dZI9I]oE2
-!i122 526
+!i122 569
 l32
-Z35 L23 53
+Z36 L23 53
 Vi8j=93__[MLe=AY1d_hnE0
 !s100 03PYIIk=^diW8Ad`zL2`E0
 R5
@@ -206,21 +206,21 @@ R5
 R6
 !i10b 1
 R7
-R33
 R34
+R35
 !i113 1
 R8
 R9
 Erp_flow_update
-Z36 w1751885468
+Z37 w1751885468
 R0
 R1
 R2
 R3
-!i122 529
+!i122 572
 R4
-Z37 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_flow_update.vhd
-Z38 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_flow_update.vhd
+Z38 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_flow_update.vhd
+Z39 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_flow_update.vhd
 l0
 L15 1
 V]P?09]^2o:N9:kP@UJCbO0
@@ -229,7 +229,7 @@ R5
 32
 R18
 !i10b 1
-Z39 !s108 1751966493.000000
+R19
 Z40 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_flow_update.vhd|
 Z41 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_flow_update.vhd|
 !i113 1
@@ -241,7 +241,7 @@ R1
 R2
 R3
 DEx4 work 14 rp_flow_update 0 22 ]P?09]^2o:N9:kP@UJCbO0
-!i122 529
+!i122 572
 l137
 L32 359
 V1]:l72Fc=d65N3<`lU9[a3
@@ -250,7 +250,7 @@ R5
 32
 R18
 !i10b 1
-R39
+R19
 R40
 R41
 !i113 1
@@ -262,7 +262,7 @@ R0
 R1
 R2
 R3
-!i122 531
+!i122 574
 R4
 Z43 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_input_queue_simplified.vhd
 Z44 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_input_queue_simplified.vhd
@@ -274,7 +274,7 @@ R5
 32
 R18
 !i10b 1
-R39
+R19
 Z45 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_input_queue_simplified.vhd|
 Z46 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_input_queue_simplified.vhd|
 !i113 1
@@ -286,7 +286,7 @@ R1
 R2
 R3
 DEx4 work 25 rp_input_queue_simplified 0 22 f1n1S489O2Cf]d`iB@d=11
-!i122 531
+!i122 574
 l70
 L33 202
 VAP80ei0f>]0e4UiCWeCff0
@@ -295,7 +295,7 @@ R5
 32
 R18
 !i10b 1
-R39
+R19
 R45
 R46
 !i113 1
@@ -304,11 +304,11 @@ R9
 Erp_mem
 Z47 w1751873962
 R0
-R30
+R31
 R1
 R2
 R3
-!i122 527
+!i122 570
 R4
 Z48 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/RP_mem.vhd
 Z49 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/RP_mem.vhd
@@ -318,9 +318,9 @@ V7n2>?2W_X]kWfgCbC2UoR0
 !s100 B>:HWRBC7]AbbN@l8JDz92
 R5
 32
-R6
+R18
 !i10b 1
-R7
+R19
 Z50 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/RP_mem.vhd|
 Z51 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/mem/RP_mem.vhd|
 !i113 1
@@ -328,36 +328,81 @@ R8
 R9
 Artl
 R0
-R30
+R31
 R1
 R2
 R3
 DEx4 work 6 rp_mem 0 22 7n2>?2W_X]kWfgCbC2UoR0
-!i122 527
+!i122 570
 l32
-R35
+R36
 V[kXV3HbNVCMjVH[_c3_P@3
 !s100 j[F733aO^;ZN@=WPjWH5Z2
 R5
 32
-R6
+R18
 !i10b 1
-R7
+R19
 R50
 R51
 !i113 1
 R8
 R9
-Erp_wrapper
-Z52 w1751965770
+Erp_top
+Z52 w1751967900
 R0
 R1
 R2
 R3
-!i122 530
+!i122 580
 R4
-Z53 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd
-Z54 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd
+Z53 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_top.vhd
+Z54 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_top.vhd
+l0
+L6 1
+Vzhm4D57fEQ?knLSzGAoj>2
+!s100 o3DAkEXET=K?JaUVWddLc1
+R5
+32
+R25
+!i10b 1
+R26
+Z55 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_top.vhd|
+Z56 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_top.vhd|
+!i113 1
+R8
+R9
+Artl
+R0
+R1
+R2
+R3
+DEx4 work 6 rp_top 0 22 zhm4D57fEQ?knLSzGAoj>2
+!i122 580
+l58
+L20 77
+Vk;`<7V5e;N122==d34Fb21
+!s100 g`RYeOJJKQWOB4;[Z]9DB0
+R5
+32
+R25
+!i10b 1
+R26
+R55
+R56
+!i113 1
+R8
+R9
+Erp_wrapper
+Z57 w1751965770
+R0
+R1
+R2
+R3
+!i122 573
+R4
+Z58 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd
+Z59 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd
 l0
 L6 1
 VV0cAmf`ci69GIfMl@Gn<<1
@@ -366,9 +411,9 @@ R5
 32
 R18
 !i10b 1
-R39
-Z55 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd|
-Z56 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd|
+R19
+Z60 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd|
+Z61 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/RP_wrapper.vhd|
 !i113 1
 R8
 R9
@@ -378,7 +423,7 @@ R1
 R2
 R3
 DEx4 work 10 rp_wrapper 0 22 V0cAmf`ci69GIfMl@Gn<<1
-!i122 530
+!i122 573
 l103
 L24 148
 V6W_HnPA<=1S8k;EWJBHk00
@@ -387,32 +432,32 @@ R5
 32
 R18
 !i10b 1
-R39
-R55
-R56
+R19
+R60
+R61
 !i113 1
 R8
 R9
 Esimple_divider
-Z57 w1751882456
+Z62 w1751882456
 R1
 R2
 R3
 !i122 36
 R4
-Z58 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd
-Z59 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd
+Z63 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd
+Z64 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd
 l0
 L5 1
 V[ZfjHVL]jj^lmgLOZ_UFz2
 !s100 iaQ84RM6E^fUIC1kNYRNL3
 R5
 32
-Z60 !s110 1751893576
+Z65 !s110 1751893576
 !i10b 1
-Z61 !s108 1751893576.000000
-Z62 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd|
-Z63 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd|
+Z66 !s108 1751893576.000000
+Z67 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd|
+Z68 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/rtl/simple_divider.vhd|
 !i113 1
 R8
 R9
@@ -423,39 +468,39 @@ R3
 DEx4 work 14 simple_divider 0 22 [ZfjHVL]jj^lmgLOZ_UFz2
 !i122 36
 l27
-R28
+R29
 V[ESoVdT7BF=dD9QE>RZih0
 !s100 4]gzc:50m>BCGJV]9_KON1
 R5
 32
-R60
+R65
 !i10b 1
-R61
-R62
-R63
+R66
+R67
+R68
 !i113 1
 R8
 R9
 Etb_rate_2_slot_conv
-Z64 w1751965748
+Z69 w1751965748
 R1
 R2
 R3
-!i122 536
+!i122 579
 R4
-Z65 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd
-Z66 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd
+Z70 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd
+Z71 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd
 l0
 L5 1
 VElIPjkQk0ICCU<gc2_0kg0
 !s100 E5g7ND@_FAk2h;V12PK6o1
 R5
 32
-R24
-!i10b 1
 R25
-Z67 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd|
-Z68 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd|
+!i10b 1
+R26
+Z72 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd|
+Z73 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_rate_2_slot_conv.vhd|
 !i113 1
 R8
 R9
@@ -463,90 +508,90 @@ Asim
 R1
 R2
 R3
-Z69 DEx4 work 19 tb_rate_2_slot_conv 0 22 ElIPjkQk0ICCU<gc2_0kg0
-!i122 536
+DEx4 work 19 tb_rate_2_slot_conv 0 22 ElIPjkQk0ICCU<gc2_0kg0
+!i122 579
 l29
-Z70 L8 76
-Z71 V?^]zcNV?1^X0hn]eSj6J20
-Z72 !s100 OL4@<Q]HLeGRAY2RELE@20
+L8 76
+V?^]zcNV?1^X0hn]eSj6J20
+!s100 OL4@<Q]HLeGRAY2RELE@20
 R5
 32
-R24
-!i10b 1
 R25
-R67
-R68
+!i10b 1
+R26
+R72
+R73
 !i113 1
 R8
 R9
 Etb_rp_flow_update
-Z73 w1749746339
-R30
+Z74 w1749746339
+R31
 R0
 R1
 R2
 R3
-!i122 532
+!i122 575
 R4
-Z74 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd
-Z75 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd
+Z75 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd
+Z76 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd
 l0
 L7 1
 VkBzme;_d4GH3V4_7?:<`91
 !s100 1JEGW0=jC=fZNmT2[eX8K3
 R5
 32
-R18
+R25
 !i10b 1
-R39
-Z76 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd|
-Z77 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd|
+R19
+Z77 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd|
+Z78 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_flow_update.vhd|
 !i113 1
 R8
 R9
 Asim
-R30
+R31
 R0
 R1
 R2
 R3
 DEx4 work 17 tb_rp_flow_update 0 22 kBzme;_d4GH3V4_7?:<`91
-!i122 532
+!i122 575
 l33
 L10 5440
 VG^<li5LPnz6cY=Q8ZW6Rn3
 !s100 J7TBN1=gEKcQoC@fnJElF2
 R5
 32
-R18
+R25
 !i10b 1
-R39
-R76
+R19
 R77
+R78
 !i113 1
 R8
 R9
 Etb_rp_input_queue
-Z78 w1751964466
+Z79 w1751964466
 R0
 R1
 R2
 R3
-!i122 533
+!i122 576
 R4
-Z79 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd
-Z80 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd
+Z80 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd
+Z81 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd
 l0
 L6 1
 Vin=b6JJEF[]eec7[V4CH?3
 !s100 BcMD6jnHmoTVRk[kokgOf0
 R5
 32
-R18
+R25
 !i10b 1
-R39
-Z81 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd|
-Z82 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd|
+R26
+Z82 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd|
+Z83 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_input_queue.vhd|
 !i113 1
 R8
 R9
@@ -556,42 +601,87 @@ R1
 R2
 R3
 DEx4 work 17 tb_rp_input_queue 0 22 in=b6JJEF[]eec7[V4CH?3
-!i122 533
+!i122 576
 l48
 L9 165
 V;<aBg_IBNldUQIIf56oQQ3
 !s100 GgMk1@Nn_XRZES0ndTkVC0
 R5
 32
-R18
+R25
 !i10b 1
-R39
-R81
+R26
 R82
+R83
 !i113 1
 R8
 R9
-Etb_rp_wrapper
-Z83 w1751966489
+Etb_rp_top
+Z84 w1751968797
 R0
 R1
 R2
 R3
-!i122 534
+!i122 581
 R4
-Z84 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd
-Z85 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd
+Z85 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_top.vhd
+Z86 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_top.vhd
+l0
+L6 1
+VPl=63Y=SC8ln9S<L<mFVe2
+!s100 di[E2:WAP@N=nPKMMKN<U1
+R5
+32
+Z87 !s110 1751968803
+!i10b 1
+Z88 !s108 1751968803.000000
+Z89 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_top.vhd|
+Z90 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_top.vhd|
+!i113 1
+R8
+R9
+Abehavior
+R0
+R1
+R2
+R3
+Z91 DEx4 work 9 tb_rp_top 0 22 Pl=63Y=SC8ln9S<L<mFVe2
+!i122 581
+l35
+L9 135
+VC=VemX[LBY4Pk09[SeoQG3
+!s100 klhcFA1c_E;8?1?k]JRVT3
+R5
+32
+R87
+!i10b 1
+R88
+R89
+R90
+!i113 1
+R8
+R9
+Etb_rp_wrapper
+Z92 w1751966489
+R0
+R1
+R2
+R3
+!i122 577
+R4
+Z93 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd
+Z94 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd
 l0
 L6 1
 V`8HD@V8;HhA;P8Nbk7=_f3
 !s100 GlXGFn4;k7c<P=@DYjKQ73
 R5
 32
-R24
+R25
 !i10b 1
-R39
-Z86 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd|
-Z87 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd|
+R26
+Z95 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd|
+Z96 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_RP_wrapper.vhd|
 !i113 1
 R8
 R9
@@ -601,41 +691,41 @@ R1
 R2
 R3
 DEx4 work 13 tb_rp_wrapper 0 22 `8HD@V8;HhA;P8Nbk7=_f3
-!i122 534
+!i122 577
 l45
 L9 113
 V58Izn?4:Z4MV_NBX2gW[l3
 !s100 E@jaOe]zoPdhRGzY?V9zc1
 R5
 32
-R24
+R25
 !i10b 1
-R39
-R86
-R87
+R26
+R95
+R96
 !i113 1
 R8
 R9
 Etb_simple_divider
-Z88 w1751213130
+Z97 w1751213130
 R1
 R2
 R3
 !i122 54
 R4
-Z89 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd
-Z90 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd
+Z98 8C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd
+Z99 FC:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd
 l0
 L5 1
 Vf:R@W>G?UnokVcZbT6PCk2
 !s100 VzZ1nK^]kHgK]lJn5V<1g0
 R5
 32
-Z91 !s110 1751895085
+Z100 !s110 1751895085
 !i10b 1
-Z92 !s108 1751895085.000000
-Z93 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd|
-Z94 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd|
+Z101 !s108 1751895085.000000
+Z102 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd|
+Z103 !s107 C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Modelsim/RP/sim/tb_simple_divider.vhd|
 !i113 1
 R8
 R9
@@ -651,11 +741,11 @@ Vi9QdCdEEnm]al48kdgcRA1
 !s100 VT]i31P7HahAR0F`oPHIP0
 R5
 32
-R91
+R100
 !i10b 1
-R92
-R93
-R94
+R101
+R102
+R103
 !i113 1
 R8
 R9
