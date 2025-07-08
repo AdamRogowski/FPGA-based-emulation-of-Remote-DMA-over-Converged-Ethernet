@@ -2,17 +2,17 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
-entity tb_simple_divider is
+entity tb_rate_2_slot_conv is
 end entity;
 
-architecture sim of tb_simple_divider is
+architecture sim of tb_rate_2_slot_conv is
 
   signal clk        : std_logic                     := '0';
   signal rst        : std_logic                     := '1';
   signal x_in       : std_logic_vector(15 downto 0) := (others => '0');
   signal result_out : std_logic_vector(16 downto 0);
 
-  component simple_divider
+  component rate_2_slot_conv
     port (
       clk        : in  std_logic;
       rst        : in  std_logic;
@@ -23,7 +23,7 @@ architecture sim of tb_simple_divider is
 
 begin
 
-  uut: simple_divider
+  uut: rate_2_slot_conv
     port map (
       clk        => clk,
       rst        => rst,

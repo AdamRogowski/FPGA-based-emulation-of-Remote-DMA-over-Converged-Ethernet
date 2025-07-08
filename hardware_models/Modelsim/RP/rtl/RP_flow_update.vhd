@@ -24,7 +24,7 @@ entity RP_Flow_Update is
 
     rate_out       : out unsigned(RP_RATE_WIDTH - 1 downto 0);
     rate_out_valid : out std_logic;
-    flow_id_out    : out std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0)
+    flow_id_out    : out std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0)
 
   );
 end entity;
@@ -75,7 +75,7 @@ architecture rtl of RP_Flow_Update is
 
   signal rate_out_reg       : unsigned(RP_RATE_WIDTH - 1 downto 0);
   signal rate_out_valid_reg : std_logic;
-  signal flow_id_out_reg    : std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal flow_id_out_reg    : std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
 
   -- Global timer signal
   signal RP_global_timer : unsigned(GLOBAL_TIMER_WIDTH - 1 downto 0);
@@ -338,7 +338,7 @@ begin
         RP_mem_enb <= '0';
         RP_mem_web <= '0';
         rate_out_valid_reg <= '0';
-        flow_id_out_reg <= FLOW_NULL_ADDRESS;
+        flow_id_out_reg <= (others => '0');
         rate_out_reg <= RP_RATE_DEFAULT;
       end if;
 
