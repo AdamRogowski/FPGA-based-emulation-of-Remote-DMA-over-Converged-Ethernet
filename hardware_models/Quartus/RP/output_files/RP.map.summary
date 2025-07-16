@@ -1,10 +1,10 @@
-Analysis & Synthesis Status : Successful - Wed Jul 02 13:30:30 2025
+Analysis & Synthesis Status : Successful - Tue Jul 08 13:15:02 2025
 Quartus Prime Version : 20.1.1 Build 720 11/11/2020 SJ Standard Edition
 Revision Name : RP
 Top-level Entity Name : divider_wrapper
 Family : Arria 10
 Logic utilization (in ALMs) : N/A
-Total registers : 475
+Total registers : 639
 Total pins : 34
 Total virtual pins : 0
 Total block memory bits : 0

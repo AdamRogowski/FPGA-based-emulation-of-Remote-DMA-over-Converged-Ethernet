@@ -3,6 +3,6 @@
 preplace inst unsaved.lpm_divide_0 -pg 1 -lvl 1 -y 30
 preplace inst unsaved -pg 1 -lvl 1 -y 40 -regy -20
 preplace netloc EXPORT<net_container>unsaved</net_container>(SLAVE)unsaved.lpm_divide_output,(SLAVE)lpm_divide_0.lpm_divide_output) 1 0 1 NJ
-preplace netloc EXPORT<net_container>unsaved</net_container>(SLAVE)lpm_divide_0.lpm_divide_input,(SLAVE)unsaved.lpm_divide_input) 1 0 1 NJ
+preplace netloc EXPORT<net_container>unsaved</net_container>(SLAVE)unsaved.lpm_divide_input,(SLAVE)lpm_divide_0.lpm_divide_input) 1 0 1 NJ
 levelinfo -pg 1 0 120 310
 levelinfo -hier unsaved 130 160 300

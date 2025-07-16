@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='us-ascii'?>
 <qsys_generation_info>
-<qsys_file path="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized.qsys" />
-<gen_dir path="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/" />
+<qsys_file path="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Quartus/RP/divider_optimized.qsys" />
+<gen_dir path="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Quartus/RP/divider_optimized/" />
 <user_regen_policy value="Never Regenerate Existing IP" />
 <actual_regen_policy value="Never Regenerate Existing IP" />
 <gen_action value="IP Generation Skipped" />

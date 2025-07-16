@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
- date="2025.07.02.13:23:24"
- outputDirectory="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/">
+ date="2025.07.08.12:26:39"
+ outputDirectory="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Quartus/RP/divider_optimized/">
  <perimeter>
   <parameter
      name="AUTO_GENERATION_ID"
@@ -24,7 +24,7 @@
   <parameter
      name="AUTO_DEVICE"
      type="String"
-     defaultValue="10AX115U4F45I3VG"
+     defaultValue="10AX115R4F40I3SG"
      onHdl="0"
      affectsHdl="1" />
   <parameter
@@ -48,30 +48,30 @@
   </interface>
  </perimeter>
  <entity kind="divider_optimized" version="1.0" name="divider_optimized">
-  <parameter name="AUTO_GENERATION_ID" value="1751455404" />
-  <parameter name="AUTO_DEVICE" value="10AX115U4F45I3VG" />
+  <parameter name="AUTO_GENERATION_ID" value="1751970399" />
+  <parameter name="AUTO_DEVICE" value="10AX115R4F40I3SG" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Arria 10" />
   <parameter name="AUTO_UNIQUE_ID" value="" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="3" />
   <generatedFiles>
    <file
-       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\lpm_divide_201\synth\divider_optimized_pkg.vhd"
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized\lpm_divide_201\synth\divider_optimized_pkg.vhd"
        attributes="IS_CONFIGURATION_PACKAGE" />
    <file
-       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\synth\divider_optimized.vhd"
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized\synth\divider_optimized.vhd"
        attributes="CONTAINS_INLINE_CONFIGURATION" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\lpm_divide_201\synth\divider_optimized_pkg.vhd"
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized\lpm_divide_201\synth\divider_optimized_pkg.vhd"
        attributes="IS_CONFIGURATION_PACKAGE" />
    <file
-       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\synth\divider_optimized.vhd"
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized\synth\divider_optimized.vhd"
        attributes="CONTAINS_INLINE_CONFIGURATION" />
   </childGeneratedFiles>
   <sourceFiles>
    <file
-       path="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized.qsys" />
+       path="C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_models/Quartus/RP/divider_optimized.qsys" />
   </sourceFiles>
   <childSourceFiles>
    <file
@@ -79,32 +79,32 @@
   </childSourceFiles>
   <messages>
    <message level="Info" culprit="divider_optimized">"Generating: divider_optimized"</message>
-   <message level="Info" culprit="divider_optimized">"Generating: divider_optimized_lpm_divide_201_ruc2ypa"</message>
-   <message level="Info" culprit="lpm_divide_0">Generating top-level entity divider_optimized_lpm_divide_201_ruc2ypa.</message>
+   <message level="Info" culprit="divider_optimized">"Generating: divider_optimized_lpm_divide_201_4tzjbty"</message>
+   <message level="Info" culprit="lpm_divide_0">Generating top-level entity divider_optimized_lpm_divide_201_4tzjbty.</message>
   </messages>
  </entity>
  <entity
    kind="lpm_divide"
    version="20.1"
-   name="divider_optimized_lpm_divide_201_ruc2ypa">
+   name="divider_optimized_lpm_divide_201_4tzjbty">
   <parameter name="GUI_MAXIMIZE_SPEED" value="Speed" />
   <parameter name="GUI_LPM_dREPRESENTATION" value="Unsigned" />
   <parameter name="GUI_LPM_REMAINDERPOSITIVE" value="Yes" />
   <parameter name="DEVICE_FAMILY" value="Arria 10" />
   <parameter name="GUI_LPM_WIDTHd" value="16" />
   <parameter name="GUI_LPM_nREPRESENTATION" value="Unsigned" />
-  <parameter name="GUI_LPM_PIPELINE" value="14" />
+  <parameter name="GUI_LPM_PIPELINE" value="20" />
   <parameter name="GUI_USE_CLKEN" value="false" />
   <parameter name="GUI_LPM_WIDTHn" value="36" />
   <parameter name="GUI_USE_ACLR" value="false" />
   <generatedFiles>
    <file
-       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\lpm_divide_201\synth\divider_optimized_lpm_divide_201_ruc2ypa.v"
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized\lpm_divide_201\synth\divider_optimized_lpm_divide_201_4tzjbty.v"
        attributes="" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\lpm_divide_201\synth\divider_optimized_lpm_divide_201_ruc2ypa.v"
+       path="C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized\lpm_divide_201\synth\divider_optimized_lpm_divide_201_4tzjbty.v"
        attributes="" />
   </childGeneratedFiles>
   <sourceFiles>
@@ -114,8 +114,8 @@
   <childSourceFiles/>
   <instantiator instantiator="divider_optimized" as="lpm_divide_0" />
   <messages>
-   <message level="Info" culprit="divider_optimized">"Generating: divider_optimized_lpm_divide_201_ruc2ypa"</message>
-   <message level="Info" culprit="lpm_divide_0">Generating top-level entity divider_optimized_lpm_divide_201_ruc2ypa.</message>
+   <message level="Info" culprit="divider_optimized">"Generating: divider_optimized_lpm_divide_201_4tzjbty"</message>
+   <message level="Info" culprit="lpm_divide_0">Generating top-level entity divider_optimized_lpm_divide_201_4tzjbty.</message>
   </messages>
  </entity>
 </deploy>

@@ -20,7 +20,7 @@
 }
 ]]></parameter>
  <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
- <parameter name="device" value="10AX115U4F45I3VG" />
+ <parameter name="device" value="10AX115R4F40I3SG" />
  <parameter name="deviceFamily" value="Arria 10" />
  <parameter name="deviceSpeedGrade" value="3" />
  <parameter name="fabricMode" value="QSYS" />
@@ -62,7 +62,7 @@
    enabled="1"
    autoexport="1">
   <parameter name="DEVICE_FAMILY" value="Arria 10" />
-  <parameter name="GUI_LPM_PIPELINE" value="14" />
+  <parameter name="GUI_LPM_PIPELINE" value="20" />
   <parameter name="GUI_LPM_REMAINDERPOSITIVE" value="Yes" />
   <parameter name="GUI_LPM_WIDTHd" value="16" />
   <parameter name="GUI_LPM_WIDTHn" value="36" />

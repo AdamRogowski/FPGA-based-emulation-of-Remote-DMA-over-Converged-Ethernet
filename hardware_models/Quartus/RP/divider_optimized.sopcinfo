@@ -5,11 +5,11 @@
  version="1.0"
  fabric="QSYS">
  <!-- Format version 20.1 720 (Future versions may contain additional information.) -->
- <!-- 2025.07.02.13:23:24 -->
+ <!-- 2025.07.08.12:26:39 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1751455404</value>
+  <value>1751970399</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -36,7 +36,7 @@
  </parameter>
  <parameter name="AUTO_DEVICE">
   <type>java.lang.String</type>
-  <value>10AX115U4F45I3VG</value>
+  <value>10AX115R4F40I3SG</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -119,7 +119,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="GUI_LPM_PIPELINE">
    <type>int</type>
-   <value>14</value>
+   <value>20</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>

@@ -129,8 +129,6 @@ begin
     data_valid_i <= '0';
     wait for CLK_PERIOD * 30;
 
-    -- Stimulus 7: Test scan wraparound (assuming RP_WRAPPER_QUEUE_SIZE is 4)
-    -- The previous stimulus filled the queue. Now send another one to trigger scan.
     report "Stimulus 7: Triggering scan and wraparound with flow 15";
     data_valid_i <= '1';
     data_flow_id_i <= std_logic_vector(to_unsigned(15, FLAT_FLOW_ADDRESS_WIDTH));

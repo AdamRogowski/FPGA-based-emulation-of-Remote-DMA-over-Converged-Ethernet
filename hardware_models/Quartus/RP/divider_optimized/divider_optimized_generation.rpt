@@ -1,50 +1,6 @@
-Info: Starting: Create simulation model
-Info: qsys-generate C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized.qsys --simulation=VHDL --allow-mixed-language-simulation --output-directory=C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized --family="Arria 10" --part=10AX115U4F45I3VG
-Progress: Loading Quartus/divider_optimized.qsys
-Progress: Reading input file
-Progress: Adding lpm_divide_0 [lpm_divide 20.1]
-Progress: Parameterizing module lpm_divide_0
-Progress: Building connections
-Progress: Parameterizing connections
-Progress: Validating
-Progress: Done reading input file
-: divider_optimized.lpm_divide_0: Targeting device family: Arria 10.
-Info: divider_optimized: "Transforming system: divider_optimized"
-Info: divider_optimized: Running transform generation_view_transform
-Info: divider_optimized: Running transform generation_view_transform took 0.000s
-Info: lpm_divide_0: Running transform generation_view_transform
-Info: lpm_divide_0: Running transform generation_view_transform took 0.002s
-Info: divider_optimized: Running transform merlin_avalon_transform
-Info: divider_optimized: Running transform merlin_avalon_transform took 0.057s
-Info: divider_optimized: "Naming system components in system: divider_optimized"
-Info: divider_optimized: "Processing generation queue"
-Info: divider_optimized: "Generating: divider_optimized"
-Info: divider_optimized: "Generating: divider_optimized_lpm_divide_201_ruc2ypa"
-Info: divider_optimized: Done "divider_optimized" with 2 modules, 2 files
-Info: qsys-generate succeeded.
-Info: Finished: Create simulation model
-Info: Starting: Create Modelsim Project.
-Info: sim-script-gen --spd=C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\divider_optimized.spd --output-directory=C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/sim/ --use-relative-paths=true
-Info: Doing: ip-make-simscript --spd=C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized\divider_optimized.spd --output-directory=C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/sim/ --use-relative-paths=true
-Info: Generating the following file(s) for MODELSIM simulator in C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/sim/ directory:
-Info: 	mentor/msim_setup.tcl
-Info: Skipping VCS script generation since VHDL file $QUARTUS_INSTALL_DIR/eda/sim_lib/altera_syn_attributes.vhd is required for simulation
-Info: Generating the following file(s) for VCSMX simulator in C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/sim/ directory:
-Info: 	synopsys/vcsmx/synopsys_sim.setup
-Info: 	synopsys/vcsmx/vcsmx_setup.sh
-Info: Generating the following file(s) for NCSIM simulator in C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/sim/ directory:
-Info: 	cadence/cds.lib
-Info: 	cadence/hdl.var
-Info: 	cadence/ncsim_setup.sh
-Info: 	1 .cds.lib files in cadence/cds_libs/ directory
-Info: Generating the following file(s) for RIVIERA simulator in C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/sim/ directory:
-Info: 	aldec/rivierapro_setup.tcl
-Info: For information on how to simulate your IP, see the explanatory comments in the simulator-specific subdirectories under C:/Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/RP/Quartus/divider_optimized/sim/.
-Info: Regenerate these scripts whenever you make any change to any Quartus-generated IP in your project.
-Info: Finished: Create Modelsim Project.
 Info: Starting: Create block symbol file (.bsf)
-Info: qsys-generate C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized.qsys --block-symbol-file --output-directory=C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized --family="Arria 10" --part=10AX115U4F45I3VG
-Progress: Loading Quartus/divider_optimized.qsys
+Info: qsys-generate C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized.qsys --block-symbol-file --output-directory=C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized --family="Arria 10" --part=10AX115R4F40I3SG
+Progress: Loading RP/divider_optimized.qsys
 Progress: Reading input file
 Progress: Adding lpm_divide_0 [lpm_divide 20.1]
 Progress: Parameterizing module lpm_divide_0
@@ -57,8 +13,8 @@ Info: qsys-generate succeeded.
 Info: Finished: Create block symbol file (.bsf)
 Info: 
 Info: Starting: Create HDL design files for synthesis
-Info: qsys-generate C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized.qsys --synthesis=VHDL --output-directory=C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_scheduler\rtl\RP\Quartus\divider_optimized --family="Arria 10" --part=10AX115U4F45I3VG
-Progress: Loading Quartus/divider_optimized.qsys
+Info: qsys-generate C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized.qsys --synthesis=VHDL --output-directory=C:\Users\jaro\Desktop\git-projects\DCQCN_model\hardware_models\Quartus\RP\divider_optimized --family="Arria 10" --part=10AX115R4F40I3SG
+Progress: Loading RP/divider_optimized.qsys
 Progress: Reading input file
 Progress: Adding lpm_divide_0 [lpm_divide 20.1]
 Progress: Parameterizing module lpm_divide_0
@@ -73,12 +29,12 @@ Info: divider_optimized: Running transform generation_view_transform took 0.000s
 Info: lpm_divide_0: Running transform generation_view_transform
 Info: lpm_divide_0: Running transform generation_view_transform took 0.000s
 Info: divider_optimized: Running transform merlin_avalon_transform
-Info: divider_optimized: Running transform merlin_avalon_transform took 0.013s
+Info: divider_optimized: Running transform merlin_avalon_transform took 0.043s
 Info: divider_optimized: "Naming system components in system: divider_optimized"
 Info: divider_optimized: "Processing generation queue"
 Info: divider_optimized: "Generating: divider_optimized"
-Info: divider_optimized: "Generating: divider_optimized_lpm_divide_201_ruc2ypa"
-Info: lpm_divide_0: Generating top-level entity divider_optimized_lpm_divide_201_ruc2ypa.
+Info: divider_optimized: "Generating: divider_optimized_lpm_divide_201_4tzjbty"
+Info: lpm_divide_0: Generating top-level entity divider_optimized_lpm_divide_201_4tzjbty.
 Info: divider_optimized: Done "divider_optimized" with 2 modules, 3 files
 Info: qsys-generate succeeded.
 Info: Finished: Create HDL design files for synthesis

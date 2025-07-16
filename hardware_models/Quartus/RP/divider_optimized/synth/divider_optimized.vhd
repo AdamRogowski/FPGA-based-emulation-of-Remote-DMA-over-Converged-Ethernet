@@ -21,7 +21,7 @@ end entity divider_optimized;
 architecture rtl of divider_optimized is
 begin
 
-	lpm_divide_0 : component divider_optimized_lpm_divide_201.divider_optimized_pkg.divider_optimized_lpm_divide_201_ruc2ypa
+	lpm_divide_0 : component divider_optimized_lpm_divide_201.divider_optimized_pkg.divider_optimized_lpm_divide_201_4tzjbty
 		port map (
 			numer    => numer,    --  lpm_divide_input.numer
 			denom    => denom,    --                  .denom
