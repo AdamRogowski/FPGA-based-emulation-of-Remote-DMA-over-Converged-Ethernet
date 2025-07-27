@@ -198,7 +198,7 @@ if __name__ == "__main__":
             OUTPUT_FLOW_GROUPS_PATH,
         )
 
-    CALENDAR_INTERVAL_LIST = list(range(50, 1050, 50))  # Calendar slot interval in ns
+    CALENDAR_INTERVAL_LIST = list(range(500, 550, 50))  # Calendar slot interval in ns
 
     results_ratio = []
     results_max_occupancy = []
@@ -265,3 +265,5 @@ if __name__ == "__main__":
 
     plt.tight_layout()
     plt.show()
+
+    # check notepad 24 for single rate over time plot

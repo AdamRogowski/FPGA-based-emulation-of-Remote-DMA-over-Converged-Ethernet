@@ -10,6 +10,9 @@ package bram_init_pkg is
   type rate_mem_type is array (0 to 2 ** 4 - 1) of std_logic_vector(3 - 1 downto 0);
   type calendar_mem_type is array (0 to 2 ** 3 - 1) of std_logic_vector(5 - 1 downto 0);
 
+  -- Flow memory data format
+  --|active_flag|seq_nr|next_addr|QP|
+  --|    1      |   5  |    5    | 5|
   constant init_flow_mem_16 : flow_mem_type := (
     0  => "1000000000100000",
     1  => "1000000001000001",

@@ -313,8 +313,8 @@ begin
         end if;
       else
         calendar_insert_en <= '0';
-        qp_reg <= QP_PADDING & FLOW_NULL_ADDRESS;
-        seq_nr_reg <= (others => '0');
+        --qp_reg <= QP_PADDING & FLOW_NULL_ADDRESS;
+        --seq_nr_reg <= (others => '0');
         flow_rdy_reg <= '0';
       end if;
 
