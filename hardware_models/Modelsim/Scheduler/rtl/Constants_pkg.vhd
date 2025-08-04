@@ -7,27 +7,27 @@ library ieee;
 
 package constants_pkg is
 
-  constant MTU_BITS       : integer := 12000;  -- Number of bits for MTU
-  constant QP_WIDTH       : integer := 5;      -- Number of bits for QP
-  constant SEQ_NR_WIDTH   : integer := 5;      -- Number of bits for sequence number
-  constant TOTAL_MAX_RATE : real    := 1.0E11; -- 100 Gbps
-  constant CLK_PERIOD     : time    := 10 ns;  -- Clock period for simulation
+  constant MTU_BITS       : integer := 12000;   -- Number of bits for MTU
+  constant QP_WIDTH       : integer := 11;      -- Number of bits for QP
+  constant SEQ_NR_WIDTH   : integer := 24;      -- Number of bits for sequence number --SF
+  constant TOTAL_MAX_RATE : real    := 1.0E11;  -- 100 Gbps
+  constant CLK_PERIOD     : time    := 5.12 ns; -- Clock period for simulation
 
-  constant NUM_GROUPS              : integer                                           := 4;                           -- Number of groups
-  constant NUM_FLOWS               : integer                                           := 4;                           -- Number of flows per group
+  constant NUM_GROUPS              : integer                                           := 8;                           -- Number of groups
+  constant NUM_FLOWS               : integer                                           := 128;                         -- Number of flows per group
   constant NUM_FLOWS_TOTAL         : integer                                           := NUM_GROUPS * NUM_FLOWS;      -- Total number of flows
-  constant FLAT_FLOW_ADDRESS_WIDTH : integer                                           := 4;                           -- log2(NUM_FLOWS_TOTAL); just based on the number of flows
+  constant FLAT_FLOW_ADDRESS_WIDTH : integer                                           := 10;                          -- log2(NUM_FLOWS_TOTAL); just based on the number of flows
   constant FLOW_ADDRESS_WIDTH      : integer                                           := FLAT_FLOW_ADDRESS_WIDTH + 1; -- Including additional bit to include the null address
   constant FLOW_NULL_ADDRESS       : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '1');             -- NULL address
 
-  constant CALENDAR_INTERVAL       : integer := 32;
-  constant CALENDAR_INTERVAL_WIDTH : integer := 5; -- log2(CALENDAR_INTERVAL); -- Number of bits for interval counter
+  constant CALENDAR_INTERVAL       : integer := 100; --SF
+  constant CALENDAR_INTERVAL_WIDTH : integer := 7;   -- log2(CALENDAR_INTERVAL); -- Number of bits for interval counter--SF
 
-  constant RATE_BIT_RESOLUTION       : integer := 8;
-  constant RATE_BIT_RESOLUTION_WIDTH : integer := 3; -- log2(RATE_BIT_RESOLUTION); -- Number of bits for rate resolution
+  constant RATE_BIT_RESOLUTION       : integer := 512; -- 2^17; --SF
+  constant RATE_BIT_RESOLUTION_WIDTH : integer := 9;   -- log2(RATE_BIT_RESOLUTION); -- Number of bits for rate resolution--SF
 
-  constant CALENDAR_SLOTS       : integer := 8;
-  constant CALENDAR_SLOTS_WIDTH : integer := 3; -- log2(CALENDAR_SLOTS); -- Number of bits for slot index
+  constant CALENDAR_SLOTS       : integer := 512; --SF
+  constant CALENDAR_SLOTS_WIDTH : integer := 9;   -- log2(CALENDAR_SLOTS); -- Number of bits for slot index--SF
 
   constant IPG_DIVIDEND : real := 2.34375E10; -- division numerator
 
@@ -36,7 +36,7 @@ package constants_pkg is
 
   -- Flow memory data format
   --|active_flag|seq_nr|next_addr|QP|
-  --|    1      |   5  |    5    | 5|
+  --|    1      |   24  |    11    | 11|
   constant FLOW_MEM_DATA_WIDTH : integer                                            := QP_WIDTH + SEQ_NR_WIDTH + FLOW_ADDRESS_WIDTH + 1;
   constant FLOW_MEM_NULL_ENTRY : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := std_logic_vector(to_unsigned(0, 1) & to_unsigned(0, SEQ_NR_WIDTH) & to_unsigned(1, FLOW_ADDRESS_WIDTH) & to_unsigned(0, QP_WIDTH - FLOW_ADDRESS_WIDTH) & to_unsigned(1, FLOW_ADDRESS_WIDTH));
   --constant FLOW_MEM_NULL_ENTRY      : std_logic_vector(FLOW_MEM_DATA_WIDTH - 1 downto 0) := "0000001111111111";
@@ -46,7 +46,7 @@ package constants_pkg is
 
   --Rate memory data format
   --|cur_rate|
-  --|    3   |
+  --|    17   |
   --constant RATE_MEM_DATA_WIDTH      : integer                                            := 2 * RATE_BIT_RESOLUTION_WIDTH; -- Test values for scheduler
   --constant RATE_MEM_NULL_ENTRY      : std_logic_vector(RATE_MEM_DATA_WIDTH - 1 downto 0) := "000000"; -- Test values for scheduler
   constant RATE_MEM_DATA_WIDTH      : integer                                            := CALENDAR_SLOTS_WIDTH;

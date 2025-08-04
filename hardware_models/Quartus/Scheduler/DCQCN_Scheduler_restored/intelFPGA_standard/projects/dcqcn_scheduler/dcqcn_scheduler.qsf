@@ -50,13 +50,15 @@ set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name QIP_FILE ../../../../Rate_RAM_2_PORT.qip
+set_global_assignment -name QIP_FILE ../../../../Flow_RAM_2_PORT.qip
+set_global_assignment -name QIP_FILE ../../../../Calendar_RAM_2_PORT.qip
 set_global_assignment -name VHDL_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Scheduler_pipeline_top.vhd"
 set_global_assignment -name VHDL_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Scheduler_pipeline.vhd"
 set_global_assignment -name VHDL_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Fifo_generic.vhd"
 set_global_assignment -name VHDL_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Constants_pkg.vhd"
 set_global_assignment -name VHDL_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Calendar_cnt.vhd"
 set_global_assignment -name VHDL_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Calendar.vhd"
-set_global_assignment -name QIP_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Calendar_RAM_2_PORT.qip"
-set_global_assignment -name QIP_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Flow_RAM_2_PORT.qip"
-set_global_assignment -name QIP_FILE "../../../Users/jaro/Desktop/git-projects/DCQCN_model/hardware_scheduler/rtl/Scheduler/Quartus_version/Rate_RAM_2_PORT.qip"
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

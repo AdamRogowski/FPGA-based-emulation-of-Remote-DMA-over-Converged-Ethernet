@@ -338,8 +338,8 @@ begin
         RP_mem_enb <= '0';
         RP_mem_web <= '0';
         rate_out_valid_reg <= '0';
-        flow_id_out_reg <= (others => '0');
-        rate_out_reg <= RP_RATE_DEFAULT;
+        --flow_id_out_reg <= (others => '0');
+        --rate_out_reg <= RP_RATE_DEFAULT;
       end if;
 
       -- ----------------------------------------------------------------------

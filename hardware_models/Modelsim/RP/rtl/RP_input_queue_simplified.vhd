@@ -131,7 +131,7 @@ begin
         pipeline_flows_v(PIPELINE_DEPTH - 1) := (others => '0');
 
         -- Prepare scan candidate
-        scan_candidate.flow_id := std_logic_vector(resize(scan_flow_id_v, FLAT_FLOW_ADDRESS_WIDTH));
+        scan_candidate.flow_id := std_logic_vector(scan_flow_id_v);
         scan_candidate.is_cnp := '0';
         scan_candidate.data_sent := (others => '0');
 
