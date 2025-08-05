@@ -77,9 +77,9 @@ package constants_pkg is
   -- RP internal flow mem
   constant RP_MEM_DATA_WIDTH      : integer                                          := 3 * RP_RATE_WIDTH + ALPHA_WIDTH + GLOBAL_TIMER_WIDTH + TC_WIDTH + GLOBAL_TIMER_WIDTH + BC_WIDTH + B_WIDTH;
   constant RP_MEM_NULL_ENTRY      : std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0) := (others => '0');
-  constant RP_MEM_ADDR_WIDTH      : integer                                          := FLAT_FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
-  constant RP_MEM_DEFAULT_ADDRESS : std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');         -- First address in the memory
-  constant RP_MEM_LATENCY         : integer                                          := 3;                       -- Memory access latency in clock cycles
+  constant RP_MEM_ADDR_WIDTH      : integer                                          := FLOW_ADDRESS_WIDTH; -- All addressable addresses in the memory
+  constant RP_MEM_DEFAULT_ADDRESS : std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0) := (others => '0');    -- First address in the memory
+  constant RP_MEM_LATENCY         : integer                                          := 3;                  -- Memory access latency in clock cycles
 
   constant RP_PIPELINE_SIZE    : integer := RP_MEM_LATENCY + 6; -- Number of pipeline stages for the RP
   constant RP_PIPELINE_STAGE_0 : integer := 0;

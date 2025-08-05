@@ -15,13 +15,13 @@ architecture rtl of tb_RP_wrapper is
       rst                  : in  std_logic;
       -- CNP notification input
       cnp_valid_i          : in  std_logic;
-      cnp_flow_id_i        : in  std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+      cnp_flow_id_i        : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       -- Data notification input
       data_valid_i         : in  std_logic;
-      data_flow_id_i       : in  std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+      data_flow_id_i       : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       data_sent_i          : in  unsigned(RP_DATA_SENT_WIDTH - 1 downto 0);
       -- Rate memory interface
-      wrapper_flow_id_o    : out std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+      wrapper_flow_id_o    : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       wrapper_rate_o       : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
       wrapper_rate_valid_o : out std_logic
     );
@@ -31,11 +31,11 @@ architecture rtl of tb_RP_wrapper is
   signal clk_s                  : std_logic := '0';
   signal rst_s                  : std_logic;
   signal cnp_valid_i_s          : std_logic;
-  signal cnp_flow_id_i_s        : std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal cnp_flow_id_i_s        : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
   signal data_valid_i_s         : std_logic;
-  signal data_flow_id_i_s       : std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal data_flow_id_i_s       : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
   signal data_sent_i_s          : unsigned(RP_DATA_SENT_WIDTH - 1 downto 0);
-  signal wrapper_flow_id_o_s    : std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal wrapper_flow_id_o_s    : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
   signal wrapper_rate_o_s       : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
   signal wrapper_rate_valid_o_s : std_logic;
 
@@ -86,7 +86,7 @@ begin
 
     -- 3. Send a data notification for flow 5
     data_valid_i_s <= '1';
-    data_flow_id_i_s <= "000101";
+    data_flow_id_i_s <= "0000101";
     data_sent_i_s <= "1";
     wait for CLK_PERIOD;
     data_valid_i_s <= '0';
@@ -97,7 +97,7 @@ begin
 
     -- 4. Send a CNP for flow 5
     cnp_valid_i_s <= '1';
-    cnp_flow_id_i_s <= "000101";
+    cnp_flow_id_i_s <= "0000101";
     wait for CLK_PERIOD;
     cnp_valid_i_s <= '0';
 
@@ -106,7 +106,7 @@ begin
 
     -- 5. Send a data notification for flow 9
     data_valid_i_s <= '1';
-    data_flow_id_i_s <= "001001";
+    data_flow_id_i_s <= "0001001";
     data_sent_i_s <= "1";
     wait for CLK_PERIOD;
     data_valid_i_s <= '0';

@@ -9,10 +9,10 @@ entity RP_top is
     rst            : in std_logic;
     -- CNP notification input
     cnp_valid_i    : in std_logic;
-    cnp_flow_id_i  : in std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+    cnp_flow_id_i  : in std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     -- Data notification input
     data_valid_i   : in std_logic;
-    data_flow_id_i : in std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+    data_flow_id_i : in std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     data_sent_i    : in unsigned(RP_DATA_SENT_WIDTH - 1 downto 0)
   );
 end entity;
@@ -25,11 +25,11 @@ architecture rtl of RP_top is
       clk                  : in  std_logic;
       rst                  : in  std_logic;
       cnp_valid_i          : in  std_logic;
-      cnp_flow_id_i        : in  std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+      cnp_flow_id_i        : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       data_valid_i         : in  std_logic;
-      data_flow_id_i       : in  std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+      data_flow_id_i       : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       data_sent_i          : in  unsigned(RP_DATA_SENT_WIDTH - 1 downto 0);
-      wrapper_flow_id_o    : out std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+      wrapper_flow_id_o    : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
       wrapper_rate_o       : out unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
       wrapper_rate_valid_o : out std_logic
     );
@@ -51,7 +51,7 @@ architecture rtl of RP_top is
   end component;
 
   -- Internal signals to connect the components
-  signal wrapper_flow_id_s    : std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal wrapper_flow_id_s    : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
   signal wrapper_rate_s       : unsigned(CALENDAR_SLOTS_WIDTH - 1 downto 0);
   signal wrapper_rate_valid_s : std_logic;
 
@@ -80,11 +80,11 @@ begin
     port map (
       clk   => clk,
       -- Port A is used for writing the new rate from the wrapper
-      ena   => wrapper_rate_valid_s, -- Enable write when the rate is valid
-      wea   => wrapper_rate_valid_s, -- Write enable
-      addra => wrapper_flow_id_s,
+      ena   => wrapper_rate_valid_s,                               -- Enable write when the rate is valid
+      wea   => wrapper_rate_valid_s,                               -- Write enable
+      addra => wrapper_flow_id_s(FLOW_ADDRESS_WIDTH - 2 downto 0), --Skip null bit
       dia   => std_logic_vector(wrapper_rate_s),
-      doa   => open,                 -- Not used in this context
+      doa   => open,                                               -- Not used in this context
       -- Port B is not used in this top-level module
       enb   => '0',
       web   => '0',

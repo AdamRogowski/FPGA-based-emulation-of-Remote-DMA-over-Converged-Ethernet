@@ -15,17 +15,17 @@ entity RP_input_queue_simplified is
 
     -- CNP notification input
     cnp_valid    : in  std_logic;
-    cnp_flow_id  : in  std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+    cnp_flow_id  : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
 
     -- Data notification input
     data_valid   : in  std_logic;
-    data_flow_id : in  std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+    data_flow_id : in  std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     data_sent    : in  unsigned(RP_DATA_SENT_WIDTH - 1 downto 0);
 
     -- Interface to RP_flow_update
     flow_rdy_o   : out std_logic;
     is_cnp_o     : out std_logic;
-    flow_id_o    : out std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+    flow_id_o    : out std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     data_sent_o  : out unsigned(RP_DATA_SENT_WIDTH - 1 downto 0)
   );
 end entity;
@@ -33,13 +33,13 @@ end entity;
 architecture rtl of RP_input_queue_simplified is
 
   -- Calculate depths from widths
-  constant FLAT_NUM_FLOWS : integer := 2 ** FLAT_FLOW_ADDRESS_WIDTH;
+  constant FLAT_NUM_FLOWS : integer := 2 ** FLOW_ADDRESS_WIDTH;
   constant PIPELINE_DEPTH : integer := 2 ** PIPELINE_ADDR_WIDTH;
   constant FIFO_DEPTH     : integer := 2 ** FIFO_ADDR_WIDTH;
 
   -- Notification record
   type notif_t is record
-    flow_id   : std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
+    flow_id   : std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
     is_cnp    : std_logic;
     data_sent : unsigned(RP_DATA_SENT_WIDTH - 1 downto 0);
   end record;
@@ -57,8 +57,8 @@ architecture rtl of RP_input_queue_simplified is
   signal data_fifo_count : unsigned(FIFO_ADDR_WIDTH downto 0)     := (others => '0');
 
   -- Pipeline tracker: shift register
-  type pipeline_array_t is array (0 to PIPELINE_DEPTH - 1) of std_logic_vector(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0);
-  signal pipeline_flows : pipeline_array_t := (others => (others => '0'));
+  type pipeline_array_t is array (0 to PIPELINE_DEPTH - 1) of std_logic_vector(FLOW_ADDRESS_WIDTH - 1 downto 0);
+  signal pipeline_flows : pipeline_array_t := (others => (others => '1'));
 
   -- Scanning
   signal scan_flow_id : unsigned(FLAT_FLOW_ADDRESS_WIDTH - 1 downto 0) := (others => '0');
@@ -91,9 +91,9 @@ begin
         data_fifo_rd <= (others => '0');
         data_fifo_wr <= (others => '0');
         data_fifo_count <= (others => '0');
-        pipeline_flows <= (others => (others => '0'));
+        pipeline_flows <= (others => (others => '1'));
         scan_flow_id <= (others => '0');
-        notif_out <= (flow_id => (others => '0'), is_cnp => '0', data_sent => (others => '0'));
+        notif_out <= (flow_id => (others => '1'), is_cnp => '0', data_sent => (others => '0'));
         notif_valid <= '0';
       else
         -- Copy signals to variables for safe update
@@ -128,10 +128,11 @@ begin
         for i in 0 to PIPELINE_DEPTH - 2 loop
           pipeline_flows_v(i) := pipeline_flows_v(i + 1);
         end loop;
-        pipeline_flows_v(PIPELINE_DEPTH - 1) := (others => '0');
+        pipeline_flows_v(PIPELINE_DEPTH - 1) := (others => '1');
 
         -- Prepare scan candidate
-        scan_candidate.flow_id := std_logic_vector(scan_flow_id_v);
+        scan_candidate.flow_id := std_logic_vector('0' & scan_flow_id_v);
+        --scan_candidate.flow_id := std_logic_vector(scan_flow_id_v);
         scan_candidate.is_cnp := '0';
         scan_candidate.data_sent := (others => '0');
 
