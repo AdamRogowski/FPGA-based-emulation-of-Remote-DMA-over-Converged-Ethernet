@@ -36,17 +36,19 @@ architecture rtl of RP_Flow_Update is
   -- ==========================================================================
 
   -- RP memory: stores per-flow state (Rc, Rt, alpha, counters, etc.)
-  component RP_mem
-    generic (
-      LATENCY : integer
-    );
+  component RP_RAM_2_PORT
     port (
-      clk          : in  std_logic;
-      ena, enb     : in  std_logic;
-      wea, web     : in  std_logic;
-      addra, addrb : in  std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
-      dia, dib     : in  std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0);
-      doa, dob     : out std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0)
+      address_a : in  std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
+      address_b : in  std_logic_vector(RP_MEM_ADDR_WIDTH - 1 downto 0);
+      clock     : in  std_logic := '1';
+      data_a    : in  std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0);
+      data_b    : in  std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0);
+      rden_a    : in  std_logic := '1';
+      rden_b    : in  std_logic := '1';
+      wren_a    : in  std_logic := '0';
+      wren_b    : in  std_logic := '0';
+      q_a       : out std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0);
+      q_b       : out std_logic_vector(RP_MEM_DATA_WIDTH - 1 downto 0)
     );
   end component;
 
@@ -141,22 +143,19 @@ begin
   -- ==========================================================================
 
   -- RP memory (per-flow state)
-  RP_mem_inst: RP_mem
-    generic map (
-      LATENCY => RP_MEM_LATENCY
-    )
+  RP_mem_inst: RP_RAM_2_PORT
     port map (
-      clk   => clk,
-      ena   => RP_mem_ena,
-      enb   => RP_mem_enb,
-      wea   => RP_mem_wea,
-      web   => RP_mem_web,
-      addra => RP_mem_addra,
-      addrb => RP_mem_addrb,
-      dia   => RP_mem_dia,
-      dib   => RP_mem_dib,
-      doa   => RP_mem_doa,
-      dob   => RP_mem_dob
+      clock     => clk,
+      rden_a    => RP_mem_ena,
+      rden_b    => RP_mem_enb,
+      wren_a    => RP_mem_wea,
+      wren_b    => RP_mem_web,
+      address_a => RP_mem_addra,
+      address_b => RP_mem_addrb,
+      data_a    => RP_mem_dia,
+      data_b    => RP_mem_dib,
+      q_a       => RP_mem_doa,
+      q_b       => RP_mem_dob
     );
 
   -- Global timer
@@ -338,8 +337,8 @@ begin
         RP_mem_enb <= '0';
         RP_mem_web <= '0';
         rate_out_valid_reg <= '0';
-        flow_id_out_reg <= (others => '0');
-        rate_out_reg <= RP_RATE_DEFAULT;
+        --flow_id_out_reg <= (others => '0');
+        --rate_out_reg <= RP_RATE_DEFAULT;
       end if;
 
       -- ----------------------------------------------------------------------

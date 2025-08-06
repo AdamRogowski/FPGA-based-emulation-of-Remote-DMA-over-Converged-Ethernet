@@ -1,0 +1,26 @@
+Fitter Status : Successful - Wed Aug 06 17:00:39 2025
+Quartus Prime Version : 20.1.1 Build 720 11/11/2020 SJ Standard Edition
+Revision Name : RP_module
+Top-level Entity Name : RP_top
+Family : Stratix V
+Device : 5SEEBF45I3YY
+Timing Models : Final
+Logic utilization (in ALMs) : 2,538 / 359,200 ( < 1 % )
+Total registers : 3067
+Total pins : 80 / 840 ( 10 % )
+Total virtual pins : 0
+Total block memory bits : 31,719,424 / 54,067,200 ( 59 % )
+Total RAM Blocks : 1,936 / 2,640 ( 73 % )
+Total DSP Blocks : 1 / 352 ( < 1 % )
+Total HSSI STD RX PCSs : 0
+Total HSSI 10G RX PCSs : 0
+Total HSSI GEN3 RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI STD TX PCSs : 0
+Total HSSI 10G TX PCSs : 0
+Total HSSI GEN3 TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total HSSI PIPE GEN1_2s : 0
+Total HSSI GEN3s : 0
+Total PLLs : 0 / 50 ( 0 % )
+Total DLLs : 0 / 4 ( 0 % )

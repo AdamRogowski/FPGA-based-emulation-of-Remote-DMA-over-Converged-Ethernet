@@ -1,16 +1,8 @@
 <sld_project_info>
   <project>
-    <hash md5_digest_80b="a80226d29275759d0c1a"/>
+    <hash md5_digest_80b="028a29cbc0cfe73efee3"/>
   </project>
   <file_info>
-    <file device="10ax115r4f40i3sg" path="RP.sof" usercode="0xFFFFFFFF"/>
+    <file device="5SEEBF45I3YY" path="RP.sof" usercode="0xFFFFFFFF"/>
   </file_info>
-  <sld_infos>
-    <sld_info hpath="divider_optimized:divider_inst" name="divider_inst">
-      <assignment_values>
-        <assignment_value text="QSYS_NAME divider_optimized HAS_SOPCINFO 1 GENERATION_ID 1751970399"/>
-      </assignment_values>
-      <parameters/>
-    </sld_info>
-  </sld_infos>
 </sld_project_info>

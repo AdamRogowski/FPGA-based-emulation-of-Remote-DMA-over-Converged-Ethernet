@@ -1,14 +1,23 @@
-Analysis & Synthesis Status : Successful - Tue Jul 08 13:15:02 2025
+Analysis & Synthesis Status : Successful - Wed Aug 06 16:08:41 2025
 Quartus Prime Version : 20.1.1 Build 720 11/11/2020 SJ Standard Edition
 Revision Name : RP
-Top-level Entity Name : divider_wrapper
-Family : Arria 10
+Top-level Entity Name : RP_top
+Family : Stratix V
 Logic utilization (in ALMs) : N/A
-Total registers : 639
-Total pins : 34
+Total registers : 0
+Total pins : 43
 Total virtual pins : 0
 Total block memory bits : 0
 Total DSP Blocks : 0
-Total HSSI RX channels : 0
-Total HSSI TX channels : 0
+Total HSSI STD RX PCSs : 0
+Total HSSI 10G RX PCSs : 0
+Total HSSI GEN3 RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI STD TX PCSs : 0
+Total HSSI 10G TX PCSs : 0
+Total HSSI GEN3 TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total HSSI PIPE GEN1_2s : 0
+Total HSSI GEN3s : 0
 Total PLLs : 0
+Total DLLs : 0

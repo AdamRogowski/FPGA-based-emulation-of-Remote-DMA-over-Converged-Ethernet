@@ -9,7 +9,7 @@ package constants_pkg is
   constant QP_WIDTH       : integer := 5;      -- Number of bits for QP
   constant SEQ_NR_WIDTH   : integer := 5;      -- Number of bits for sequence number
   constant TOTAL_MAX_RATE : real    := 1.0E11; -- 100 Gbps
-  constant CLK_PERIOD     : time    := 10 ns;  -- Clock period for simulation
+  constant CLK_PERIOD     : time    := 5.12 ns;  -- Clock period for simulation
 
   constant NUM_GROUPS              : integer                                           := 4;                           -- Number of groups
   constant NUM_FLOWS               : integer                                           := 4;                           -- Number of flows per group
@@ -99,8 +99,8 @@ package constants_pkg is
   constant FLOATING_POINT_WIDTH : integer                                     := 16;                              -- Width of the floating point representation for the rate update
   constant ONE                  : unsigned(FLOATING_POINT_WIDTH - 1 downto 0) := (others => '1');                 -- to_unsigned(65536, 16); Q16 fixed point 1.0
   constant G                    : unsigned(FLOATING_POINT_WIDTH - 1 downto 0) := "0011111111111111";              -- weight factor, to_unsigned(16384, 16); Q16 fixed point 0.25
-  constant R_AI                 : unsigned(RP_RATE_WIDTH - 1 downto 0)        := to_unsigned(10, RP_RATE_WIDTH);  -- Additive increase rate increment value
-  constant R_HAI                : unsigned(RP_RATE_WIDTH - 1 downto 0)        := to_unsigned(100, RP_RATE_WIDTH); -- Huper Additive increase rate increment value
+  constant R_AI                 : unsigned(RP_RATE_WIDTH - 1 downto 0)        := to_unsigned(20, RP_RATE_WIDTH);  -- Additive increase rate increment value
+  constant R_HAI                : unsigned(RP_RATE_WIDTH - 1 downto 0)        := to_unsigned(200, RP_RATE_WIDTH); -- Huper Additive increase rate increment value
 
   constant K                 : integer                            := 50; --Reduction factor update threshold, originally around 55us ONLY associated with change of alpha
   constant K_WIDTH           : integer                            := 7;
@@ -110,7 +110,7 @@ package constants_pkg is
 
   -- The cycle duration of 150 KBytes is chosen to correspond to the transmission of 100 frames, each 1500 Bytes long. [17] IEEE. 802.11Qau. Congestion notification, 2010.
   -- B constant is associated with BC
-  constant B       : integer := 6; -- threshold for the ByteCounter incrementation: n times MTU; (default 100 x MTU)
+  constant B       : integer := 3; -- threshold for the ByteCounter incrementation: n times MTU; (default 100 x MTU)
   constant B_WIDTH : integer := 3; -- log2(B)
 
   -- The Timer functions similarly as the Byte Counter: it is reset when a feedback message arrives, enters FR

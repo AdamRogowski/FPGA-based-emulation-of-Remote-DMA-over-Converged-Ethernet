@@ -1,5 +1,5 @@
 Assembler report for RP
-Tue Jul 08 13:20:31 2025
+Wed Aug 06 16:11:19 2025
 Quartus Prime Version 20.1.1 Build 720 11/11/2020 SJ Standard Edition
 
 
@@ -38,11 +38,11 @@ https://fpgasoftware.intel.com/eula.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Tue Jul 08 13:20:31 2025 ;
+; Assembler Status      ; Successful - Wed Aug 06 16:11:19 2025 ;
 ; Revision Name         ; RP                                    ;
-; Top-level Entity Name ; divider_wrapper                       ;
-; Family                ; Arria 10                              ;
-; Device                ; 10AX115R4F40I3SG                      ;
+; Top-level Entity Name ; RP_top                                ;
+; Family                ; Stratix V                             ;
+; Device                ; 5SEEBF45I3YY                          ;
 +-----------------------+---------------------------------------+
 
 
@@ -67,8 +67,8 @@ https://fpgasoftware.intel.com/eula.
 +----------------+--------------------------------------------------------------------------------------------------------+
 ; Option         ; Setting                                                                                                ;
 +----------------+--------------------------------------------------------------------------------------------------------+
-; JTAG usercode  ; 0xFFFFFFFF                                                                                             ;
-; Checksum       ; 0x306E2BCB                                                                                             ;
+; JTAG usercode  ; 0x0499A26F                                                                                             ;
+; Checksum       ; 0x0499A26F                                                                                             ;
 +----------------+--------------------------------------------------------------------------------------------------------+
 
 
@@ -78,13 +78,14 @@ https://fpgasoftware.intel.com/eula.
 Info: *******************************************************************
 Info: Running Quartus Prime Assembler
     Info: Version 20.1.1 Build 720 11/11/2020 SJ Standard Edition
-    Info: Processing started: Tue Jul 08 13:19:13 2025
+    Info: Processing started: Wed Aug 06 16:10:33 2025
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off RP -c RP
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
+Info (115030): Assembler is generating device programming files
 Info: Quartus Prime Assembler was successful. 0 errors, 1 warning
-    Info: Peak virtual memory: 10834 megabytes
-    Info: Processing ended: Tue Jul 08 13:20:33 2025
-    Info: Elapsed time: 00:01:20
-    Info: Total CPU time (on all processors): 00:01:18
+    Info: Peak virtual memory: 5554 megabytes
+    Info: Processing ended: Wed Aug 06 16:11:20 2025
+    Info: Elapsed time: 00:00:47
+    Info: Total CPU time (on all processors): 00:00:46
 
 
