@@ -1,8 +1,8 @@
-# DCQCN Hardware Model
+# FPGA based emulation of Remote DMA over Converged Ethernet
 
 ## Overview
 
-This repository contains software and hardware models for a DCQCN (Data Center Quantized Congestion Notification) congestion control system designed for large-scale RoCEv2 network testing. The implementation supports emulation of up to 262,144 concurrent RDMA flows with individual rate control and congestion management.
+This repository contains software and hardware models for a DCQCN congestion control system designed for large-scale RoCEv2 network testing. The implementation supports emulation of up to 262,144 concurrent RDMA flows with individual rate control and congestion management.
 
 ## Repository Structure
 
