@@ -53,6 +53,7 @@
 !/hardware_models/Quartus/Scheduler/
 !/hardware_models/Quartus/Wrapper/
 !/hardware_models/Quartus/Wrapper/rtl/
+!/hardware_models/Quartus/Wrapper/quartus_dir/
 
 # Then unignore specific file types in those directories
 !/hardware_models/Modelsim/RP/mem/*.vhd
@@ -80,3 +81,10 @@
 !/hardware_models/Quartus/Scheduler/*.qar
 
 !/hardware_models/Quartus/Wrapper/rtl/*.vhd
+!/hardware_models/Quartus/Wrapper/rtl/*.qip
+!/hardware_models/Quartus/Wrapper/rtl/*.cmp
+
+!/hardware_models/Quartus/Wrapper/quartus_dir/*.vhd
+!/hardware_models/Quartus/Wrapper/quartus_dir/*.qip
+!/hardware_models/Quartus/Wrapper/quartus_dir/*.cmp
+!/hardware_models/Quartus/Wrapper/quartus_dir/*.qar
